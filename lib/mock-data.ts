@@ -36,6 +36,18 @@ export const initialState: SpendFenceState = {
     { id: "p-7", amount: 1320, categoryId: "cat-bills", merchant: "Rent", date: daysAgo(8, 8, 0), notes: "Monthly rent", source: "manual" }
   ],
   receipts: [],
+  importedTransactions: [],
+  merchantCategoryRules: [
+    {
+      id: "rule-shell",
+      merchantNameNormalized: "shell",
+      categoryId: "cat-gas",
+      source: "system_rule",
+      confidence: 0.9,
+      lastUsedAt: daysAgo(3)
+    }
+  ],
+  categoryCorrections: [],
   prompts: [
     { id: "prompt-1", message: "Set a grocery limit for this month.", type: "setup" },
     { id: "prompt-2", message: "Eating out is trending high. Lower the limit or slow spending?", type: "trend" },
@@ -59,5 +71,6 @@ export const initialState: SpendFenceState = {
       createdAt: daysAgo(0, 9, 20),
       read: false
     }
-  ]
+  ],
+  aiCategorizationEnabled: true
 };

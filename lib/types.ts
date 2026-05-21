@@ -73,17 +73,70 @@ export type Notification = {
   read: boolean;
 };
 
+export type SuggestionConfidence = "high" | "medium" | "low";
+
+export type CategorySuggestion = {
+  suggestedCategoryId: string;
+  confidence: number;
+  confidenceLabel: SuggestionConfidence;
+  reason: string;
+  source: "merchant_rule" | "keyword" | "plaid_mapping" | "ai" | "fallback";
+};
+
+export type ImportedTransaction = {
+  id: string;
+  userId?: string;
+  merchantName: string;
+  description: string;
+  amount: number;
+  date: string;
+  plaidCategory?: string;
+  suggestedCategoryId?: string;
+  confidence: number;
+  suggestionReason: string;
+  suggestionSource: CategorySuggestion["source"];
+  reviewStatus: "pending" | "accepted" | "changed" | "ignored";
+};
+
+export type MerchantCategoryRule = {
+  id: string;
+  userId?: string;
+  merchantNameNormalized: string;
+  categoryId: string;
+  source: "user_correction" | "system_rule" | "plaid_mapping";
+  confidence: number;
+  lastUsedAt: string;
+};
+
+export type UserCategoryCorrection = {
+  id: string;
+  userId?: string;
+  merchantNameNormalized: string;
+  originalSuggestedCategoryId?: string;
+  correctedCategoryId: string;
+  createdAt: string;
+};
+
 export type SpendFenceState = {
   userId?: string;
   budgetMonth: BudgetMonth;
   categories: Category[];
   purchases: Purchase[];
   receipts: Receipt[];
+  importedTransactions: ImportedTransaction[];
+  merchantCategoryRules: MerchantCategoryRule[];
+  categoryCorrections: UserCategoryCorrection[];
   prompts: Prompt[];
   notificationSettings: NotificationSettings;
   notifications: Notification[];
+  aiCategorizationEnabled: boolean;
 };
 
 export type CategoryInput = Omit<Category, "id">;
 export type PurchaseInput = Omit<Purchase, "id" | "source"> & { source?: Purchase["source"] };
 export type ReceiptDraftInput = Omit<Receipt, "id" | "status">;
+export type ImportedTransactionInput = Omit<
+  ImportedTransaction,
+  "id" | "reviewStatus" | "confidence" | "suggestionReason" | "suggestionSource"
+> &
+  Partial<Pick<ImportedTransaction, "confidence" | "suggestionReason" | "suggestionSource" | "reviewStatus">>;

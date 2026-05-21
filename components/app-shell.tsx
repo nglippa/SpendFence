@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, ChartPie, Home, PlusCircle, ReceiptText, ScanLine, Settings, Tags } from "lucide-react";
+import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, Tags } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { SpendFenceProvider, useSpendFence } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const nav = [
   { href: "/categories", label: "Categories", icon: Tags },
   { href: "/add-purchase", label: "Add", icon: PlusCircle },
   { href: "/receipt-scanner", label: "Scan", icon: ScanLine },
+  { href: "/transaction-review", label: "Review", icon: ListChecks },
   { href: "/reports", label: "Reports", icon: ChartPie },
   { href: "/settings", label: "Settings", icon: Settings }
 ];
@@ -87,7 +88,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/94 px-2 pb-[max(env(safe-area-inset-bottom),0.45rem)] pt-2 shadow-[0_-10px_35px_rgba(32,46,61,.12)] backdrop-blur-xl lg:hidden">
-        <div className="grid grid-cols-6 gap-1">
+        <div className="grid grid-cols-7 gap-1">
           {nav.map((item) => (
             <MobileNavLink key={item.href} {...item} pathname={pathname} />
           ))}

@@ -1,0 +1,268 @@
+"use client";
+
+import { FormEvent, useMemo, useState } from "react";
+import { CheckCircle2, ListChecks, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Button, Card, Field, Input, PageHeader, Pill, Select } from "@/components/ui";
+import { formatMoney } from "@/lib/budget";
+import { useSpendFence } from "@/lib/store";
+import type { CategoryInput, CategorySuggestion, ImportedTransactionInput, ImportedTransaction } from "@/lib/types";
+import { formatShortDate } from "@/lib/utils";
+
+const demoImports: ImportedTransactionInput[] = [
+  {
+    merchantName: "Starbucks",
+    description: "STARBUCKS STORE 1142",
+    amount: 8.74,
+    date: new Date().toISOString(),
+    plaidCategory: "Food and Drink, Coffee Shop"
+  },
+  {
+    merchantName: "Target",
+    description: "TARGET T-2031 FAMILY ESSENTIALS",
+    amount: 92.18,
+    date: new Date().toISOString(),
+    plaidCategory: "Shops, General Merchandise"
+  },
+  {
+    merchantName: "Shell",
+    description: "SHELL OIL 574894",
+    amount: 47.55,
+    date: new Date().toISOString(),
+    plaidCategory: "Transportation, Gas Stations"
+  },
+  {
+    merchantName: "Netflix",
+    description: "NETFLIX.COM",
+    amount: 17.99,
+    date: new Date().toISOString(),
+    plaidCategory: "Service, Subscription"
+  }
+];
+
+export default function TransactionReviewPage() {
+  const state = useSpendFence();
+  const pending = state.importedTransactions.filter((transaction) => transaction.reviewStatus === "pending");
+  const reviewed = state.importedTransactions.filter((transaction) => transaction.reviewStatus !== "pending");
+  const [selectedCategories, setSelectedCategories] = useState<Record<string, string>>({});
+  const [newCategoryFor, setNewCategoryFor] = useState<string | null>(null);
+  const [newCategory, setNewCategory] = useState<CategoryInput>({
+    name: "",
+    limit: 250,
+    warningThreshold: 80,
+    hardStopThreshold: 100,
+    color: "#58c6a8",
+    icon: "tag"
+  });
+  const highConfidenceCount = useMemo(
+    () => pending.filter((transaction) => transaction.confidence >= 0.82 && transaction.suggestedCategoryId).length,
+    [pending]
+  );
+
+  async function importDemoTransactions() {
+    const categorized = await Promise.all(
+      demoImports.map(async (transaction) => ({
+        ...transaction,
+        ...(await getServerSuggestion(transaction, state))
+      }))
+    );
+    state.addImportedTransactions(categorized);
+  }
+
+  function selectedCategoryFor(transaction: ImportedTransaction) {
+    return selectedCategories[transaction.id] ?? transaction.suggestedCategoryId ?? state.categories[0]?.id ?? "";
+  }
+
+  function accept(transaction: ImportedTransaction) {
+    const categoryId = selectedCategoryFor(transaction);
+    if (!categoryId) return;
+    if (categoryId === transaction.suggestedCategoryId) state.acceptImportedTransaction(transaction.id, categoryId);
+    else state.changeImportedTransactionCategory(transaction.id, categoryId);
+  }
+
+  function createCategory(event: FormEvent) {
+    event.preventDefault();
+    if (!newCategoryFor) return;
+    state.createCategoryForImportedTransaction(newCategoryFor, newCategory);
+    setNewCategoryFor(null);
+    setNewCategory({ name: "", limit: 250, warningThreshold: 80, hardStopThreshold: 100, color: "#58c6a8", icon: "tag" });
+  }
+
+  return (
+    <>
+      <PageHeader
+        kicker="Review Queue"
+        title="Approve imported transactions"
+        body="SpendFence suggests categories based on your past choices, merchant patterns, and optional AI assistance."
+        action={
+          <Button onClick={importDemoTransactions}>
+            <Sparkles size={18} /> Import demo transactions
+          </Button>
+        }
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
+        <section className="grid content-start gap-4">
+          <Card>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-black">Pending review</h2>
+                <p className="mt-1 text-sm font-semibold text-slate-600">
+                  Nothing posts to your budget until you accept, change, or create a category.
+                </p>
+              </div>
+              <Button variant="secondary" disabled={!highConfidenceCount} onClick={() => state.bulkAcceptHighConfidenceImports()}>
+                <CheckCircle2 size={17} /> Bulk accept high confidence
+              </Button>
+            </div>
+          </Card>
+
+          {pending.length ? (
+            pending.map((transaction) => (
+              <Card key={transaction.id}>
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-black">{transaction.merchantName}</h2>
+                      <ConfidencePill confidence={transaction.confidence} />
+                    </div>
+                    <p className="mt-1 text-sm font-bold text-slate-500">{transaction.description}</p>
+                    <p className="mt-1 text-sm font-bold text-slate-500">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No Plaid hint"}</p>
+                    <p className="mt-3 text-2xl font-black text-[#10201c]">{formatMoney(transaction.amount)}</p>
+                  </div>
+
+                  <div className="grid w-full gap-3 md:max-w-sm">
+                    <Field label="Suggested category">
+                      <Select
+                        value={selectedCategoryFor(transaction)}
+                        onChange={(event) => setSelectedCategories({ ...selectedCategories, [transaction.id]: event.target.value })}
+                      >
+                        {state.categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                    <p className="rounded-2xl bg-[#f7faf7] p-3 text-sm font-bold leading-6 text-slate-600">{transaction.suggestionReason}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={() => accept(transaction)}>
+                        <CheckCircle2 size={17} /> Accept
+                      </Button>
+                      <Button variant="secondary" onClick={() => setNewCategoryFor(transaction.id)}>
+                        <Plus size={17} /> New category
+                      </Button>
+                      <Button variant="ghost" onClick={() => state.ignoreImportedTransaction(transaction.id)}>
+                        Ignore
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {newCategoryFor === transaction.id ? (
+                  <form className="mt-4 grid gap-3 rounded-3xl bg-[#f7faf7] p-4" onSubmit={createCategory}>
+                    <h3 className="font-black text-[#10201c]">Create category for {transaction.merchantName}</h3>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label="Name">
+                        <Input value={newCategory.name} onChange={(event) => setNewCategory({ ...newCategory, name: event.target.value })} required />
+                      </Field>
+                      <Field label="Monthly limit">
+                        <Input inputMode="decimal" value={newCategory.limit} onChange={(event) => setNewCategory({ ...newCategory, limit: Number(event.target.value) })} />
+                      </Field>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit">
+                        <Plus size={17} /> Create and accept
+                      </Button>
+                      <Button type="button" variant="ghost" onClick={() => setNewCategoryFor(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : null}
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <div className="grid place-items-center gap-3 py-8 text-center">
+                <ListChecks size={34} className="text-[#327d6d]" />
+                <h2 className="text-xl font-black">No transactions waiting</h2>
+                <p className="max-w-md text-sm font-semibold leading-6 text-slate-600">
+                  Imported Plaid or CSV transactions will appear here before they become purchases.
+                </p>
+              </div>
+            </Card>
+          )}
+        </section>
+
+        <aside className="grid content-start gap-4">
+          <Card>
+            <h2 className="text-xl font-black">Learning memory</h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+              Corrections are stored as merchant rules so future imports can match your habits.
+            </p>
+            <div className="mt-4 grid gap-2">
+              <Pill className="w-max border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{state.merchantCategoryRules.length} merchant rules</Pill>
+              <Pill className="w-max border-slate-200 bg-white text-slate-600">{state.categoryCorrections.length} corrections saved</Pill>
+            </div>
+          </Card>
+
+          <Card>
+            <h2 className="text-xl font-black">Recently reviewed</h2>
+            <div className="mt-3 grid gap-2">
+              {reviewed.slice(0, 6).map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#f7faf7] p-3">
+                  <div>
+                    <p className="font-black">{transaction.merchantName}</p>
+                    <p className="text-xs font-bold text-slate-500">{transaction.reviewStatus}</p>
+                  </div>
+                  <Button variant="danger" size="sm" onClick={() => state.ignoreImportedTransaction(transaction.id)}>
+                    <Trash2 size={15} />
+                  </Button>
+                </div>
+              ))}
+              {!reviewed.length ? <p className="text-sm font-semibold text-slate-600">Reviewed imports will collect here.</p> : null}
+            </div>
+          </Card>
+        </aside>
+      </div>
+    </>
+  );
+}
+
+function ConfidencePill({ confidence }: { confidence: number }) {
+  if (confidence >= 0.82) return <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">High confidence</Pill>;
+  if (confidence >= 0.62) return <Pill className="border-amber-100 bg-amber-50 text-amber-800">Suggested</Pill>;
+  return <Pill className="border-slate-200 bg-white text-slate-600">Needs review</Pill>;
+}
+
+async function getServerSuggestion(transaction: ImportedTransactionInput, state: ReturnType<typeof useSpendFence>) {
+  if (!state.aiCategorizationEnabled) return {};
+
+  try {
+    const response = await fetch("/api/ai/categorize-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        transaction: {
+          merchantName: transaction.merchantName,
+          description: transaction.description,
+          amount: transaction.amount,
+          plaidCategory: transaction.plaidCategory
+        },
+        userCategories: state.categories,
+        merchantRules: state.merchantCategoryRules
+      })
+    });
+    if (!response.ok) return {};
+    const data = (await response.json()) as { suggestion?: CategorySuggestion };
+    if (!data.suggestion) return {};
+    return {
+      suggestedCategoryId: data.suggestion.suggestedCategoryId,
+      confidence: data.suggestion.confidence,
+      suggestionReason: data.suggestion.reason,
+      suggestionSource: data.suggestion.source
+    };
+  } catch {
+    return {};
+  }
+}

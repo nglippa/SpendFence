@@ -2,10 +2,14 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { categoryProgress, formatMoney, warningMessage } from "@/lib/budget";
+import { categorizeTransaction, normalizeMerchant } from "@/lib/categorization";
 import { initialState } from "@/lib/mock-data";
 import type {
   BudgetMonth,
   CategoryInput,
+  CategorySuggestion,
+  ImportedTransaction,
+  ImportedTransactionInput,
   Notification,
   NotificationSettings,
   PurchaseInput,
@@ -29,6 +33,14 @@ type SpendFenceContextValue = SpendFenceState & {
   updateReceiptDraft: (id: string, input: ReceiptDraftInput) => void;
   confirmReceipt: (id: string) => void;
   updateNotificationSettings: (settings: NotificationSettings) => void;
+  updateAiCategorization: (enabled: boolean) => void;
+  addImportedTransactions: (transactions: ImportedTransactionInput[]) => void;
+  applySuggestionToImportedTransaction: (id: string, suggestion: CategorySuggestion) => void;
+  acceptImportedTransaction: (id: string, categoryId?: string) => void;
+  changeImportedTransactionCategory: (id: string, categoryId: string) => void;
+  ignoreImportedTransaction: (id: string) => void;
+  bulkAcceptHighConfidenceImports: () => void;
+  createCategoryForImportedTransaction: (id: string, input: CategoryInput) => void;
   markNotificationRead: (id: string) => void;
   addToast: (notification: Omit<Notification, "id" | "createdAt" | "read">) => void;
   dismissToast: (id: string) => void;
@@ -132,6 +144,57 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           };
         }),
       updateNotificationSettings: (settings) => setState((current) => ({ ...current, notificationSettings: settings })),
+      updateAiCategorization: (enabled) => setState((current) => ({ ...current, aiCategorizationEnabled: enabled })),
+      addImportedTransactions: (transactions) =>
+        setState((current) => ({
+          ...current,
+          importedTransactions: [
+            ...transactions.map((transaction) => buildImportedTransaction(transaction, current, userId)),
+            ...current.importedTransactions
+          ]
+        })),
+      applySuggestionToImportedTransaction: (id, suggestion) =>
+        setState((current) => ({
+          ...current,
+          importedTransactions: current.importedTransactions.map((transaction) =>
+            transaction.id === id
+              ? {
+                  ...transaction,
+                  suggestedCategoryId: suggestion.suggestedCategoryId,
+                  confidence: suggestion.confidence,
+                  suggestionReason: suggestion.reason,
+                  suggestionSource: suggestion.source
+                }
+              : transaction
+          )
+        })),
+      acceptImportedTransaction: (id, categoryId) =>
+        setState((current) => acceptImported(current, id, categoryId, userId, false)),
+      changeImportedTransactionCategory: (id, categoryId) =>
+        setState((current) => acceptImported(current, id, categoryId, userId, true)),
+      ignoreImportedTransaction: (id) =>
+        setState((current) => ({
+          ...current,
+          importedTransactions: current.importedTransactions.map((transaction) =>
+            transaction.id === id ? { ...transaction, reviewStatus: "ignored" } : transaction
+          )
+        })),
+      bulkAcceptHighConfidenceImports: () =>
+        setState((current) =>
+          current.importedTransactions
+            .filter((transaction) => transaction.reviewStatus === "pending" && transaction.confidence >= 0.82 && transaction.suggestedCategoryId)
+            .reduce((next, transaction) => acceptImported(next, transaction.id, transaction.suggestedCategoryId, userId, false), current)
+        ),
+      createCategoryForImportedTransaction: (id, input) =>
+        setState((current) => {
+          const category = {
+            ...input,
+            id: makeId("category"),
+            userId,
+            color: input.color || colors[current.categories.length % colors.length]
+          };
+          return acceptImported({ ...current, categories: [category, ...current.categories] }, id, category.id, userId, true);
+        }),
       markNotificationRead: (id) =>
         setState((current) => ({ ...current, notifications: current.notifications.map((item) => (item.id === id ? { ...item, read: true } : item)) })),
       addToast: (notification) =>
@@ -152,14 +215,26 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
 }
 
 function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
-  return {
+  const normalized = {
+    ...initialState,
     ...state,
+    importedTransactions: state.importedTransactions ?? [],
+    merchantCategoryRules: state.merchantCategoryRules ?? initialState.merchantCategoryRules,
+    categoryCorrections: state.categoryCorrections ?? [],
+    aiCategorizationEnabled: state.aiCategorizationEnabled ?? true
+  };
+
+  return {
+    ...normalized,
     userId,
-    budgetMonth: { ...state.budgetMonth, userId },
-    categories: state.categories.map((category) => ({ ...category, userId })),
-    purchases: state.purchases.map((purchase) => ({ ...purchase, userId })),
-    receipts: state.receipts.map((receipt) => ({ ...receipt, userId })),
-    notifications: state.notifications.map((notification) => ({ ...notification, userId }))
+    budgetMonth: { ...normalized.budgetMonth, userId },
+    categories: normalized.categories.map((category) => ({ ...category, userId })),
+    purchases: normalized.purchases.map((purchase) => ({ ...purchase, userId })),
+    receipts: normalized.receipts.map((receipt) => ({ ...receipt, userId })),
+    importedTransactions: normalized.importedTransactions.map((transaction) => ({ ...transaction, userId })),
+    merchantCategoryRules: normalized.merchantCategoryRules.map((rule) => ({ ...rule, userId })),
+    categoryCorrections: normalized.categoryCorrections.map((correction) => ({ ...correction, userId })),
+    notifications: normalized.notifications.map((notification) => ({ ...notification, userId }))
   };
 }
 
@@ -208,4 +283,75 @@ function nextNotifications(current: SpendFenceState, category: SpendFenceState["
 
 function makeId(prefix: string) {
   return `${prefix}-${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}`;
+}
+
+function buildImportedTransaction(input: ImportedTransactionInput, current: SpendFenceState, userId: string): ImportedTransaction {
+  const localSuggestion = categorizeTransaction(input, current.categories, current.merchantCategoryRules);
+  return {
+    ...input,
+    id: makeId("import"),
+    userId,
+    suggestedCategoryId: input.suggestedCategoryId || localSuggestion.suggestedCategoryId,
+    confidence: input.confidence ?? localSuggestion.confidence,
+    suggestionReason: input.suggestionReason ?? localSuggestion.reason,
+    suggestionSource: input.suggestionSource ?? localSuggestion.source,
+    reviewStatus: input.reviewStatus ?? "pending"
+  };
+}
+
+function acceptImported(current: SpendFenceState, id: string, categoryId: string | undefined, userId: string, changed: boolean): SpendFenceState {
+  const transaction = current.importedTransactions.find((item) => item.id === id);
+  const selectedCategoryId = categoryId ?? transaction?.suggestedCategoryId;
+  if (!transaction || !selectedCategoryId) return current;
+
+  const purchase = {
+    id: makeId("purchase"),
+    userId,
+    amount: Math.abs(transaction.amount),
+    categoryId: selectedCategoryId,
+    merchant: transaction.merchantName,
+    date: transaction.date,
+    notes: `Imported transaction: ${transaction.description}`,
+    source: "future-bank-import" as const
+  };
+  const nextPurchases = [purchase, ...current.purchases];
+  const category = current.categories.find((item) => item.id === selectedCategoryId);
+  const merchantNameNormalized = normalizeMerchant(transaction.merchantName);
+  const correction =
+    changed || selectedCategoryId !== transaction.suggestedCategoryId
+      ? [
+          {
+            id: makeId("correction"),
+            userId,
+            merchantNameNormalized,
+            originalSuggestedCategoryId: transaction.suggestedCategoryId,
+            correctedCategoryId: selectedCategoryId,
+            createdAt: new Date().toISOString()
+          }
+        ]
+      : [];
+
+  return {
+    ...current,
+    purchases: nextPurchases,
+    importedTransactions: current.importedTransactions.map((item) =>
+      item.id === id ? { ...item, suggestedCategoryId: selectedCategoryId, reviewStatus: changed ? "changed" : "accepted" } : item
+    ),
+    merchantCategoryRules: upsertMerchantRule(current.merchantCategoryRules, {
+      id: makeId("rule"),
+      userId,
+      merchantNameNormalized,
+      categoryId: selectedCategoryId,
+      source: changed ? "user_correction" : "system_rule",
+      confidence: changed ? 0.96 : Math.max(transaction.confidence, 0.86),
+      lastUsedAt: new Date().toISOString()
+    }),
+    categoryCorrections: [...correction, ...current.categoryCorrections],
+    notifications: category ? nextNotifications(current, category, nextPurchases) : current.notifications
+  };
+}
+
+function upsertMerchantRule(rules: SpendFenceState["merchantCategoryRules"], nextRule: SpendFenceState["merchantCategoryRules"][number]) {
+  const withoutExisting = rules.filter((rule) => rule.merchantNameNormalized !== nextRule.merchantNameNormalized);
+  return [nextRule, ...withoutExisting].slice(0, 200);
 }

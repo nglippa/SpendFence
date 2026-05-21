@@ -5,10 +5,13 @@ import type { LucideIcon } from "lucide-react";
 import { Building2, CheckCircle2, ExternalLink, LockKeyhole, RefreshCw, Sparkles } from "lucide-react";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
+import { useSpendFence } from "@/lib/store";
+import type { ImportedTransactionInput } from "@/lib/types";
 import { ProBadge, UpgradeModal } from "@/components/upgrade-modal";
 
 export function BankSyncCard() {
   const auth = useAuth();
+  const state = useSpendFence();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,6 +60,29 @@ export function BankSyncCard() {
     }).open();
   }
 
+  async function importSandboxTransactions() {
+    setMessage("");
+    if (!auth.isPro) {
+      setUpgradeOpen(true);
+      return;
+    }
+    const response = await fetch("/api/plaid/import-transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-spendfence-plan": auth.isPro ? "pro" : "free"
+      },
+      body: JSON.stringify({ userCategories: state.categories, merchantRules: state.merchantCategoryRules })
+    });
+    const data = (await response.json()) as { transactions?: ImportedTransactionInput[]; message?: string };
+    if (!response.ok || !data.transactions) {
+      setMessage(data.message ?? "Sandbox transactions could not be imported.");
+      return;
+    }
+    state.addImportedTransactions(data.transactions);
+    setMessage("Sandbox transactions were added to the Transaction Review queue.");
+  }
+
   return (
     <>
       <Card>
@@ -85,6 +111,9 @@ export function BankSyncCard() {
               <Button onClick={connectBank} disabled={loading}>
                 {auth.isPro ? <ExternalLink size={18} /> : <LockKeyhole size={18} />}
                 {loading ? "Preparing Sandbox..." : "Connect Bank"}
+              </Button>
+              <Button variant="secondary" onClick={importSandboxTransactions}>
+                Import Sandbox Transactions
               </Button>
               <Pill className="border-slate-200 bg-white text-slate-600">Sandbox only</Pill>
               <Pill className="border-slate-200 bg-white text-slate-600">No access tokens in frontend</Pill>

@@ -155,6 +155,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/transaction-review/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/transaction-review">> = Specific
+  const handler = {} as typeof import("../../app/transaction-review/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/ai/categorize-transaction/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/ai/categorize-transaction">> = Specific
+  const handler = {} as typeof import("../../app/api/ai/categorize-transaction/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/plaid/create-link-token/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/plaid/create-link-token">> = Specific

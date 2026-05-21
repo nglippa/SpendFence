@@ -82,6 +82,25 @@ export default function SettingsPage() {
         </Card>
 
         <Card>
+          <h2 className="text-xl font-black">AI categorization</h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            When enabled, imported transactions can use server-side AI as a fallback after merchant rules, keywords, and Plaid category hints. If `OPENAI_API_KEY` is missing, SpendFence uses local rules only.
+          </p>
+          <button
+            onClick={() => state.updateAiCategorization(!state.aiCategorizationEnabled)}
+            className="mt-4 flex w-full items-center justify-between gap-3 rounded-3xl bg-[#f7faf7] p-4 text-left"
+          >
+            <span>
+              <span className="block font-black text-[#10201c]">AI categorization {state.aiCategorizationEnabled ? "on" : "off"}</span>
+              <span className="mt-1 block text-sm font-semibold text-slate-600">Only merchant text, amount, Plaid category, and category names are sent.</span>
+            </span>
+            <span className={`h-7 w-12 rounded-full p-1 transition ${state.aiCategorizationEnabled ? "bg-[#183f36]" : "bg-slate-300"}`}>
+              <span className={`block h-5 w-5 rounded-full bg-white transition ${state.aiCategorizationEnabled ? "translate-x-5" : ""}`} />
+            </span>
+          </button>
+        </Card>
+
+        <Card>
           <h2 className="text-xl font-black">Demo controls</h2>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">Reset local data back to the curated sample budget.</p>
           <Button variant="secondary" className="mt-4" onClick={() => state.resetDemoData()}>
