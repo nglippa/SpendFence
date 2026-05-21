@@ -1,0 +1,10 @@
+{
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/categories/page": "app/categories/page.js",
+  "/add-purchase/page": "app/add-purchase/page.js",
+  "/receipt-scanner/page": "app/receipt-scanner/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/settings/page": "app/settings/page.js"
+}
