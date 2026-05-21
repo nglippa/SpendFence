@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, ChartPie, Home, PlusCircle, ReceiptText, ScanLine, Settings, Tags } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { SpendFenceProvider, useSpendFence } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -16,16 +18,34 @@ const nav = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-const publicRoutes = ["/"];
+const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/pricing"];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useAuth();
   const isPublic = publicRoutes.includes(pathname);
 
+  useEffect(() => {
+    if (loading) return;
+    if (!user && !isPublic) router.replace("/login");
+    if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) router.replace("/dashboard");
+  }, [isPublic, loading, pathname, router, user]);
+
   if (isPublic) return <>{children}</>;
+  if (loading || !user) {
+    return (
+      <div className="grid min-h-screen place-items-center px-4">
+        <div className="rounded-3xl border border-white/80 bg-white/88 p-5 text-center shadow-soft">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#327d6d]">SpendFence</p>
+          <p className="mt-2 font-black text-[#10201c]">Checking your session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <SpendFenceProvider>
+    <SpendFenceProvider userId={user.id}>
       <InnerShell pathname={pathname}>{children}</InnerShell>
     </SpendFenceProvider>
   );

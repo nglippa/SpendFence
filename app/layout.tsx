@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell";
 import { PwaRegister } from "@/components/pwa-register";
+import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "SpendFence",
@@ -27,8 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <AppShell>{children}</AppShell>
-        <PwaRegister />
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+          <PwaRegister />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -16,10 +16,11 @@ export default function LandingPage() {
         <nav className="hidden items-center gap-6 text-sm font-bold text-slate-600 md:flex">
           <a href="#features" className="hover:text-[#10201c]">Features</a>
           <a href="#reports" className="hover:text-[#10201c]">Reports</a>
-          <Link href="/dashboard" className="hover:text-[#10201c]">Open app</Link>
+          <Link href="/pricing" className="hover:text-[#10201c]">Pricing</Link>
+          <Link href="/login" className="hover:text-[#10201c]">Log in</Link>
         </nav>
         <Button asChild size="sm">
-          <Link href="/dashboard">Start</Link>
+          <Link href="/signup">Start</Link>
         </Button>
       </header>
 
@@ -37,12 +38,12 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/dashboard">
-                  Open dashboard <ArrowRight size={18} />
+                <Link href="/signup">
+                  Create account <ArrowRight size={18} />
                 </Link>
               </Button>
               <Button asChild variant="secondary" size="lg">
-                <Link href="/receipt-scanner">Try scanner</Link>
+                <Link href="/pricing">View pricing</Link>
               </Button>
             </div>
           </motion.div>
@@ -110,8 +111,8 @@ export default function LandingPage() {
               </div>
             </div>
             <Button asChild size="lg">
-              <Link href="/reports">
-                <ChartPie size={18} /> View reports
+              <Link href="/signup">
+                <ChartPie size={18} /> Start tracking
               </Link>
             </Button>
           </Card>

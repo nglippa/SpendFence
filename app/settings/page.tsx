@@ -1,12 +1,22 @@
 "use client";
 
-import { DatabaseZap, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { LogOut, RefreshCw, Save, ShieldAlert, UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input, PageHeader, Pill } from "@/components/ui";
+import { BankSyncCard } from "@/components/bank-sync-card";
+import { useAuth } from "@/lib/auth";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 
 export default function SettingsPage() {
   const state = useSpendFence();
+  const auth = useAuth();
+  const router = useRouter();
+
+  async function logout() {
+    await auth.signOut();
+    router.replace("/login");
+  }
 
   return (
     <>
@@ -30,20 +40,9 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card>
-          <div className="flex items-start gap-4">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#e9f3ee] text-[#183f36]">
-              <DatabaseZap size={22} />
-            </div>
-            <div>
-              <h2 className="text-xl font-black">Bank Sync Coming Soon</h2>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-                Plaid is not integrated yet. Future transaction imports can map into the existing purchase model with source `future-bank-import`.
-              </p>
-              <Pill className="mt-4 border-slate-200 bg-white text-slate-600">No bank connection active</Pill>
-            </div>
-          </div>
-        </Card>
+        <div className="grid gap-5 lg:col-span-2">
+          <BankSyncCard />
+        </div>
 
         <Card>
           <div className="flex items-start gap-4">
@@ -56,6 +55,28 @@ export default function SettingsPage() {
                 Categories, purchases, receipts, prompts, and notifications persist in localStorage for the MVP.
               </p>
               <p className="mt-3 text-sm font-black text-slate-700">{state.categories.length} categories - {state.purchases.length} purchases - income {formatMoney(state.budgetMonth.income)}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-start gap-4">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#e9f3ee] text-[#183f36]">
+              <UserRound size={22} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl font-black">Account</h2>
+              <p className="mt-2 break-words text-sm font-semibold leading-6 text-slate-600">
+                Signed in as {auth.user?.email}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Pill className="border-slate-200 bg-white text-slate-600">{auth.planLabel} plan</Pill>
+                {auth.user?.isDemo ? <Pill className="border-amber-100 bg-amber-50 text-amber-800">Demo Mode</Pill> : null}
+                {auth.demoProEnabled ? <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Demo Pro</Pill> : null}
+              </div>
+              <Button variant="secondary" className="mt-4" onClick={logout}>
+                <LogOut size={18} /> Log out
+              </Button>
             </div>
           </div>
         </Card>

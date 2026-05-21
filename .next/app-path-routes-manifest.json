@@ -1,0 +1,20 @@
+{
+  "/api/plaid/create-link-token/route": "/api/plaid/create-link-token",
+  "/api/plaid/exchange-public-token/route": "/api/plaid/exchange-public-token",
+  "/_not-found/page": "/_not-found",
+  "/api/plaid/import-transactions/route": "/api/plaid/import-transactions",
+  "/api/stripe/create-checkout-session/route": "/api/stripe/create-checkout-session",
+  "/api/stripe/webhook/route": "/api/stripe/webhook",
+  "/add-purchase/page": "/add-purchase",
+  "/notifications/page": "/notifications",
+  "/categories/page": "/categories",
+  "/forgot-password/page": "/forgot-password",
+  "/login/page": "/login",
+  "/settings/page": "/settings",
+  "/reports/page": "/reports",
+  "/receipt-scanner/page": "/receipt-scanner",
+  "/dashboard/page": "/dashboard",
+  "/pricing/page": "/pricing",
+  "/page": "/",
+  "/signup/page": "/signup"
+}

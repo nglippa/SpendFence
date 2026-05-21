@@ -2,6 +2,7 @@ export type BudgetStatus = "safe" | "warning" | "locked";
 
 export type BudgetMonth = {
   id: string;
+  userId?: string;
   month: string;
   income: number;
   savingsTarget: number;
@@ -9,6 +10,7 @@ export type BudgetMonth = {
 
 export type Category = {
   id: string;
+  userId?: string;
   name: string;
   limit: number;
   warningThreshold: number;
@@ -19,6 +21,7 @@ export type Category = {
 
 export type Purchase = {
   id: string;
+  userId?: string;
   amount: number;
   categoryId: string;
   merchant: string;
@@ -36,6 +39,7 @@ export type ReceiptLineItem = {
 
 export type Receipt = {
   id: string;
+  userId?: string;
   image?: string;
   merchant: string;
   total: number;
@@ -61,6 +65,7 @@ export type NotificationSettings = {
 
 export type Notification = {
   id: string;
+  userId?: string;
   title: string;
   body: string;
   level: "info" | "warning" | "locked";
@@ -69,6 +74,7 @@ export type Notification = {
 };
 
 export type SpendFenceState = {
+  userId?: string;
   budgetMonth: BudgetMonth;
   categories: Category[];
   purchases: Purchase[];

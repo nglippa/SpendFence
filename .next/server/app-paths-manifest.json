@@ -1,10 +1,20 @@
 {
-  "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/categories/page": "app/categories/page.js",
+  "/api/plaid/create-link-token/route": "app/api/plaid/create-link-token/route.js",
+  "/api/plaid/exchange-public-token/route": "app/api/plaid/exchange-public-token/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/plaid/import-transactions/route": "app/api/plaid/import-transactions/route.js",
+  "/api/stripe/create-checkout-session/route": "app/api/stripe/create-checkout-session/route.js",
+  "/api/stripe/webhook/route": "app/api/stripe/webhook/route.js",
   "/add-purchase/page": "app/add-purchase/page.js",
-  "/receipt-scanner/page": "app/receipt-scanner/page.js",
-  "/reports/page": "app/reports/page.js",
   "/notifications/page": "app/notifications/page.js",
-  "/settings/page": "app/settings/page.js"
+  "/categories/page": "app/categories/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/login/page": "app/login/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/receipt-scanner/page": "app/receipt-scanner/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/pricing/page": "app/pricing/page.js",
+  "/page": "app/page.js",
+  "/signup/page": "app/signup/page.js"
 }

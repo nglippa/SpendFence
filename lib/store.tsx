@@ -38,40 +38,44 @@ type SpendFenceContextValue = SpendFenceState & {
 const SpendFenceContext = createContext<SpendFenceContextValue | null>(null);
 const colors = ["#58c6a8", "#5b8def", "#f59e6b", "#a78bfa", "#38bdf8", "#f472b6", "#64748b", "#22c55e"];
 
-export function SpendFenceProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<SpendFenceState>(initialState);
+export function SpendFenceProvider({ children, userId }: { children: React.ReactNode; userId: string }) {
+  const storageKey = `${STORAGE_KEY}:${userId}`;
+  const [state, setState] = useState<SpendFenceState>(() => withUserId(initialState, userId));
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const saved = window.localStorage.getItem(storageKey) ?? window.localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        setState(JSON.parse(saved) as SpendFenceState);
+        setState(withUserId(JSON.parse(saved) as SpendFenceState, userId));
       } catch {
-        setState(initialState);
+        setState(withUserId(initialState, userId));
       }
     }
     setReady(true);
-  }, []);
+  }, [storageKey, userId]);
 
   useEffect(() => {
-    if (ready) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [ready, state]);
+    if (ready) window.localStorage.setItem(storageKey, JSON.stringify(state));
+  }, [ready, state, storageKey]);
 
   const value = useMemo<SpendFenceContextValue>(
     () => ({
       ...state,
       ready,
-      updateBudgetMonth: (budgetMonth) => setState((current) => ({ ...current, budgetMonth })),
+      updateBudgetMonth: (budgetMonth) => setState((current) => ({ ...current, budgetMonth: { ...budgetMonth, userId } })),
       addCategory: (input) =>
         setState((current) => ({
           ...current,
-          categories: [{ ...input, id: makeId("category"), color: input.color || colors[current.categories.length % colors.length] }, ...current.categories]
+          categories: [
+            { ...input, id: makeId("category"), userId, color: input.color || colors[current.categories.length % colors.length] },
+            ...current.categories
+          ]
         })),
       updateCategory: (id, input) =>
         setState((current) => ({
           ...current,
-          categories: current.categories.map((category) => (category.id === id ? { ...input, id } : category))
+          categories: current.categories.map((category) => (category.id === id ? { ...input, id, userId } : category))
         })),
       deleteCategory: (id) =>
         setState((current) => ({
@@ -81,7 +85,7 @@ export function SpendFenceProvider({ children }: { children: React.ReactNode }) 
         })),
       addPurchase: (input) =>
         setState((current) => {
-          const purchase = { ...input, id: makeId("purchase"), source: input.source ?? "manual" };
+          const purchase = { ...input, id: makeId("purchase"), userId, source: input.source ?? "manual" };
           const nextPurchases = [purchase, ...current.purchases];
           const category = current.categories.find((item) => item.id === input.categoryId);
           const notifications = category ? nextNotifications(current, category, nextPurchases) : current.notifications;
@@ -90,18 +94,18 @@ export function SpendFenceProvider({ children }: { children: React.ReactNode }) 
       updatePurchase: (id, input) =>
         setState((current) => ({
           ...current,
-          purchases: current.purchases.map((purchase) => (purchase.id === id ? { ...input, id, source: input.source ?? purchase.source } : purchase))
+          purchases: current.purchases.map((purchase) => (purchase.id === id ? { ...input, id, userId, source: input.source ?? purchase.source } : purchase))
         })),
       deletePurchase: (id) => setState((current) => ({ ...current, purchases: current.purchases.filter((purchase) => purchase.id !== id) })),
       createReceiptDraft: (input) => {
-        const receipt = { ...input, id: makeId("receipt"), status: "draft" as const };
+        const receipt = { ...input, id: makeId("receipt"), userId, status: "draft" as const };
         setState((current) => ({ ...current, receipts: [receipt, ...current.receipts] }));
         return receipt;
       },
       updateReceiptDraft: (id, input) =>
         setState((current) => ({
           ...current,
-          receipts: current.receipts.map((receipt) => (receipt.id === id ? { ...input, id, status: receipt.status } : receipt))
+          receipts: current.receipts.map((receipt) => (receipt.id === id ? { ...input, id, userId, status: receipt.status } : receipt))
         })),
       confirmReceipt: (id) =>
         setState((current) => {
@@ -109,6 +113,7 @@ export function SpendFenceProvider({ children }: { children: React.ReactNode }) 
           if (!receipt) return current;
           const purchase = {
             id: makeId("purchase"),
+            userId,
             amount: receipt.total,
             categoryId: receipt.categoryId,
             merchant: receipt.merchant,
@@ -132,15 +137,30 @@ export function SpendFenceProvider({ children }: { children: React.ReactNode }) 
       addToast: (notification) =>
         setState((current) => ({
           ...current,
-          notifications: [{ ...notification, id: makeId("notification"), createdAt: new Date().toISOString(), read: false }, ...current.notifications]
+          notifications: [
+            { ...notification, id: makeId("notification"), userId, createdAt: new Date().toISOString(), read: false },
+            ...current.notifications
+          ]
         })),
       dismissToast: (id) => setState((current) => ({ ...current, notifications: current.notifications.filter((item) => item.id !== id) })),
-      resetDemoData: () => setState(initialState)
+      resetDemoData: () => setState(withUserId(initialState, userId))
     }),
-    [ready, state]
+    [ready, state, userId]
   );
 
   return <SpendFenceContext.Provider value={value}>{children}</SpendFenceContext.Provider>;
+}
+
+function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
+  return {
+    ...state,
+    userId,
+    budgetMonth: { ...state.budgetMonth, userId },
+    categories: state.categories.map((category) => ({ ...category, userId })),
+    purchases: state.purchases.map((purchase) => ({ ...purchase, userId })),
+    receipts: state.receipts.map((receipt) => ({ ...receipt, userId })),
+    notifications: state.notifications.map((notification) => ({ ...notification, userId }))
+  };
 }
 
 export function useSpendFence() {
@@ -155,6 +175,7 @@ function nextNotifications(current: SpendFenceState, category: SpendFenceState["
   if (progress.status === "locked" && current.notificationSettings.limitReached) {
     notifications.unshift({
       id: makeId("notification"),
+      userId: current.userId,
       title: "Limit reached",
       body: warningMessage(category, purchases),
       level: "locked",
@@ -164,6 +185,7 @@ function nextNotifications(current: SpendFenceState, category: SpendFenceState["
   } else if (progress.status === "warning" && current.notificationSettings.eightyPercent) {
     notifications.unshift({
       id: makeId("notification"),
+      userId: current.userId,
       title: "Spending warning",
       body: warningMessage(category, purchases),
       level: "warning",
@@ -173,6 +195,7 @@ function nextNotifications(current: SpendFenceState, category: SpendFenceState["
   } else if (progress.percent >= 50 && current.notificationSettings.fiftyPercent) {
     notifications.unshift({
       id: makeId("notification"),
+      userId: current.userId,
       title: "Halfway there",
       body: `${category.name} is at ${Math.round(progress.percent)}% of its ${formatMoney(category.limit)} monthly fence.`,
       level: "info",
