@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { getSupabaseClient, hasSupabaseConfig } from "@/lib/supabase";
+import { getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
 
 const DEMO_SESSION_KEY = "spendfence-demo-session-v1";
 const DEMO_PRO_KEY = "spendfence-demo-pro-v1";
@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [demoProEnabled, setDemoProEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const supabase = getSupabaseClient();
+  const supabaseConfigError = getSupabaseConfigErrorMessage() ?? "Supabase auth is not configured for this environment.";
   const demoModeAvailable = process.env.NODE_ENV === "development" && !hasSupabaseConfig;
   const demoProAvailable = process.env.NODE_ENV === "development";
   const isPro = demoProEnabled;
@@ -80,17 +81,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       demoProAvailable,
       demoProEnabled,
       signIn: async (email, password) => {
-        if (!supabase) return { error: "Supabase is not configured for this environment." };
+        if (!supabase) return { error: supabaseConfigError };
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         return error ? { error: error.message } : {};
       },
       signUp: async (email, password) => {
-        if (!supabase) return { error: "Supabase is not configured for this environment." };
+        if (!supabase) return { error: supabaseConfigError };
         const { error } = await supabase.auth.signUp({ email, password });
         return error ? { error: error.message } : { message: "Check your email if confirmation is enabled." };
       },
       resetPassword: async (email) => {
-        if (!supabase) return { error: "Supabase is not configured for this environment." };
+        if (!supabase) return { error: supabaseConfigError };
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login` });
         return error ? { error: error.message } : { message: "Password reset email sent." };
       },
@@ -119,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setDemoProEnabled(false);
       }
     }),
-    [demoModeAvailable, demoProAvailable, demoProEnabled, isPro, loading, supabase, user]
+    [demoModeAvailable, demoProAvailable, demoProEnabled, isPro, loading, supabase, supabaseConfigError, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
