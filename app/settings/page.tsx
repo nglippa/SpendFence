@@ -4,6 +4,7 @@ import { LogOut, RefreshCw, Save, ShieldAlert, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input, PageHeader, Pill } from "@/components/ui";
 import { BankSyncCard } from "@/components/bank-sync-card";
+import { MfaSettings } from "@/components/mfa-settings";
 import { useAuth } from "@/lib/auth";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
@@ -43,6 +44,8 @@ export default function SettingsPage() {
         <div className="grid gap-5 lg:col-span-2">
           <BankSyncCard />
         </div>
+
+        <MfaSettings />
 
         <Card>
           <div className="flex items-start gap-4">

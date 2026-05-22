@@ -1,11 +1,38 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { featureFlags } from "@/lib/feature-flags";
 import { getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
 
 const DEMO_SESSION_KEY = "spendfence-demo-session-v1";
 const DEMO_PRO_KEY = "spendfence-demo-pro-v1";
+const TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
+
+export type MfaFactorType = "totp" | "phone";
+
+export type MfaFactor = {
+  id: string;
+  type: MfaFactorType;
+  label: string;
+  phone?: string;
+};
+
+export type MfaChallenge = {
+  factorId: string;
+  challengeId: string;
+  type: MfaFactorType;
+  expiresAt: number;
+};
+
+export type SignInResult = {
+  error?: string;
+  mfaRequired?: boolean;
+  mfa?: {
+    factors: MfaFactor[];
+    challenge: MfaChallenge;
+  };
+};
 
 type AuthUser = {
   id: string;
@@ -22,9 +49,11 @@ type AuthContextValue = {
   demoModeAvailable: boolean;
   demoProAvailable: boolean;
   demoProEnabled: boolean;
-  signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  signIn: (email: string, password: string) => Promise<SignInResult>;
   signUp: (email: string, password: string) => Promise<{ error?: string; message?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
+  startMfaChallenge: (factor: MfaFactor) => Promise<{ error?: string; challenge?: MfaChallenge }>;
+  verifyMfaChallenge: (challenge: MfaChallenge, code: string, trustDevice: boolean) => Promise<{ error?: string }>;
   enterDemoMode: () => void;
   setDemoPro: (enabled: boolean) => void;
   startUpgrade: () => Promise<{ error?: string; message?: string }>;
@@ -82,8 +111,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       demoProEnabled,
       signIn: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return error ? { error: error.message } : {};
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return { error: error.message };
+
+        const aal = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (aal.error) return { error: aal.error.message };
+
+        if (aal.data.currentLevel !== aal.data.nextLevel && aal.data.nextLevel === "aal2") {
+          const factorsResult = await supabase.auth.mfa.listFactors();
+          if (factorsResult.error) return { error: factorsResult.error.message };
+
+          const factors = normalizeMfaFactors(factorsResult.data);
+          if (!factors.length) return { error: "MFA is required, but no verified factors are available for this account." };
+
+          const primaryMethod = data.user?.user_metadata?.spendfence_mfa_primary_method;
+          const preferredFactor = choosePreferredFactor(factors, primaryMethod);
+          const challenge = await createMfaChallenge(supabase, preferredFactor);
+          if (challenge.error || !challenge.challenge) return { error: challenge.error ?? "Could not start MFA verification." };
+
+          return { mfaRequired: true, mfa: { factors, challenge: challenge.challenge } };
+        }
+
+        return {};
       },
       signUp: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
@@ -94,6 +143,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!supabase) return { error: supabaseConfigError };
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login` });
         return error ? { error: error.message } : { message: "Password reset email sent." };
+      },
+      startMfaChallenge: async (factor) => {
+        if (!supabase) return { error: supabaseConfigError };
+        return createMfaChallenge(supabase, factor);
+      },
+      verifyMfaChallenge: async (challenge, code, trustDevice) => {
+        if (!supabase) return { error: supabaseConfigError };
+        const { data, error } = await supabase.auth.mfa.verify({
+          factorId: challenge.factorId,
+          challengeId: challenge.challengeId,
+          code
+        });
+        if (error) return { error: error.message };
+
+        if (trustDevice) {
+          window.localStorage.setItem(TRUSTED_DEVICE_KEY, JSON.stringify({ trustedAt: Date.now(), expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 }));
+        }
+
+        setUser(toAuthUser(data.user));
+        return {};
       },
       enterDemoMode: () => {
         if (!demoModeAvailable) return;
@@ -137,5 +206,57 @@ function toAuthUser(user: User): AuthUser {
     id: user.id,
     email: user.email ?? "Signed-in user",
     isDemo: false
+  };
+}
+
+function normalizeMfaFactors(data: { totp: unknown[]; phone: unknown[] }): MfaFactor[] {
+  const totp = data.totp.map((factor) => toMfaFactor(factor, "totp"));
+  // TODO(sms-mfa): Phone factors are intentionally kept in the model but hidden
+  // from active login while ENABLE_SMS_MFA is false.
+  const phone = featureFlags.ENABLE_SMS_MFA ? data.phone.map((factor) => toMfaFactor(factor, "phone")) : [];
+  return [...totp, ...phone].filter(Boolean) as MfaFactor[];
+}
+
+function toMfaFactor(factor: unknown, type: MfaFactorType): MfaFactor | null {
+  if (!factor || typeof factor !== "object") return null;
+  const raw = factor as { id?: unknown; friendly_name?: unknown; phone?: unknown };
+  if (typeof raw.id !== "string") return null;
+
+  const fallbackLabel = type === "totp" ? "Authenticator app" : "SMS phone";
+  return {
+    id: raw.id,
+    type,
+    label: typeof raw.friendly_name === "string" && raw.friendly_name ? raw.friendly_name : fallbackLabel,
+    phone: typeof raw.phone === "string" ? raw.phone : undefined
+  };
+}
+
+function choosePreferredFactor(factors: MfaFactor[], primaryMethod: unknown) {
+  if (primaryMethod === "totp" || (featureFlags.ENABLE_SMS_MFA && primaryMethod === "phone")) {
+    return factors.find((factor) => factor.type === primaryMethod) ?? factors[0];
+  }
+
+  return factors.find((factor) => factor.type === "totp") ?? factors[0];
+}
+
+async function createMfaChallenge(supabase: SupabaseClient, factor: MfaFactor): Promise<{ error?: string; challenge?: MfaChallenge }> {
+  if (factor.type === "phone" && !featureFlags.ENABLE_SMS_MFA) {
+    return { error: "SMS MFA is planned for a future update. Use your authenticator app to continue." };
+  }
+
+  const result =
+    factor.type === "phone"
+      ? await supabase.auth.mfa.challenge({ factorId: factor.id, channel: "sms" })
+      : await supabase.auth.mfa.challenge({ factorId: factor.id });
+
+  if (result.error) return { error: result.error.message };
+
+  return {
+    challenge: {
+      factorId: factor.id,
+      challengeId: result.data.id,
+      type: factor.type,
+      expiresAt: result.data.expires_at
+    }
   };
 }
