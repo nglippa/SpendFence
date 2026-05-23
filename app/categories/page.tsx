@@ -44,9 +44,9 @@ export default function CategoriesPage() {
   return (
     <>
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
-      <div className="grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.82fr_1.18fr]">
         <Card>
-          <h2 className="mb-4 text-xl font-black">{editing ? "Edit category" : "New category"}</h2>
+          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">{editing ? "Edit category" : "New category"}</h2>
           <form className="grid gap-4" onSubmit={submit}>
             <Field label="Name">
               <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Groceries" required />
@@ -70,7 +70,7 @@ export default function CategoriesPage() {
               </Field>
             </div>
             <Field label="Color">
-              <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-14 p-2" />
+              <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-12 p-2 sm:h-14" />
             </Field>
             <Button type="submit" size="lg">
               <Plus size={18} /> {editing ? "Save category" : "Add category"}

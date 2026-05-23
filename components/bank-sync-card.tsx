@@ -86,28 +86,28 @@ export function BankSyncCard() {
   return (
     <>
       <Card>
-        <div className="flex items-start gap-4">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#e9f3ee] text-[#183f36]">
-            {auth.isPro ? <Building2 size={22} /> : <LockKeyhole size={22} />}
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
+            {auth.isPro ? <Building2 size={20} /> : <LockKeyhole size={20} />}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-black">Plaid bank sync</h2>
+              <h2 className="text-lg font-black sm:text-xl">Plaid bank sync</h2>
               <ProBadge />
             </div>
-            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
               SpendFence uses Plaid for secure bank connection. We never collect bank usernames, passwords, account numbers, routing numbers, card numbers, or CVV.
             </p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
               {["Automatic transaction imports", "Connected account management", "Transaction review queue", "Smart category suggestions"].map((item) => (
-                <span key={item} className="flex items-center gap-2 rounded-2xl bg-[#f7faf7] p-3 text-sm font-black text-slate-700">
+                <span key={item} className="flex items-center gap-2 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-black text-slate-700 sm:rounded-2xl sm:p-3">
                   <CheckCircle2 size={16} className="text-[#58c6a8]" />
                   {item}
                 </span>
               ))}
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
               <Button onClick={connectBank} disabled={loading}>
                 {auth.isPro ? <ExternalLink size={18} /> : <LockKeyhole size={18} />}
                 {loading ? "Preparing Sandbox..." : "Connect Bank"}
@@ -118,7 +118,7 @@ export function BankSyncCard() {
               <Pill className="border-slate-200 bg-white text-slate-600">Sandbox only</Pill>
               <Pill className="border-slate-200 bg-white text-slate-600">No access tokens in frontend</Pill>
             </div>
-            {message ? <p className="mt-3 rounded-2xl bg-[#f7faf7] p-3 text-sm font-bold leading-6 text-slate-600">{message}</p> : null}
+            {message ? <p className="mt-3 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:rounded-2xl sm:p-3 sm:leading-6">{message}</p> : null}
           </div>
         </div>
       </Card>
@@ -135,7 +135,7 @@ export function BankSyncCard() {
         <Card>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-xl font-black">Development Demo Pro</h2>
+              <h2 className="text-lg font-black sm:text-xl">Development Demo Pro</h2>
               <p className="mt-1 text-sm font-semibold text-slate-600">Unlock Plaid Sandbox UI locally without a real subscription. Hidden in production.</p>
             </div>
             <Button variant={auth.demoProEnabled ? "secondary" : "primary"} onClick={() => auth.setDemoPro(!auth.demoProEnabled)}>
@@ -152,12 +152,12 @@ export function BankSyncCard() {
 
 function MiniFeature({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <div className="rounded-3xl bg-[#f7faf7] p-4">
-      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-[#183f36] shadow-soft">
+    <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
+      <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#183f36] shadow-soft sm:h-10 sm:w-10 sm:rounded-2xl">
         <Icon size={18} />
       </div>
-      <h3 className="mt-3 font-black text-[#10201c]">{title}</h3>
-      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{body}</p>
+      <h3 className="mt-2.5 text-sm font-black text-[#10201c] sm:mt-3 sm:text-base">{title}</h3>
+      <p className="mt-1 text-sm font-semibold leading-5 text-slate-600 sm:leading-6">{body}</p>
     </div>
   );
 }

@@ -15,9 +15,9 @@ export function CategoryCard({ category, purchases }: { category: Category; purc
         <div>
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full" style={{ background: category.color }} />
-            <h2 className="text-lg font-black text-[#10201c]">{category.name}</h2>
+            <h2 className="text-base font-black text-[#10201c] sm:text-lg">{category.name}</h2>
           </div>
-          <p className="mt-1 text-sm font-bold text-slate-500">{formatMoney(progress.remaining)} remaining</p>
+          <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatMoney(progress.remaining)} remaining</p>
         </div>
         <Pill className={statusClasses(progress.status)}>
           <Icon size={13} className="mr-1" />
@@ -25,14 +25,14 @@ export function CategoryCard({ category, purchases }: { category: Category; purc
         </Pill>
       </div>
 
-      <div className="mt-5">
-        <div className="mb-2 flex items-center justify-between text-sm font-black">
+      <div className="mt-4 sm:mt-5">
+        <div className="mb-2 flex items-center justify-between text-xs font-black sm:text-sm">
           <span>{formatMoney(progress.spent)}</span>
           <span className="text-slate-500">{formatMoney(category.limit)}</span>
         </div>
         <ProgressBar percent={progress.percent} color={progress.status === "locked" ? "#fb7185" : progress.status === "warning" ? "#f59e0b" : category.color} />
       </div>
-      <p className="mt-3 text-sm font-semibold leading-5 text-slate-600">{warningMessage(category, purchases)}</p>
+      <p className="mt-2.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-3">{warningMessage(category, purchases)}</p>
     </Card>
   );
 }

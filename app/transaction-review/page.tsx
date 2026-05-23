@@ -100,13 +100,13 @@ export default function TransactionReviewPage() {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_0.82fr]">
         <section className="grid content-start gap-4">
           <Card>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-black">Pending review</h2>
-                <p className="mt-1 text-sm font-semibold text-slate-600">
+                <h2 className="text-lg font-black sm:text-xl">Pending review</h2>
+                <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
                   Nothing posts to your budget until you accept, change, or create a category.
                 </p>
               </div>
@@ -119,15 +119,15 @@ export default function TransactionReviewPage() {
           {pending.length ? (
             pending.map((transaction) => (
               <Card key={transaction.id}>
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-black">{transaction.merchantName}</h2>
+                      <h2 className="text-lg font-black sm:text-xl">{transaction.merchantName}</h2>
                       <ConfidencePill confidence={transaction.confidence} />
                     </div>
-                    <p className="mt-1 text-sm font-bold text-slate-500">{transaction.description}</p>
-                    <p className="mt-1 text-sm font-bold text-slate-500">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No Plaid hint"}</p>
-                    <p className="mt-3 text-2xl font-black text-[#10201c]">{formatMoney(transaction.amount)}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{transaction.description}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No Plaid hint"}</p>
+                    <p className="mt-2 text-xl font-black text-[#10201c] sm:mt-3 sm:text-2xl">{formatMoney(transaction.amount)}</p>
                   </div>
 
                   <div className="grid w-full gap-3 md:max-w-sm">
@@ -143,7 +143,7 @@ export default function TransactionReviewPage() {
                         ))}
                       </Select>
                     </Field>
-                    <p className="rounded-2xl bg-[#f7faf7] p-3 text-sm font-bold leading-6 text-slate-600">{transaction.suggestionReason}</p>
+                    <p className="rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:rounded-2xl sm:p-3 sm:leading-6">{transaction.suggestionReason}</p>
                     <div className="flex flex-wrap gap-2">
                       <Button onClick={() => accept(transaction)}>
                         <CheckCircle2 size={17} /> Accept
@@ -159,7 +159,7 @@ export default function TransactionReviewPage() {
                 </div>
 
                 {newCategoryFor === transaction.id ? (
-                  <form className="mt-4 grid gap-3 rounded-3xl bg-[#f7faf7] p-4" onSubmit={createCategory}>
+                  <form className="mt-3 grid gap-3 rounded-xl bg-[#f7faf7] p-3 sm:mt-4 sm:rounded-3xl sm:p-4" onSubmit={createCategory}>
                     <h3 className="font-black text-[#10201c]">Create category for {transaction.merchantName}</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label="Name">
@@ -185,7 +185,7 @@ export default function TransactionReviewPage() {
             <Card>
               <div className="grid place-items-center gap-3 py-8 text-center">
                 <ListChecks size={34} className="text-[#327d6d]" />
-                <h2 className="text-xl font-black">No transactions waiting</h2>
+                <h2 className="text-lg font-black sm:text-xl">No transactions waiting</h2>
                 <p className="max-w-md text-sm font-semibold leading-6 text-slate-600">
                   Imported Plaid or CSV transactions will appear here before they become purchases.
                 </p>
@@ -196,8 +196,8 @@ export default function TransactionReviewPage() {
 
         <aside className="grid content-start gap-4">
           <Card>
-            <h2 className="text-xl font-black">Learning memory</h2>
-            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            <h2 className="text-lg font-black sm:text-xl">Learning memory</h2>
+            <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
               Corrections are stored as merchant rules so future imports can match your habits.
             </p>
             <div className="mt-4 grid gap-2">
@@ -207,12 +207,12 @@ export default function TransactionReviewPage() {
           </Card>
 
           <Card>
-            <h2 className="text-xl font-black">Recently reviewed</h2>
+            <h2 className="text-lg font-black sm:text-xl">Recently reviewed</h2>
             <div className="mt-3 grid gap-2">
               {reviewed.slice(0, 6).map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#f7faf7] p-3">
+                <div key={transaction.id} className="flex items-center justify-between gap-3 rounded-xl bg-[#f7faf7] p-2.5 sm:rounded-2xl sm:p-3">
                   <div>
-                    <p className="font-black">{transaction.merchantName}</p>
+                    <p className="text-sm font-black sm:text-base">{transaction.merchantName}</p>
                     <p className="text-xs font-bold text-slate-500">{transaction.reviewStatus}</p>
                   </div>
                   <Button variant="danger" size="sm" onClick={() => state.ignoreImportedTransaction(transaction.id)}>
