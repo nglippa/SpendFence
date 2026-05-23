@@ -5,6 +5,7 @@ import { Edit3, Plus, Trash2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
 import { Button, Card, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
+import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { useSpendFence } from "@/lib/store";
 import type { Category, CategoryInput } from "@/lib/types";
 
@@ -17,6 +18,8 @@ type CategoryFormState = Omit<CategoryInput, "limit" | "warningThreshold" | "har
 export default function CategoriesPage() {
   const state = useSpendFence();
   const [editing, setEditing] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState<Category | null>(null);
+  const [feedback, setFeedback] = useState("");
   const formRef = useRef<HTMLElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<CategoryFormState>({
@@ -33,8 +36,14 @@ export default function CategoriesPage() {
     const input = toCategoryInput(form);
     if (editing) state.updateCategory(editing.id, input);
     else state.addCategory(input);
+    showFeedback(editing ? "Category saved." : "Category added.");
     setEditing(null);
     setForm({ name: "", limit: "300", warningThreshold: "80", hardStopThreshold: "100", color: "#58c6a8", icon: "tag" });
+  }
+
+  function showFeedback(message: string) {
+    setFeedback(message);
+    window.setTimeout(() => setFeedback(""), 1800);
   }
 
   function edit(category: Category) {
@@ -56,6 +65,7 @@ export default function CategoriesPage() {
   return (
     <>
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
+      <SettingsFeedback message={feedback} />
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.82fr_1.18fr]">
         <Card>
           <section ref={formRef} className="scroll-mt-24">
@@ -140,7 +150,7 @@ export default function CategoriesPage() {
                   <Button variant="secondary" size="sm" onClick={() => edit(category)}>
                     <Edit3 size={16} /> Edit
                   </Button>
-                  <Button variant="danger" size="sm" onClick={() => state.deleteCategory(category.id)}>
+                  <Button variant="danger" size="sm" onClick={() => setDeleting(category)}>
                     <Trash2 size={16} /> Delete
                   </Button>
                 </div>
@@ -157,6 +167,19 @@ export default function CategoriesPage() {
           )}
         </section>
       </div>
+      <ConfirmSheet
+        open={Boolean(deleting)}
+        danger
+        title="Delete category?"
+        body={`Delete ${deleting?.name ?? "this category"} and its assigned purchases? This cannot be undone.`}
+        confirmLabel="Delete"
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) state.deleteCategory(deleting.id);
+          setDeleting(null);
+          showFeedback("Category deleted.");
+        }}
+      />
     </>
   );
 }

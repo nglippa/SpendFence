@@ -27,7 +27,7 @@ export function CategoryCard({
     return (
       <Card
         className={cn(
-          "relative flex min-h-[8.75rem] flex-col overflow-hidden p-2.5 transition hover:-translate-y-0.5 hover:shadow-float sm:min-h-[9.25rem] sm:p-3",
+          "relative flex min-h-[9.25rem] flex-col overflow-hidden p-3 transition hover:-translate-y-0.5 hover:shadow-float sm:min-h-[9.5rem]",
           progress.status === "locked" && "border-rose-100 bg-rose-50/70",
           progress.status === "warning" && "border-amber-100 bg-amber-50/60"
         )}
@@ -43,18 +43,19 @@ export function CategoryCard({
           </span>
         </div>
 
-        <div className="mt-2 min-w-0">
-          <h2 className="truncate text-sm font-black leading-5 text-[#10201c] sm:text-base">{category.name}</h2>
-          <p className="mt-0.5 text-[0.68rem] font-black leading-4 text-slate-500 sm:text-xs">
-            {formatMoney(progress.spent)} / {formatMoney(category.limit)}
-          </p>
+        <div className="mt-2.5 min-w-0">
+          <h2 className="truncate text-sm font-black leading-5 text-[#10201c] sm:text-base" title={category.name}>{category.name}</h2>
         </div>
 
-        <div className="mt-auto pt-2.5">
+        <div className="mt-auto grid gap-2 pt-2.5">
           <ProgressBar percent={progress.percent} color={stateColor} compact />
-          <div className="mt-2 flex items-end justify-between gap-2">
-            <p className="min-w-0 text-[0.68rem] font-bold leading-4 text-slate-500">Remaining</p>
-            <p className="shrink-0 text-sm font-black leading-5 text-[#10201c]">{formatMoney(progress.remaining)}</p>
+          <div className="grid gap-1">
+            <p className="truncate text-[0.7rem] font-black leading-4 text-slate-500 sm:text-xs">
+              {formatMoney(progress.spent)} of {formatMoney(category.limit)} used
+            </p>
+            <p className="truncate text-xs font-black leading-4 text-[#10201c] sm:text-sm">
+              {formatMoney(progress.remaining)} left
+            </p>
           </div>
         </div>
       </Card>

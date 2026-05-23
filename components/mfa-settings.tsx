@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, KeyRound, LockKeyhole, RefreshCw, ShieldCheck, ShieldPlus, Smartphone, Trash2 } from "lucide-react";
 import { Button, Card, Field, Input, Pill, Select } from "@/components/ui";
+import { ConfirmSheet } from "@/components/settings-ui";
 import { useAuth } from "@/lib/auth";
 import { featureFlags } from "@/lib/feature-flags";
 import { assertSmsMfaEnabled, mfaProviders } from "@/lib/mfa-providers";
@@ -68,6 +69,7 @@ export function MfaSettings() {
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [trustedDeviceText, setTrustedDeviceText] = useState("No trusted device marker on this browser.");
+  const [pendingRemoval, setPendingRemoval] = useState<FactorSummary | null>(null);
 
   const hasTotp = factors.some((factor) => factor.type === "totp");
   const hasPhone = factors.some((factor) => factor.type === "phone");
@@ -298,12 +300,17 @@ export function MfaSettings() {
   }
 
   async function removeFactor(factor: FactorSummary) {
-    if (!supabase || !window.confirm(`Remove ${factor.type === "totp" ? "authenticator app" : "SMS"} MFA from this account?`)) return;
+    if (!supabase) return;
+    setPendingRemoval(factor);
+  }
+
+  async function confirmRemoveFactor() {
+    if (!supabase || !pendingRemoval) return;
     setWorking(true);
     setError("");
     setMessage("");
 
-    const result = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+    const result = await supabase.auth.mfa.unenroll({ factorId: pendingRemoval.id });
     if (result.error) {
       setError(result.error.message);
       setWorking(false);
@@ -311,6 +318,7 @@ export function MfaSettings() {
     }
 
     setMessage("MFA factor removed.");
+    setPendingRemoval(null);
     setWorking(false);
     await refreshStatus();
   }
@@ -576,6 +584,16 @@ export function MfaSettings() {
           Keep your authenticator recovery codes from Google Authenticator, Authy, Microsoft Authenticator, 1Password, or your password manager in a safe place.
         </p>
       </div>
+      <ConfirmSheet
+        open={Boolean(pendingRemoval)}
+        danger
+        working={working}
+        title="Remove MFA factor?"
+        body={`Remove ${pendingRemoval?.type === "totp" ? "authenticator app" : "SMS"} MFA from this account? You can add it again later.`}
+        confirmLabel="Remove"
+        onCancel={() => setPendingRemoval(null)}
+        onConfirm={confirmRemoveFactor}
+      />
     </Card>
   );
 }

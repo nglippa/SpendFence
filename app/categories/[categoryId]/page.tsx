@@ -7,6 +7,7 @@ import { ArrowLeft, PenLine, ReceiptText, Trash2 } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icons";
 import { PurchaseForm } from "@/components/purchase-form";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
+import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusCopy, warningMessage } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { Purchase, PurchaseInput } from "@/lib/types";
@@ -18,6 +19,8 @@ export default function CategoryDetailPage() {
   const state = useSpendFence();
   const category = state.categories.find((item) => item.id === categoryId);
   const [editing, setEditing] = useState<Purchase | null>(null);
+  const [deleting, setDeleting] = useState<Purchase | null>(null);
+  const [feedback, setFeedback] = useState("");
   const editFormRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,13 +62,12 @@ export default function CategoryDetailPage() {
     if (!editing) return;
     state.updatePurchase(editing.id, input);
     setEditing(null);
+    showFeedback("Purchase saved.");
   }
 
-  function deletePurchase(purchase: Purchase) {
-    const confirmed = window.confirm(`Delete ${purchase.merchant} for ${formatMoney(purchase.amount)}?`);
-    if (!confirmed) return;
-    state.deletePurchase(purchase.id);
-    if (editing?.id === purchase.id) setEditing(null);
+  function showFeedback(message: string) {
+    setFeedback(message);
+    window.setTimeout(() => setFeedback(""), 1800);
   }
 
   function movePurchase(purchase: Purchase, nextCategoryId: string) {
@@ -88,6 +90,7 @@ export default function CategoryDetailPage() {
           </Button>
         }
       />
+      <SettingsFeedback message={feedback} />
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.88fr_1.12fr]">
         <section className="grid content-start gap-4 sm:gap-5">
@@ -189,7 +192,7 @@ export default function CategoryDetailPage() {
                     <Button type="button" variant="secondary" size="sm" onClick={() => setEditing(purchase)}>
                       <PenLine size={15} /> Edit
                     </Button>
-                    <Button type="button" variant="danger" size="sm" onClick={() => deletePurchase(purchase)}>
+                    <Button type="button" variant="danger" size="sm" onClick={() => setDeleting(purchase)}>
                       <Trash2 size={15} /> Delete
                     </Button>
                   </div>
@@ -206,6 +209,22 @@ export default function CategoryDetailPage() {
           )}
         </Card>
       </div>
+      <ConfirmSheet
+        open={Boolean(deleting)}
+        danger
+        title="Delete purchase?"
+        body={`Delete ${deleting?.merchant ?? "this purchase"} for ${deleting ? formatMoney(deleting.amount) : ""}? This cannot be undone.`}
+        confirmLabel="Delete"
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) {
+            state.deletePurchase(deleting.id);
+            if (editing?.id === deleting.id) setEditing(null);
+          }
+          setDeleting(null);
+          showFeedback("Purchase deleted.");
+        }}
+      />
     </>
   );
 }

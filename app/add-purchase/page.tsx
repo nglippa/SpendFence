@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Edit3, FileText, Plus, ReceiptText, ScanLine, Trash2, Upload } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
 import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
+import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { Category, ReceiptCategoryAllocation, ReceiptLineItem, Purchase } from "@/lib/types";
@@ -35,6 +36,8 @@ export default function AddPurchasePage() {
   const [analysis, setAnalysis] = useState<ReceiptAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [receiptMessage, setReceiptMessage] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [deleting, setDeleting] = useState<Purchase | null>(null);
   const formRef = useRef<HTMLElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,6 +53,11 @@ export default function AddPurchasePage() {
   function editPurchase(purchase: Purchase) {
     setEditing(purchase);
     liftToForm();
+  }
+
+  function showFeedback(message: string) {
+    setFeedback(message);
+    window.setTimeout(() => setFeedback(""), 1800);
   }
 
   function uploadReceipt(event: ChangeEvent<HTMLInputElement>) {
@@ -154,6 +162,7 @@ export default function AddPurchasePage() {
   return (
     <>
       <PageHeader kicker="Add purchase" title="Log spending in seconds" body="Manual entry is always available. Receipt suggestions can be reviewed and edited before saving." />
+      <SettingsFeedback message={feedback} />
 
       <div className="grid gap-4 sm:gap-5">
         <Card className="scroll-mt-24">
@@ -175,6 +184,7 @@ export default function AddPurchasePage() {
               onSubmit={(input) => {
                 if (editing) state.updatePurchase(editing.id, input);
                 else state.addPurchase(input);
+                showFeedback(editing ? "Purchase saved." : "Purchase added.");
                 setEditing(null);
               }}
             />
@@ -257,7 +267,7 @@ export default function AddPurchasePage() {
                       <Button variant="secondary" size="sm" onClick={() => editPurchase(purchase)}>
                         <Edit3 size={16} /> Edit
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => state.deletePurchase(purchase.id)}>
+                      <Button variant="danger" size="sm" onClick={() => setDeleting(purchase)}>
                         <Trash2 size={16} /> Delete
                       </Button>
                     </div>
@@ -274,6 +284,19 @@ export default function AddPurchasePage() {
           )}
         </Card>
       </div>
+      <ConfirmSheet
+        open={Boolean(deleting)}
+        danger
+        title="Delete purchase?"
+        body={`Delete ${deleting?.merchant ?? "this purchase"} for ${deleting ? formatMoney(deleting.amount) : ""}? This cannot be undone.`}
+        confirmLabel="Delete"
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) state.deletePurchase(deleting.id);
+          setDeleting(null);
+          showFeedback("Purchase deleted.");
+        }}
+      />
     </>
   );
 }
