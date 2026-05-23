@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
     if (!user && !isPublic) router.replace("/login");
-    if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) router.replace("/dashboard");
+    if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) router.replace("/onboarding");
   }, [isPublic, loading, pathname, router, user]);
 
   if (isPublic) return <>{children}</>;
@@ -61,8 +61,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
-  const { notifications } = useSpendFence();
+  const router = useRouter();
+  const { notifications, onboardingProfile, ready } = useSpendFence();
   const unread = notifications.filter((item) => !item.read).length;
+  const isOnboarding = pathname.startsWith("/onboarding");
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!onboardingProfile.completed && !isOnboarding) router.replace("/onboarding");
+    if (onboardingProfile.completed && isOnboarding) router.replace("/dashboard");
+  }, [isOnboarding, onboardingProfile.completed, ready, router]);
+
+  if (isOnboarding) {
+    return <div className="min-h-screen">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">

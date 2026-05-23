@@ -80,6 +80,10 @@ export type InsightSettings = {
   spendingInsights: boolean;
   encouragementTone: "minimal" | "balanced";
   showDashboardInsights: boolean;
+  showReportInsights: boolean;
+  recurringDetection: boolean;
+  trendSummaries: boolean;
+  detailLevel: "minimal" | "balanced" | "detailed";
 };
 
 export type Notification = {
@@ -157,6 +161,24 @@ export type RecurringItem = {
   updatedAt: string;
 };
 
+export type OnboardingProfile = {
+  completed: boolean;
+  skipped: boolean;
+  completedAt?: string;
+  rhythm: "month-start" | "paycheck" | "custom";
+  incomeFrequency: "monthly" | "biweekly" | "weekly";
+  guardrailMode: "gentle" | "balanced" | "strict";
+  selectedCategoryIds: string[];
+  customCategoryNames: string[];
+  futureReady: {
+    plaidSync: boolean;
+    aiInsights: boolean;
+    recurringTransactions: boolean;
+    sharedBudgeting: boolean;
+    savingsGoals: boolean;
+  };
+};
+
 export type SpendFenceState = {
   userId?: string;
   budgetMonth: BudgetMonth;
@@ -170,6 +192,7 @@ export type SpendFenceState = {
   prompts: Prompt[];
   notificationSettings: NotificationSettings;
   insightSettings: InsightSettings;
+  onboardingProfile: OnboardingProfile;
   notifications: Notification[];
   aiCategorizationEnabled: boolean;
 };
@@ -192,6 +215,17 @@ export type PurchaseInput = Omit<Purchase, "id" | "source" | "recurringId"> & {
 };
 export type RecurringItemInput = Omit<RecurringItem, "id" | "active" | "detected" | "createdAt" | "updatedAt"> &
   Partial<Pick<RecurringItem, "active" | "detected">>;
+export type OnboardingCompleteInput = {
+  budgetCycleStartDay: number;
+  rhythm: OnboardingProfile["rhythm"];
+  income: number;
+  incomeFrequency: OnboardingProfile["incomeFrequency"];
+  guardrailMode: OnboardingProfile["guardrailMode"];
+  categories: CategoryInput[];
+  insightSettings: InsightSettings;
+  selectedCategoryIds: string[];
+  customCategoryNames: string[];
+};
 export type ReceiptDraftInput = Omit<Receipt, "id" | "status">;
 export type ImportedTransactionInput = Omit<
   ImportedTransaction,

@@ -39,7 +39,27 @@ export function createCleanState(): SpendFenceState {
     insightSettings: {
       spendingInsights: true,
       encouragementTone: "balanced",
-      showDashboardInsights: true
+      showDashboardInsights: true,
+      showReportInsights: true,
+      recurringDetection: true,
+      trendSummaries: true,
+      detailLevel: "balanced"
+    },
+    onboardingProfile: {
+      completed: false,
+      skipped: false,
+      rhythm: "month-start",
+      incomeFrequency: "monthly",
+      guardrailMode: "balanced",
+      selectedCategoryIds: [],
+      customCategoryNames: [],
+      futureReady: {
+        plaidSync: true,
+        aiInsights: true,
+        recurringTransactions: true,
+        sharedBudgeting: true,
+        savingsGoals: true
+      }
     },
     notifications: [],
     aiCategorizationEnabled: true
@@ -129,6 +149,13 @@ export function createDemoState(): SpendFenceState {
         lastUsedAt: daysAgo(3)
       }
     ],
+    onboardingProfile: {
+      ...createCleanState().onboardingProfile,
+      completed: true,
+      completedAt: daysAgo(12),
+      selectedCategoryIds: ["cat-groceries", "cat-gas", "cat-eating", "cat-kids", "cat-subs", "cat-fun", "cat-bills"],
+      customCategoryNames: []
+    },
     prompts: [
       { id: "prompt-1", message: "Set a grocery limit for this month.", type: "setup" },
       { id: "prompt-2", message: "Eating out is trending high. Lower the limit or slow spending?", type: "trend" },

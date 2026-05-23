@@ -14,6 +14,7 @@ import type {
   InsightSettings,
   Notification,
   NotificationSettings,
+  OnboardingCompleteInput,
   PurchaseInput,
   RecurringItemInput,
   Receipt,
@@ -53,6 +54,8 @@ type SpendFenceContextValue = SpendFenceState & {
   markNotificationRead: (id: string) => void;
   addToast: (notification: Omit<Notification, "id" | "createdAt" | "read">) => void;
   dismissToast: (id: string) => void;
+  completeOnboarding: (input: OnboardingCompleteInput) => void;
+  skipOnboarding: () => void;
   demoDataEnabled: boolean;
   enableDemoData: () => void;
   disableDemoData: () => void;
@@ -296,6 +299,44 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           ]
         })),
       dismissToast: (id) => setActiveState((current) => ({ ...current, notifications: current.notifications.filter((item) => item.id !== id) })),
+      completeOnboarding: (input) =>
+        setActiveState((current) => ({
+          ...current,
+          budgetMonth: {
+            ...current.budgetMonth,
+            userId,
+            income: input.income,
+            budgetCycleStartDay: input.budgetCycleStartDay
+          },
+          categories: input.categories.map((category, index) => ({
+            ...category,
+            id: current.categories[index]?.id ?? makeId("category"),
+            userId,
+            color: category.color || colors[index % colors.length]
+          })),
+          insightSettings: input.insightSettings,
+          onboardingProfile: {
+            ...current.onboardingProfile,
+            completed: true,
+            skipped: false,
+            completedAt: new Date().toISOString(),
+            rhythm: input.rhythm,
+            incomeFrequency: input.incomeFrequency,
+            guardrailMode: input.guardrailMode,
+            selectedCategoryIds: input.selectedCategoryIds,
+            customCategoryNames: input.customCategoryNames
+          }
+        })),
+      skipOnboarding: () =>
+        setActiveState((current) => ({
+          ...current,
+          onboardingProfile: {
+            ...current.onboardingProfile,
+            completed: true,
+            skipped: true,
+            completedAt: new Date().toISOString()
+          }
+        })),
       enableDemoData: () => setDemoDataEnabled(true),
       disableDemoData: () => setDemoDataEnabled(false),
       resetDemoData: () => setDemoState(withUserId(createDemoState(), userId))
@@ -321,6 +362,15 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     prompts: state.prompts ?? [],
     notificationSettings: { ...initialState.notificationSettings, ...state.notificationSettings },
     insightSettings: { ...initialState.insightSettings, ...state.insightSettings },
+    onboardingProfile: {
+      ...initialState.onboardingProfile,
+      ...state.onboardingProfile,
+      completed: state.onboardingProfile?.completed ?? Boolean(state.categories?.length || state.purchases?.length || state.recurringItems?.length),
+      futureReady: {
+        ...initialState.onboardingProfile.futureReady,
+        ...state.onboardingProfile?.futureReady
+      }
+    },
     notifications: state.notifications ?? [],
     aiCategorizationEnabled: state.aiCategorizationEnabled ?? true
   };
