@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useState } from "react";
+import type { Ref } from "react";
 import { Save, Upload } from "lucide-react";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 import type { Category, Purchase, PurchaseInput } from "@/lib/types";
@@ -10,12 +11,16 @@ export function PurchaseForm({
   categories,
   initial,
   onSubmit,
-  submitLabel = "Save purchase"
+  submitLabel = "Save purchase",
+  firstInputRef,
+  showReceiptUpload = true
 }: {
   categories: Category[];
   initial?: Purchase;
   onSubmit: (input: PurchaseInput) => void;
   submitLabel?: string;
+  firstInputRef?: Ref<HTMLInputElement>;
+  showReceiptUpload?: boolean;
 }) {
   const [form, setForm] = useState<PurchaseInput>({
     amount: initial?.amount ?? 0,
@@ -53,7 +58,7 @@ export function PurchaseForm({
     <form className="grid gap-4" onSubmit={submit}>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Amount">
-          <Input inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: Number(event.target.value) })} required />
+          <Input ref={firstInputRef} inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: Number(event.target.value) })} required />
         </Field>
         <Field label="Category">
           <Select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>
@@ -74,12 +79,16 @@ export function PurchaseForm({
       <Field label="Notes">
         <Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional detail" />
       </Field>
-      <Field label="Receipt image">
-        <Input type="file" accept="image/*" onChange={upload} />
-      </Field>
-      {form.receiptImage ? <img src={form.receiptImage} alt="Receipt preview" className="max-h-56 w-full rounded-2xl object-cover" /> : null}
+      {showReceiptUpload ? (
+        <>
+          <Field label="Receipt image">
+            <Input type="file" accept="image/*" onChange={upload} />
+          </Field>
+          {form.receiptImage ? <img src={form.receiptImage} alt="Receipt preview" className="max-h-56 w-full rounded-2xl object-cover" /> : null}
+        </>
+      ) : null}
       <Button type="submit" size="lg">
-        {form.receiptImage ? <Upload size={18} /> : <Save size={18} />}
+        {showReceiptUpload && form.receiptImage ? <Upload size={18} /> : <Save size={18} />}
         {submitLabel}
       </Button>
     </form>

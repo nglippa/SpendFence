@@ -37,6 +37,14 @@ export type ReceiptLineItem = {
   amount: number;
 };
 
+export type ReceiptCategoryAllocation = {
+  id: string;
+  categoryId: string;
+  amount: number;
+  confidence: number;
+  reason: string;
+};
+
 export type Receipt = {
   id: string;
   userId?: string;
@@ -46,6 +54,9 @@ export type Receipt = {
   categoryId: string;
   date: string;
   lineItems: ReceiptLineItem[];
+  allocations?: ReceiptCategoryAllocation[];
+  confidence?: number;
+  reason?: string;
   status: "draft" | "confirmed";
 };
 

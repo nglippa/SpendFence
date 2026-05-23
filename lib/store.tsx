@@ -123,19 +123,22 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
         setState((current) => {
           const receipt = current.receipts.find((item) => item.id === id);
           if (!receipt) return current;
-          const purchase = {
-            id: makeId("purchase"),
-            userId,
-            amount: receipt.total,
-            categoryId: receipt.categoryId,
-            merchant: receipt.merchant,
-            date: receipt.date,
-            notes: `Receipt import: ${receipt.lineItems.map((item) => item.name).join(", ")}`,
-            receiptImage: receipt.image,
-            source: "receipt" as const
-          };
-          const nextPurchases = [purchase, ...current.purchases];
-          const category = current.categories.find((item) => item.id === receipt.categoryId);
+          const allocations = receipt.allocations?.length ? receipt.allocations : [{ id: "allocation-default", categoryId: receipt.categoryId, amount: receipt.total, confidence: receipt.confidence ?? 0.5, reason: receipt.reason ?? "Receipt matched to selected category." }];
+          const purchases = allocations
+            .filter((allocation) => allocation.categoryId && allocation.amount > 0)
+            .map((allocation) => ({
+              id: makeId("purchase"),
+              userId,
+              amount: allocation.amount,
+              categoryId: allocation.categoryId,
+              merchant: receipt.merchant,
+              date: receipt.date,
+              notes: `Receipt import: ${receipt.lineItems.map((item) => item.name).join(", ")}. ${allocation.reason}`,
+              receiptImage: receipt.image,
+              source: "receipt" as const
+            }));
+          const nextPurchases = [...purchases, ...current.purchases];
+          const category = current.categories.find((item) => item.id === allocations[0]?.categoryId);
           return {
             ...current,
             purchases: nextPurchases,
