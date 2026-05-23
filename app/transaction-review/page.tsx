@@ -39,17 +39,23 @@ const demoImports: ImportedTransactionInput[] = [
   }
 ];
 
+type CategoryDraft = Omit<CategoryInput, "limit" | "warningThreshold" | "hardStopThreshold"> & {
+  limit: string;
+  warningThreshold: string;
+  hardStopThreshold: string;
+};
+
 export default function TransactionReviewPage() {
   const state = useSpendFence();
   const pending = state.importedTransactions.filter((transaction) => transaction.reviewStatus === "pending");
   const reviewed = state.importedTransactions.filter((transaction) => transaction.reviewStatus !== "pending");
   const [selectedCategories, setSelectedCategories] = useState<Record<string, string>>({});
   const [newCategoryFor, setNewCategoryFor] = useState<string | null>(null);
-  const [newCategory, setNewCategory] = useState<CategoryInput>({
+  const [newCategory, setNewCategory] = useState<CategoryDraft>({
     name: "",
-    limit: 250,
-    warningThreshold: 80,
-    hardStopThreshold: 100,
+    limit: "250",
+    warningThreshold: "80",
+    hardStopThreshold: "100",
     color: "#58c6a8",
     icon: "tag"
   });
@@ -82,9 +88,14 @@ export default function TransactionReviewPage() {
   function createCategory(event: FormEvent) {
     event.preventDefault();
     if (!newCategoryFor) return;
-    state.createCategoryForImportedTransaction(newCategoryFor, newCategory);
+    state.createCategoryForImportedTransaction(newCategoryFor, {
+      ...newCategory,
+      limit: parseDecimal(newCategory.limit),
+      warningThreshold: parseDecimal(newCategory.warningThreshold),
+      hardStopThreshold: parseDecimal(newCategory.hardStopThreshold)
+    });
     setNewCategoryFor(null);
-    setNewCategory({ name: "", limit: 250, warningThreshold: 80, hardStopThreshold: 100, color: "#58c6a8", icon: "tag" });
+    setNewCategory({ name: "", limit: "250", warningThreshold: "80", hardStopThreshold: "100", color: "#58c6a8", icon: "tag" });
   }
 
   return (
@@ -166,7 +177,7 @@ export default function TransactionReviewPage() {
                         <Input value={newCategory.name} onChange={(event) => setNewCategory({ ...newCategory, name: event.target.value })} required />
                       </Field>
                       <Field label="Monthly limit">
-                        <Input inputMode="decimal" value={newCategory.limit} onChange={(event) => setNewCategory({ ...newCategory, limit: Number(event.target.value) })} />
+                        <Input inputMode="decimal" value={newCategory.limit} onChange={(event) => setNewCategory({ ...newCategory, limit: event.target.value })} />
                       </Field>
                     </div>
                     <div className="flex gap-2">
@@ -233,6 +244,11 @@ function ConfidencePill({ confidence }: { confidence: number }) {
   if (confidence >= 0.82) return <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">High confidence</Pill>;
   if (confidence >= 0.62) return <Pill className="border-amber-100 bg-amber-50 text-amber-800">Suggested</Pill>;
   return <Pill className="border-slate-200 bg-white text-slate-600">Needs review</Pill>;
+}
+
+function parseDecimal(value: string) {
+  const parsed = Number(value.replace(/[$,%\s,]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 async function getServerSuggestion(transaction: ImportedTransactionInput, state: ReturnType<typeof useSpendFence>) {

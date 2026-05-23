@@ -3,6 +3,7 @@
 import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
 import { categoryProgress, formatMoney, statusClasses, statusCopy, warningMessage } from "@/lib/budget";
 import type { Category, Purchase } from "@/lib/types";
+import { CategoryIcon } from "@/components/category-icons";
 import { Card, Pill, ProgressBar } from "@/components/ui";
 
 export function CategoryCard({ category, purchases }: { category: Category; purchases: Purchase[] }) {
@@ -14,7 +15,9 @@ export function CategoryCard({ category, purchases }: { category: Category; purc
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full" style={{ background: category.color }} />
+            <span className="grid h-7 w-7 place-items-center rounded-xl text-white shadow-soft" style={{ background: category.color }}>
+              <CategoryIcon icon={category.icon} size={15} />
+            </span>
             <h2 className="text-base font-black text-[#10201c] sm:text-lg">{category.name}</h2>
           </div>
           <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatMoney(progress.remaining)} remaining</p>

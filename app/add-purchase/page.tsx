@@ -12,12 +12,19 @@ import { formatShortDate, fromDateInput, toDateInput } from "@/lib/utils";
 type ReceiptAnalysis = {
   merchant: string;
   date: string;
-  total: number;
+  total: string;
   lineItems: ReceiptLineItem[];
-  allocations: ReceiptCategoryAllocation[];
+  allocations: ReceiptAllocationDraft[];
   confidence: number;
   reason: string;
   aiUsed: boolean;
+};
+
+type ReceiptAllocationDraft = Omit<ReceiptCategoryAllocation, "amount"> & { amount: string };
+
+type ReceiptAnalysisResponse = Omit<ReceiptAnalysis, "total" | "allocations"> & {
+  total: number;
+  allocations: ReceiptCategoryAllocation[];
 };
 
 export default function AddPurchasePage() {
@@ -31,7 +38,7 @@ export default function AddPurchasePage() {
   const formRef = useRef<HTMLElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
 
-  const allocationTotal = useMemo(() => analysis?.allocations.reduce((sum, allocation) => sum + Number(allocation.amount || 0), 0) ?? 0, [analysis]);
+  const allocationTotal = useMemo(() => analysis?.allocations.reduce((sum, allocation) => sum + parseDecimal(allocation.amount), 0) ?? 0, [analysis]);
 
   function liftToForm() {
     window.setTimeout(() => {
@@ -70,20 +77,20 @@ export default function AddPurchasePage() {
           merchantRules: state.merchantCategoryRules
         })
       });
-      const data = (await response.json()) as ReceiptAnalysis | { message?: string };
+      const data = (await response.json()) as ReceiptAnalysisResponse | { message?: string };
       if (!response.ok || "message" in data) {
         setReceiptMessage(("message" in data ? data.message : undefined) ?? "Receipt analysis could not run.");
         return;
       }
-      const analysisData = data as ReceiptAnalysis;
-      setAnalysis(analysisData);
+      const analysisData = data as ReceiptAnalysisResponse;
+      setAnalysis(toReceiptAnalysisDraft(analysisData));
       setReceiptMessage(analysisData.aiUsed ? "AI receipt suggestions are ready for review." : "Mock receipt suggestions are ready for review.");
     } finally {
       setAnalyzing(false);
     }
   }
 
-  function patchAllocation(id: string, patch: Partial<ReceiptCategoryAllocation>) {
+  function patchAllocation(id: string, patch: Partial<ReceiptAllocationDraft>) {
     setAnalysis((current) =>
       current
         ? {
@@ -104,7 +111,7 @@ export default function AddPurchasePage() {
               {
                 id: `allocation-${Date.now()}`,
                 categoryId: state.categories[0]?.id ?? "",
-                amount: 0,
+                amount: "",
                 confidence: 0.5,
                 reason: "Manual split added for review."
               }
@@ -121,11 +128,11 @@ export default function AddPurchasePage() {
   function confirmReceipt() {
     if (!analysis?.allocations.length) return;
     analysis.allocations
-      .filter((allocation) => allocation.categoryId && allocation.amount > 0)
+      .filter((allocation) => allocation.categoryId && parseDecimal(allocation.amount) > 0)
       .forEach((allocation) => {
         const category = state.categories.find((item) => item.id === allocation.categoryId);
         state.addPurchase({
-          amount: Number(allocation.amount),
+          amount: parseDecimal(allocation.amount),
           categoryId: allocation.categoryId,
           merchant: analysis.merchant,
           date: analysis.date,
@@ -279,7 +286,7 @@ function ReceiptReviewCard({
   allocationTotal: number;
   message: string;
   onAnalysisChange: (analysis: ReceiptAnalysis | null) => void;
-  onPatchAllocation: (id: string, patch: Partial<ReceiptCategoryAllocation>) => void;
+  onPatchAllocation: (id: string, patch: Partial<ReceiptAllocationDraft>) => void;
   onAddAllocation: () => void;
   onRemoveAllocation: (id: string) => void;
   onConfirm: () => void;
@@ -292,7 +299,8 @@ function ReceiptReviewCard({
     );
   }
 
-  const totalMatches = Math.abs(allocationTotal - analysis.total) < 0.02;
+  const analysisTotal = parseDecimal(analysis.total);
+  const totalMatches = Math.abs(allocationTotal - analysisTotal) < 0.02;
 
   return (
     <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
@@ -308,7 +316,7 @@ function ReceiptReviewCard({
           <Input type="date" value={toDateInput(analysis.date)} onChange={(event) => onAnalysisChange({ ...analysis, date: fromDateInput(event.target.value) })} />
         </Field>
         <Field label="Total">
-          <Input inputMode="decimal" value={analysis.total} onChange={(event) => onAnalysisChange({ ...analysis, total: Number(event.target.value) })} />
+          <Input inputMode="decimal" value={analysis.total} onChange={(event) => onAnalysisChange({ ...analysis, total: event.target.value })} />
         </Field>
       </div>
 
@@ -316,7 +324,7 @@ function ReceiptReviewCard({
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-sm font-black text-slate-600">Suggested category allocation</p>
           <Pill className={totalMatches ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-amber-100 bg-amber-50 text-amber-800"}>
-            {formatMoney(allocationTotal)} / {formatMoney(analysis.total)}
+            {formatMoney(allocationTotal)} / {formatMoney(analysisTotal)}
           </Pill>
         </div>
         <div className="grid gap-2">
@@ -332,7 +340,7 @@ function ReceiptReviewCard({
                 </Select>
               </Field>
               <Field label="Amount">
-                <Input inputMode="decimal" value={allocation.amount} onChange={(event) => onPatchAllocation(allocation.id, { amount: Number(event.target.value) })} />
+                <Input inputMode="decimal" value={allocation.amount} onChange={(event) => onPatchAllocation(allocation.id, { amount: event.target.value })} />
               </Field>
               <Button type="button" variant="ghost" size="sm" onClick={() => onRemoveAllocation(allocation.id)}>
                 Remove
@@ -365,4 +373,17 @@ function ReceiptReviewCard({
       </Button>
     </div>
   );
+}
+
+function toReceiptAnalysisDraft(analysis: ReceiptAnalysisResponse): ReceiptAnalysis {
+  return {
+    ...analysis,
+    total: String(analysis.total),
+    allocations: analysis.allocations.map((allocation) => ({ ...allocation, amount: String(allocation.amount) }))
+  };
+}
+
+function parseDecimal(value: string) {
+  const parsed = Number(value.replace(/[$,%\s,]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
 }

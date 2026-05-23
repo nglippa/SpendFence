@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Bell, ListChecks, LogOut, RefreshCw, Save, ScanLine, ShieldAlert, UserRound, WalletCards } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input, PageHeader, Pill } from "@/components/ui";
@@ -21,6 +22,13 @@ export default function SettingsPage() {
   const state = useSpendFence();
   const auth = useAuth();
   const router = useRouter();
+  const [incomeDraft, setIncomeDraft] = useState(String(state.budgetMonth.income));
+  const [savingsDraft, setSavingsDraft] = useState(String(state.budgetMonth.savingsTarget));
+
+  useEffect(() => {
+    setIncomeDraft(String(state.budgetMonth.income));
+    setSavingsDraft(String(state.budgetMonth.savingsTarget));
+  }, [state.budgetMonth.income, state.budgetMonth.savingsTarget]);
 
   async function logout() {
     await auth.signOut();
@@ -38,10 +46,20 @@ export default function SettingsPage() {
               <Input value={state.budgetMonth.month} onChange={(event) => state.updateBudgetMonth({ ...state.budgetMonth, month: event.target.value })} />
             </Field>
             <Field label="Monthly income">
-              <Input inputMode="decimal" value={state.budgetMonth.income} onChange={(event) => state.updateBudgetMonth({ ...state.budgetMonth, income: Number(event.target.value) })} />
+              <Input
+                inputMode="decimal"
+                value={incomeDraft}
+                onChange={(event) => setIncomeDraft(event.target.value)}
+                onBlur={() => state.updateBudgetMonth({ ...state.budgetMonth, income: parseDecimal(incomeDraft) })}
+              />
             </Field>
             <Field label="Savings target">
-              <Input inputMode="decimal" value={state.budgetMonth.savingsTarget} onChange={(event) => state.updateBudgetMonth({ ...state.budgetMonth, savingsTarget: Number(event.target.value) })} />
+              <Input
+                inputMode="decimal"
+                value={savingsDraft}
+                onChange={(event) => setSavingsDraft(event.target.value)}
+                onBlur={() => state.updateBudgetMonth({ ...state.budgetMonth, savingsTarget: parseDecimal(savingsDraft) })}
+              />
             </Field>
           </div>
           <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 p-2.5 text-sm font-black text-emerald-700 sm:mt-4 sm:rounded-2xl sm:p-3">
@@ -133,4 +151,9 @@ export default function SettingsPage() {
       </div>
     </>
   );
+}
+
+function parseDecimal(value: string) {
+  const parsed = Number(value.replace(/[$,%\s,]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
 }

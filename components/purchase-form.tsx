@@ -22,8 +22,8 @@ export function PurchaseForm({
   firstInputRef?: Ref<HTMLInputElement>;
   showReceiptUpload?: boolean;
 }) {
-  const [form, setForm] = useState<PurchaseInput>({
-    amount: initial?.amount ?? 0,
+  const [form, setForm] = useState<Omit<PurchaseInput, "amount"> & { amount: string }>({
+    amount: initial?.amount === undefined ? "" : String(initial.amount),
     categoryId: initial?.categoryId ?? categories[0]?.id ?? "",
     merchant: initial?.merchant ?? "",
     date: initial?.date ?? new Date().toISOString(),
@@ -33,10 +33,10 @@ export function PurchaseForm({
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    onSubmit(form);
+    onSubmit({ ...form, amount: parseDecimal(form.amount) });
     if (!initial) {
       setForm({
-        amount: 0,
+        amount: "",
         categoryId: categories[0]?.id ?? "",
         merchant: "",
         date: new Date().toISOString(),
@@ -58,7 +58,7 @@ export function PurchaseForm({
     <form className="grid gap-4" onSubmit={submit}>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Amount">
-          <Input ref={firstInputRef} inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: Number(event.target.value) })} required />
+          <Input ref={firstInputRef} inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
         </Field>
         <Field label="Category">
           <Select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>
@@ -93,4 +93,9 @@ export function PurchaseForm({
       </Button>
     </form>
   );
+}
+
+function parseDecimal(value: string) {
+  const parsed = Number(value.replace(/[$,%\s,]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
 }
