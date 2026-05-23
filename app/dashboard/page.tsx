@@ -33,21 +33,23 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-[#183f36] text-white">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
+        <Card className="col-span-2 bg-[#183f36] text-white md:col-span-2">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
           <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
           <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
         </Card>
-        <Card>
+        <Card className="p-2.5 sm:p-3.5 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
-          <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(spent)}</p>
-          <ProgressBar percent={(spent / available) * 100} color="#58c6a8" />
+          <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(spent)}</p>
+          <div className="mt-2">
+            <ProgressBar percent={(spent / available) * 100} color="#58c6a8" compact />
+          </div>
         </Card>
-        <Card>
+        <Card className="p-2.5 sm:p-3.5 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Remaining</p>
-          <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(remaining)}</p>
-          <div className="mt-2.5 flex flex-wrap gap-1.5 sm:mt-3 sm:gap-2">
+          <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(remaining)}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
             <Pill className="border-amber-100 bg-amber-50 text-amber-800"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
             <Pill className="border-rose-100 bg-rose-50 text-rose-700"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
           </div>
