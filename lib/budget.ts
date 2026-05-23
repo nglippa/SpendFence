@@ -121,6 +121,14 @@ export function statusClasses(status: BudgetStatus) {
   }[status];
 }
 
+export function statusColor(status: BudgetStatus) {
+  return {
+    safe: "#18B889",
+    warning: "#F5B942",
+    locked: "#F05D5E"
+  }[status];
+}
+
 export function monthTrend(purchases: Purchase[]) {
   const map = new Map<string, { amount: number; timestamp: number }>();
   purchases.forEach((purchase) => {

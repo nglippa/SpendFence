@@ -9,7 +9,7 @@ import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { PurchaseForm } from "@/components/purchase-form";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
-import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusCopy, warningMessage } from "@/lib/budget";
+import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
 import { selectCategoryInsight } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
 import type { Purchase, PurchaseInput } from "@/lib/types";
@@ -128,7 +128,7 @@ export default function CategoryDetailPage() {
             </div>
 
             <div className="mt-4">
-              <ProgressBar percent={progress.percent} color={progress.status === "locked" ? "#fb7185" : progress.status === "warning" ? "#f59e0b" : category.color} />
+              <ProgressBar percent={progress.percent} color={statusColor(progress.status)} />
               <p className="mt-2.5 text-sm font-semibold leading-5 text-slate-600">{warningMessage(category, state.purchases, state.budgetMonth)}</p>
             </div>
           </Card>

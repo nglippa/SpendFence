@@ -5,6 +5,45 @@
 :root {
   color-scheme: light;
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --brand-primary: #18b889;
+  --brand-secondary: #2ed3b7;
+  --brand-accent: #7ef2d4;
+  --brand-deep: #0b1114;
+  --brand-graphite: #121a1f;
+  --brand-elevated: #182229;
+  --brand-border: #26343d;
+  --brand-gradient: linear-gradient(135deg, #0d8f6a 0%, #2ed3b7 100%);
+  --brand-dark-gradient: linear-gradient(135deg, #0f7660 0%, #18b889 100%);
+  --app-bg: #f5f7f6;
+  --app-card: #ffffff;
+  --app-secondary: #eef3f1;
+  --app-text: #0f1720;
+  --app-text-secondary: #5f6c76;
+  --app-text-muted: #8a98a5;
+  --app-success: #18b889;
+  --app-warning: #f5b942;
+  --app-danger: #f05d5e;
+  --app-info: #4b8cff;
+  --app-border: #dce5e1;
+  --app-ring: rgb(46 211 183 / 0.18);
+  --app-shadow: 0 16px 42px rgb(11 17 20 / 0.08);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --app-bg: #0b1114;
+  --app-card: #121a1f;
+  --app-secondary: #1d2a32;
+  --app-text: #f4f7f6;
+  --app-text-secondary: #a7b3bc;
+  --app-text-muted: #6f7d87;
+  --app-success: #1fd1a5;
+  --app-warning: #f5b942;
+  --app-danger: #ff6b6b;
+  --app-info: #5ea1ff;
+  --app-border: #26343d;
+  --app-ring: rgb(126 242 212 / 0.18);
+  --app-shadow: 0 16px 42px rgb(0 0 0 / 0.22);
 }
 
 * {
@@ -18,10 +57,18 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% -10%, rgba(87, 190, 170, 0.26), transparent 34rem),
-    radial-gradient(circle at 100% 4%, rgba(88, 129, 236, 0.16), transparent 32rem),
-    #f7faf7;
-  color: #10201c;
+    radial-gradient(circle at 12% -10%, rgb(46 211 183 / 0.18), transparent 34rem),
+    radial-gradient(circle at 100% 4%, rgb(75 140 255 / 0.09), transparent 32rem),
+    var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 12% -10%, rgb(46 211 183 / 0.12), transparent 34rem),
+    radial-gradient(circle at 100% 4%, rgb(94 161 255 / 0.08), transparent 32rem),
+    var(--app-bg);
 }
 
 button,
@@ -36,5 +83,214 @@ button {
 }
 
 ::selection {
-  background: rgba(82, 190, 166, 0.28);
+  background: rgb(126 242 212 / 0.32);
+}
+
+@layer utilities {
+  .text-\[\#10201c\],
+  .text-slate-950,
+  .text-slate-900,
+  .text-black {
+    color: var(--app-text);
+  }
+
+  .text-slate-800,
+  .text-slate-700,
+  .text-slate-600 {
+    color: var(--app-text-secondary);
+  }
+
+  .text-slate-500,
+  .text-slate-400,
+  .text-slate-300 {
+    color: var(--app-text-muted);
+  }
+
+  .text-\[\#183f36\],
+  .text-\[\#327d6d\] {
+    color: var(--brand-primary);
+  }
+
+  .text-\[\#58c6a8\] {
+    color: var(--brand-secondary);
+  }
+
+  .text-emerald-700,
+  .text-emerald-800 {
+    color: var(--app-success);
+  }
+
+  .text-amber-800,
+  .text-amber-900 {
+    color: var(--app-warning);
+  }
+
+  .text-rose-700,
+  .text-rose-800 {
+    color: var(--app-danger);
+  }
+
+  .bg-\[\#f7faf7\],
+  .bg-\[\#fbfdfb\],
+  .bg-slate-50,
+  .bg-slate-100 {
+    background-color: var(--app-secondary);
+  }
+
+  .bg-\[\#e9f3ee\],
+  .bg-\[\#f3fbf7\] {
+    background-color: rgb(24 184 137 / 0.1);
+  }
+
+  .bg-\[\#f4f8ff\] {
+    background-color: rgb(75 140 255 / 0.08);
+  }
+
+  .border-slate-100,
+  .border-slate-200,
+  .border-slate-200\/80,
+  .border-gray-200,
+  .border-\[\#cfe8de\],
+  .border-\[\#d9e7ff\] {
+    border-color: var(--app-border);
+  }
+
+  .bg-brand-gradient {
+    background-image: var(--brand-gradient);
+  }
+
+  .dark .bg-brand-gradient {
+    background-image: var(--brand-dark-gradient);
+  }
+
+  .shadow-soft,
+  .shadow-float {
+    box-shadow: var(--app-shadow);
+  }
+
+  .dark .text-\[\#10201c\] {
+    color: var(--app-text);
+  }
+
+  .dark .text-slate-950,
+  .dark .text-slate-900,
+  .dark .text-black {
+    color: var(--app-text);
+  }
+
+  .dark .text-slate-800,
+  .dark .text-slate-700,
+  .dark .text-slate-600 {
+    color: var(--app-text-secondary);
+  }
+
+  .dark .text-slate-500 {
+    color: var(--app-text-muted);
+  }
+
+  .dark .text-slate-400,
+  .dark .text-slate-300 {
+    color: var(--app-text-muted);
+  }
+
+  .dark .text-\[\#183f36\],
+  .dark .text-\[\#327d6d\] {
+    color: var(--brand-secondary);
+  }
+
+  .dark .text-emerald-700,
+  .dark .text-emerald-800 {
+    color: var(--app-success);
+  }
+
+  .dark .text-amber-800,
+  .dark .text-amber-900 {
+    color: var(--app-warning);
+  }
+
+  .dark .text-rose-700,
+  .dark .text-rose-800 {
+    color: var(--app-danger);
+  }
+
+  .dark .bg-white,
+  .dark .bg-white\/95 {
+    background-color: rgb(18 26 31 / 0.96);
+  }
+
+  .dark .bg-white\/88,
+  .dark .bg-white\/82,
+  .dark .bg-white\/80,
+  .dark .bg-white\/70 {
+    background-color: rgb(18 26 31 / 0.84);
+  }
+
+  .bg-\[\#183f36\],
+  .bg-\[\#327d6d\] {
+    background-color: var(--brand-primary);
+    background-image: var(--brand-gradient);
+  }
+
+  .dark .bg-\[\#183f36\],
+  .dark .bg-\[\#327d6d\] {
+    background-color: var(--brand-primary);
+    background-image: var(--brand-dark-gradient);
+  }
+
+  .bg-\[\#58c6a8\] {
+    background-color: var(--brand-primary);
+  }
+
+  .dark .bg-\[\#f7faf7\],
+  .dark .bg-\[\#fbfdfb\],
+  .dark .bg-\[\#e9f3ee\],
+  .dark .bg-\[\#f3fbf7\],
+  .dark .bg-\[\#f4f8ff\],
+  .dark .bg-slate-50,
+  .dark .bg-slate-100 {
+    background-color: rgb(29 42 50 / 0.78);
+  }
+
+  .dark .bg-emerald-50 {
+    background-color: rgb(31 209 165 / 0.12);
+  }
+
+  .dark .bg-amber-50 {
+    background-color: rgb(245 185 66 / 0.13);
+  }
+
+  .dark .bg-rose-50 {
+    background-color: rgb(255 107 107 / 0.13);
+  }
+
+  .dark .border-white,
+  .dark .border-white\/80,
+  .dark .border-white\/70,
+  .dark .border-slate-100,
+  .dark .border-slate-200,
+  .dark .border-slate-200\/80,
+  .dark .border-gray-200 {
+    border-color: var(--app-border);
+  }
+
+  .dark .border-\[\#cfe8de\],
+  .dark .border-\[\#d9e7ff\],
+  .dark .border-emerald-100,
+  .dark .border-amber-100,
+  .dark .border-rose-100 {
+    border-color: var(--app-border);
+  }
+
+  .dark .hover\:bg-white:hover,
+  .dark .hover\:bg-slate-50:hover,
+  .dark .hover\:bg-slate-100:hover,
+  .dark .hover\:bg-\[\#f7faf7\]:hover {
+    background-color: rgb(29 42 50 / 0.86);
+  }
+
+  .dark .hover\:text-\[\#10201c\]:hover,
+  .dark .hover\:text-\[\#183f36\]:hover,
+  .dark .hover\:text-slate-700:hover {
+    color: #f8fafc;
+  }
 }

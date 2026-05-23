@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 -mx-4 mb-4 border-b border-white/70 bg-[#f7faf7]/92 px-4 py-3 backdrop-blur-xl sm:-top-5 lg:-top-8">
-      <Link href="/settings" className="mb-3 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[#327d6d] transition hover:bg-white">
+    <div className="sticky -top-4 z-20 -mx-4 mb-4 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.92)] px-4 py-3 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)] sm:-top-5 lg:-top-8">
+      <Link href="/settings" className="mb-3 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)]">
         <ArrowLeft size={17} /> Settings
       </Link>
-      <h1 className="text-2xl font-black tracking-tight text-[#10201c] sm:text-3xl">{title}</h1>
-      {subtitle ? <p className="mt-1.5 max-w-2xl text-sm font-semibold leading-5 text-slate-600">{subtitle}</p> : null}
+      <h1 className="text-2xl font-black tracking-tight text-[var(--app-text)] sm:text-3xl">{title}</h1>
+      {subtitle ? <p className="mt-1.5 max-w-2xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{subtitle}</p> : null}
     </div>
   );
 }
@@ -21,8 +21,8 @@ export function SettingsDetailHeader({ title, subtitle }: { title: string; subti
 export function SettingsGroup({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <section className="grid gap-2">
-      {title ? <h2 className="px-1 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{title}</h2> : null}
-      <div className="overflow-hidden rounded-2xl border border-white/80 bg-white/88 shadow-soft backdrop-blur">{children}</div>
+      {title ? <h2 className="px-1 text-xs font-black uppercase tracking-[0.16em] text-[var(--app-text-muted)]">{title}</h2> : null}
+      <div className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur">{children}</div>
     </section>
   );
 }
@@ -44,18 +44,18 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white", danger ? "bg-rose-500" : "bg-[#327d6d]")}>
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-black sm:text-base", danger ? "text-rose-700" : "text-[#10201c]")}>{title}</p>
-        {subtitle ? <p className="mt-0.5 line-clamp-2 text-xs font-semibold leading-4 text-slate-500 sm:text-sm sm:leading-5">{subtitle}</p> : null}
+        <p className={cn("truncate text-sm font-black sm:text-base", danger ? "text-[var(--app-danger)]" : "text-[var(--app-text)]")}>{title}</p>
+        {subtitle ? <p className="mt-0.5 line-clamp-2 text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{subtitle}</p> : null}
       </div>
       {accessory ?? (href ? <ChevronRight size={18} className="shrink-0 text-slate-300" /> : null)}
     </>
   );
 
-  const className = "flex min-h-14 items-center gap-3 border-b border-slate-100 px-3 py-2.5 text-left transition last:border-b-0 hover:bg-[#f7faf7]";
+  const className = "flex min-h-14 items-center gap-3 border-b border-[var(--app-border)] px-3 py-2.5 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)]";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -87,18 +87,18 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="flex min-h-16 w-full items-center gap-3 border-b border-slate-100 px-3 py-2.5 text-left transition last:border-b-0 hover:bg-[#f7faf7] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex min-h-16 w-full items-center gap-3 border-b border-[var(--app-border)] px-3 py-2.5 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#327d6d] text-white">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white">
         <Icon size={18} />
       </div>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-black text-[#10201c] sm:text-base">{title}</span>
-        {subtitle ? <span className="mt-0.5 block text-xs font-semibold leading-4 text-slate-500 sm:text-sm sm:leading-5">{subtitle}</span> : null}
+        <span className="block text-sm font-black text-[var(--app-text)] sm:text-base">{title}</span>
+        {subtitle ? <span className="mt-0.5 block text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{subtitle}</span> : null}
       </span>
       {accessory}
-      <span className={cn("relative h-7 w-12 shrink-0 rounded-full p-1 transition-colors duration-200", checked ? "bg-[#183f36]" : "bg-slate-300")}>
-        <span className={cn("block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200", checked && "translate-x-5")} />
+      <span className={cn("relative h-7 w-12 shrink-0 rounded-full p-1 transition-colors duration-200", checked ? "bg-[var(--brand-primary)]" : "bg-[var(--app-border)]")}>
+        <span className={cn("block h-5 w-5 rounded-full bg-[var(--app-card)] shadow transition-transform duration-200", checked && "translate-x-5")} />
       </span>
     </button>
   );
@@ -107,7 +107,7 @@ export function SettingsSwitchRow({
 export function SettingsFeedback({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-2xl bg-emerald-50 px-3 py-2.5 text-sm font-black text-emerald-700 shadow-soft">
+    <div className="mb-4 flex items-center gap-2 rounded-2xl bg-emerald-50 px-3 py-2.5 text-sm font-black text-[var(--app-success)] shadow-soft dark:bg-[rgb(31_209_165_/_0.12)]">
       <CheckCircle2 size={17} /> {message}
     </div>
   );
@@ -135,13 +135,13 @@ export function ConfirmSheet({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[80] grid place-items-end bg-slate-950/30 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm sm:place-items-center sm:p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-4 shadow-float">
+      <div className="w-full max-w-md rounded-3xl bg-[var(--app-card)] p-4 shadow-float">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-black text-[#10201c]">{title}</h2>
-            <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600">{body}</p>
+            <h2 className="text-lg font-black text-[var(--app-text)]">{title}</h2>
+            <p className="mt-1.5 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{body}</p>
           </div>
-          <button type="button" onClick={onCancel} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500">
+          <button type="button" onClick={onCancel} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--app-secondary)] text-[var(--app-text-muted)]">
             <X size={17} />
           </button>
         </div>

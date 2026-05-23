@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
-import { categoryProgress, formatMoney, statusClasses, statusCopy, warningMessage } from "@/lib/budget";
+import { categoryProgress, formatMoney, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
 import type { BudgetMonth, Category, Purchase } from "@/lib/types";
 import { CategoryIcon } from "@/components/category-icons";
 import { Card, Pill, ProgressBar } from "@/components/ui";
@@ -20,7 +20,7 @@ export function CategoryCard({
 }) {
   const progress = categoryProgress(category, purchases, budgetMonth);
   const Icon = progress.status === "locked" ? LockKeyhole : progress.status === "warning" ? AlertTriangle : CheckCircle2;
-  const stateColor = progress.status === "locked" ? "#fb7185" : progress.status === "warning" ? "#f59e0b" : category.color;
+  const stateColor = statusColor(progress.status);
   const compactStatus = progress.status === "locked" ? "Limit" : progress.status === "warning" ? "Watch" : "Safe";
 
   if (variant === "compact") {

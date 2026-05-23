@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { PremiumBadge } from "@/components/upgrade-modal";
@@ -26,7 +27,7 @@ export default function PricingPage() {
       <div className="mx-auto max-w-6xl">
         <header className="flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/icon.svg" alt="" className="h-11 w-11 rounded-2xl shadow-soft" />
+            <BrandLogo className="h-11 w-auto" />
             <span className="text-lg font-black text-[#10201c]">SpendFence</span>
           </Link>
           <Button asChild variant="secondary" size="sm">
@@ -68,7 +69,7 @@ export default function PricingPage() {
           </Card>
         </section>
 
-        <Card className="mt-5 bg-[#183f36] text-white">
+        <Card className="mt-5 bg-brand-gradient text-white">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.16em] text-[#a8ead9]">Security stance</p>

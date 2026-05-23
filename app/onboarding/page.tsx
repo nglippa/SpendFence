@@ -13,16 +13,16 @@ import type { CategoryInput, InsightSettings, OnboardingProfile } from "@/lib/ty
 const draftKey = "spendfence-onboarding-draft-v1";
 
 const starterCategories = [
-  { id: "groceries", name: "Groceries", icon: "basket", color: "#58c6a8", percent: 0.12 },
-  { id: "dining", name: "Dining", icon: "utensils", color: "#f59e6b", percent: 0.06 },
-  { id: "gas", name: "Gas", icon: "fuel", color: "#5b8def", percent: 0.05 },
-  { id: "shopping", name: "Shopping", icon: "tag", color: "#a78bfa", percent: 0.06 },
-  { id: "bills", name: "Bills", icon: "receipt", color: "#64748b", percent: 0.28 },
-  { id: "entertainment", name: "Entertainment", icon: "sparkles", color: "#f472b6", percent: 0.04 },
-  { id: "health", name: "Health", icon: "heart", color: "#22c55e", percent: 0.05 },
-  { id: "family", name: "Kids/Family", icon: "heart", color: "#38bdf8", percent: 0.07 },
-  { id: "travel", name: "Travel", icon: "home", color: "#14b8a6", percent: 0.04 },
-  { id: "savings", name: "Savings", icon: "repeat", color: "#84cc16", percent: 0.1 }
+  { id: "groceries", name: "Groceries", icon: "basket", color: "#18B889", percent: 0.12 },
+  { id: "dining", name: "Dining", icon: "utensils", color: "#F5B942", percent: 0.06 },
+  { id: "gas", name: "Gas", icon: "fuel", color: "#4B8CFF", percent: 0.05 },
+  { id: "shopping", name: "Shopping", icon: "tag", color: "#2ED3B7", percent: 0.06 },
+  { id: "bills", name: "Bills", icon: "receipt", color: "#8A98A5", percent: 0.28 },
+  { id: "entertainment", name: "Entertainment", icon: "sparkles", color: "#5EA1FF", percent: 0.04 },
+  { id: "health", name: "Health", icon: "heart", color: "#1FD1A5", percent: 0.05 },
+  { id: "family", name: "Kids/Family", icon: "heart", color: "#7EF2D4", percent: 0.07 },
+  { id: "travel", name: "Travel", icon: "home", color: "#2ED3B7", percent: 0.04 },
+  { id: "savings", name: "Savings", icon: "repeat", color: "#18B889", percent: 0.1 }
 ] as const;
 
 const defaultSelected = ["groceries", "dining", "gas", "bills", "shopping"];
@@ -528,7 +528,7 @@ function buildCategoryDrafts(draft: Draft, monthlyIncome: number) {
     limit: parseMoney(draft.limits[`custom-${index}-${name}`]) || suggestedLimit(monthlyIncome, 0.05),
     warningThreshold: thresholds(draft.guardrailMode).warning,
     hardStopThreshold: thresholds(draft.guardrailMode).hardStop,
-    color: ["#14b8a6", "#8b5cf6", "#f97316"][index % 3],
+    color: ["#18B889", "#2ED3B7", "#4B8CFF"][index % 3],
     icon: "tag",
     percent: 0.05
   }));

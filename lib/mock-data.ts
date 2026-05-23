@@ -77,13 +77,13 @@ export function createDemoState(): SpendFenceState {
       budgetCycleStartDay: 1
     },
     categories: [
-      { id: "cat-groceries", name: "Groceries", limit: 720, warningThreshold: 80, hardStopThreshold: 100, color: "#58c6a8", icon: "basket" },
-      { id: "cat-gas", name: "Gas", limit: 260, warningThreshold: 75, hardStopThreshold: 100, color: "#5b8def", icon: "fuel" },
-      { id: "cat-eating", name: "Eating out", limit: 360, warningThreshold: 80, hardStopThreshold: 100, color: "#f59e6b", icon: "utensils" },
-      { id: "cat-kids", name: "Kids", limit: 420, warningThreshold: 85, hardStopThreshold: 100, color: "#a78bfa", icon: "heart" },
-      { id: "cat-subs", name: "Subscriptions", limit: 120, warningThreshold: 90, hardStopThreshold: 100, color: "#38bdf8", icon: "repeat" },
-      { id: "cat-fun", name: "Fun money", limit: 280, warningThreshold: 80, hardStopThreshold: 100, color: "#f472b6", icon: "sparkles" },
-      { id: "cat-bills", name: "Bills", limit: 1850, warningThreshold: 95, hardStopThreshold: 100, color: "#64748b", icon: "receipt" }
+      { id: "cat-groceries", name: "Groceries", limit: 720, warningThreshold: 80, hardStopThreshold: 100, color: "#18B889", icon: "basket" },
+      { id: "cat-gas", name: "Gas", limit: 260, warningThreshold: 75, hardStopThreshold: 100, color: "#4B8CFF", icon: "fuel" },
+      { id: "cat-eating", name: "Eating out", limit: 360, warningThreshold: 80, hardStopThreshold: 100, color: "#F5B942", icon: "utensils" },
+      { id: "cat-kids", name: "Kids", limit: 420, warningThreshold: 85, hardStopThreshold: 100, color: "#7EF2D4", icon: "heart" },
+      { id: "cat-subs", name: "Subscriptions", limit: 120, warningThreshold: 90, hardStopThreshold: 100, color: "#2ED3B7", icon: "repeat" },
+      { id: "cat-fun", name: "Fun money", limit: 280, warningThreshold: 80, hardStopThreshold: 100, color: "#5EA1FF", icon: "sparkles" },
+      { id: "cat-bills", name: "Bills", limit: 1850, warningThreshold: 95, hardStopThreshold: 100, color: "#8A98A5", icon: "receipt" }
     ],
     purchases: [
       { id: "p-1", amount: 146.82, categoryId: "cat-groceries", merchant: "Whole Harvest", date: daysAgo(4, 17, 45), notes: "Weekly groceries", source: "manual" },

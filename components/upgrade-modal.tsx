@@ -3,7 +3,7 @@
 import { Button, Pill } from "@/components/ui";
 
 export function PremiumBadge() {
-  return <Pill className="border-[#d9e7ff] bg-[#f4f8ff] text-[#315f96]">Premium</Pill>;
+  return <Pill className="border-[rgb(75_140_255_/_0.18)] bg-[rgb(75_140_255_/_0.08)] text-[var(--app-info)]">Premium</Pill>;
 }
 
 export function ProBadge() {
@@ -14,11 +14,11 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-[#10201c]/45 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-[2rem] border border-white/80 bg-white p-5 shadow-float">
+    <div className="fixed inset-0 z-[80] grid place-items-center bg-[#0B1114]/55 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-[2rem] border border-[var(--app-border)] bg-[var(--app-card)] p-5 shadow-float">
         <PremiumBadge />
-        <h2 className="mt-4 text-2xl font-black text-[#10201c]">Premium features are planned.</h2>
-        <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+        <h2 className="mt-4 text-2xl font-black text-[var(--app-text)]">Premium features are planned.</h2>
+        <p className="mt-2 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
           SpendFence is marking future Premium areas now, but subscriptions and payment checkout are not enabled yet.
         </p>
         <Button className="mt-5 w-full" variant="secondary" onClick={onClose}>

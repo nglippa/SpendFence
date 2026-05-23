@@ -63,7 +63,7 @@ type SpendFenceContextValue = SpendFenceState & {
 };
 
 const SpendFenceContext = createContext<SpendFenceContextValue | null>(null);
-const colors = ["#58c6a8", "#5b8def", "#f59e6b", "#a78bfa", "#38bdf8", "#f472b6", "#64748b", "#22c55e"];
+const colors = ["#18B889", "#2ED3B7", "#4B8CFF", "#7EF2D4", "#F5B942", "#5EA1FF", "#8A98A5", "#1FD1A5"];
 
 export function SpendFenceProvider({ children, userId }: { children: React.ReactNode; userId: string }) {
   const storageKey = `${STORAGE_KEY}:${userId}`;

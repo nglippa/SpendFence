@@ -1,7 +1,10 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
-import { CalendarClock, CheckCircle2, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload } from "lucide-react";
+import type { ReactNode, Ref } from "react";
+import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
+import { CalendarClock, CheckCircle2, ChevronRight, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload, X } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
 import { PremiumBadge } from "@/components/upgrade-modal";
 import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
@@ -30,9 +33,14 @@ type ReceiptAnalysisResponse = Omit<ReceiptAnalysis, "total" | "allocations"> & 
   allocations: ReceiptCategoryAllocation[];
 };
 
+type AddFlow = "manual" | "receipt" | "recurring";
+
 export default function AddPurchasePage() {
   const state = useSpendFence();
+  const [expanded, setExpanded] = useState<AddFlow | null>(null);
+  const [lastCompleted, setLastCompleted] = useState<AddFlow | null>(null);
   const [editing, setEditing] = useState<Purchase | null>(null);
+  const [manualFormKey, setManualFormKey] = useState(0);
   const [receiptImage, setReceiptImage] = useState<string | undefined>();
   const [receiptText, setReceiptText] = useState("");
   const [analysis, setAnalysis] = useState<ReceiptAnalysis | null>(null);
@@ -40,26 +48,55 @@ export default function AddPurchasePage() {
   const [receiptMessage, setReceiptMessage] = useState("");
   const [feedback, setFeedback] = useState("");
   const [deleting, setDeleting] = useState<Purchase | null>(null);
-  const formRef = useRef<HTMLElement>(null);
+  const manualSectionRef = useRef<HTMLDivElement>(null);
+  const receiptSectionRef = useRef<HTMLDivElement>(null);
+  const recurringSectionRef = useRef<HTMLDivElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
+  const receiptTextRef = useRef<HTMLTextAreaElement>(null);
+  const recurringNameRef = useRef<HTMLInputElement>(null);
 
   const allocationTotal = useMemo(() => analysis?.allocations.reduce((sum, allocation) => sum + parseDecimal(allocation.amount), 0) ?? 0, [analysis]);
 
-  function liftToForm() {
+  function openFlow(flow: AddFlow) {
+    setExpanded(flow);
     window.setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      amountInputRef.current?.focus();
-    }, 0);
+      const section = flow === "manual" ? manualSectionRef.current : flow === "receipt" ? receiptSectionRef.current : recurringSectionRef.current;
+      section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (flow === "manual") amountInputRef.current?.focus();
+      if (flow === "receipt") receiptTextRef.current?.focus();
+      if (flow === "recurring") recurringNameRef.current?.focus();
+    }, 180);
   }
 
   function editPurchase(purchase: Purchase) {
     setEditing(purchase);
-    liftToForm();
+    openFlow("manual");
   }
 
   function showFeedback(message: string) {
     setFeedback(message);
     window.setTimeout(() => setFeedback(""), 1800);
+  }
+
+  function completeFlow(flow: AddFlow, message: string) {
+    setLastCompleted(flow);
+    setExpanded(null);
+    showFeedback(message);
+    window.setTimeout(() => setLastCompleted((current) => (current === flow ? null : current)), 2400);
+  }
+
+  function resetManualFlow() {
+    setEditing(null);
+    setManualFormKey((current) => current + 1);
+    setExpanded(null);
+  }
+
+  function resetReceiptFlow() {
+    setReceiptImage(undefined);
+    setReceiptText("");
+    setAnalysis(null);
+    setReceiptMessage("");
+    setExpanded(null);
   }
 
   function uploadReceipt(event: ChangeEvent<HTMLInputElement>) {
@@ -158,7 +195,8 @@ export default function AddPurchasePage() {
     setReceiptImage(undefined);
     setReceiptText("");
     setAnalysis(null);
-    setReceiptMessage("Receipt purchases saved.");
+    setReceiptMessage("");
+    completeFlow("receipt", "Receipt saved.");
   }
 
   return (
@@ -167,17 +205,20 @@ export default function AddPurchasePage() {
       <SettingsFeedback message={feedback} />
 
       <div className="grid gap-4 sm:gap-5">
-        <Card className="scroll-mt-24">
-          <section ref={formRef} className="scroll-mt-24">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
-              <div>
-                <h2 className="text-lg font-black sm:text-xl">{editing ? `Editing ${editing.merchant}` : "Manual Purchase Entry"}</h2>
-                <p className="mt-1 text-sm font-semibold text-slate-600">Add a purchase without uploading a receipt.</p>
-              </div>
-              {editing ? <Pill className="border-amber-100 bg-amber-50 text-amber-800">Editing...</Pill> : null}
-            </div>
+        <div className="grid gap-3">
+          <AddActionCard
+            id="manual"
+            title={editing ? `Editing ${editing.merchant}` : "Manual Purchase"}
+            description="Quickly log a purchase manually."
+            icon={ReceiptText}
+            expanded={expanded === "manual"}
+            successLabel={lastCompleted === "manual" ? "Purchase added" : undefined}
+            sectionRef={manualSectionRef}
+            onToggle={() => (expanded === "manual" ? setExpanded(null) : openFlow("manual"))}
+          >
+            {editing ? <Pill className="w-fit border-amber-100 bg-amber-50 text-amber-800">Editing purchase</Pill> : null}
             <PurchaseForm
-              key={editing?.id ?? "new-purchase"}
+              key={editing?.id ?? `new-purchase-${manualFormKey}`}
               categories={state.categories}
               initial={editing ?? undefined}
               recurringItem={editing?.recurringId ? state.recurringItems.find((item) => item.id === editing.recurringId) : undefined}
@@ -187,86 +228,95 @@ export default function AddPurchasePage() {
               onSubmit={(input) => {
                 if (editing) state.updatePurchase(editing.id, input);
                 else state.addPurchase(input);
-                showFeedback(input.recurring?.enabled ? "Purchase and recurring rule saved." : editing ? "Purchase saved." : "Purchase added.");
+                completeFlow("manual", input.recurring?.enabled ? "Purchase and recurring rule saved." : editing ? "Purchase saved." : "Purchase added.");
                 setEditing(null);
               }}
             />
-            {editing ? (
-              <Button variant="secondary" className="mt-3 w-full" onClick={() => setEditing(null)}>
-                Cancel Edit
-              </Button>
-            ) : null}
-          </section>
-        </Card>
+            <Button type="button" variant="secondary" className="w-full" onClick={resetManualFlow}>
+              <X size={17} /> {editing ? "Cancel edit" : "Cancel"}
+            </Button>
+          </AddActionCard>
 
-        <RecurringManagementCard
-          categories={state.categories}
-          purchases={state.purchases}
-          recurringItems={state.recurringItems}
-          onAddRecurring={(input) => {
-            state.addRecurringItem(input);
-            showFeedback("Recurring item saved.");
-          }}
-          onUpdateRecurring={(id, input) => {
-            state.updateRecurringItem(id, input);
-            showFeedback("Recurring item updated.");
-          }}
-          onDeleteRecurring={(id) => {
-            state.deleteRecurringItem(id);
-            showFeedback("Recurring item deleted.");
-          }}
-        />
-
-        <Card>
-          <div className="mb-3 flex items-start gap-3 sm:mb-4">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
-              <ScanLine size={21} />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-black sm:text-xl">Scan Receipt</h2>
-                <PremiumBadge />
+          <AddActionCard
+            id="receipt"
+            title="Scan Receipt"
+            description="Extract purchases from a receipt photo."
+            icon={ScanLine}
+            expanded={expanded === "receipt"}
+            successLabel={lastCompleted === "receipt" ? "Receipt saved" : undefined}
+            sectionRef={receiptSectionRef}
+            titleAdornment={<PremiumBadge />}
+            onToggle={() => (expanded === "receipt" ? setExpanded(null) : openFlow("receipt"))}
+          >
+            <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
+              <div className="grid gap-3">
+                <label className="grid min-h-28 cursor-pointer place-items-center rounded-xl border border-dashed border-slate-300 bg-white p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[#58c6a8] hover:text-[#183f36] sm:rounded-2xl">
+                  <span>
+                    <Upload size={22} className="mx-auto mb-2" />
+                    Upload or take receipt photo
+                  </span>
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={uploadReceipt} />
+                </label>
+                {receiptImage ? <img src={receiptImage} alt="Receipt preview" className="max-h-56 w-full rounded-xl object-cover sm:rounded-2xl" /> : null}
+                <Field label="Optional OCR text">
+                  <Textarea ref={receiptTextRef} value={receiptText} onChange={(event) => setReceiptText(event.target.value)} placeholder="Paste receipt text if available. Card digits are redacted server-side." />
+                </Field>
+                <Button type="button" onClick={analyzeReceipt} disabled={analyzing || (!receiptImage && !receiptText.trim())}>
+                  <FileText size={17} /> {analyzing ? "Analyzing..." : "Analyze receipt"}
+                </Button>
+                <p className="text-xs font-bold leading-5 text-slate-500">
+                  Receipt images stay in this review screen unless you confirm. Obvious card or account digits are redacted before AI analysis.
+                </p>
               </div>
-              <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
-                Upload or take a receipt photo, review suggestions, then confirm categories before anything is saved.
-              </p>
-            </div>
-          </div>
 
-          <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="grid gap-3">
-              <label className="grid min-h-36 cursor-pointer place-items-center rounded-xl border border-dashed border-slate-300 bg-white p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[#58c6a8] hover:text-[#183f36] sm:rounded-2xl">
-                <span>
-                  <Upload size={22} className="mx-auto mb-2" />
-                  Upload or take receipt photo
-                </span>
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={uploadReceipt} />
-              </label>
-              {receiptImage ? <img src={receiptImage} alt="Receipt preview" className="max-h-56 w-full rounded-xl object-cover sm:rounded-2xl" /> : null}
-              <Field label="Optional OCR text">
-                <Textarea value={receiptText} onChange={(event) => setReceiptText(event.target.value)} placeholder="Paste receipt text if available. Card digits are redacted server-side." />
-              </Field>
-              <Button type="button" onClick={analyzeReceipt} disabled={analyzing || (!receiptImage && !receiptText.trim())}>
-                <FileText size={17} /> {analyzing ? "Analyzing..." : "Analyze receipt"}
-              </Button>
-              <p className="text-xs font-bold leading-5 text-slate-500">
-                Receipt images stay in this review screen unless you confirm. Obvious card or account digits are redacted before AI analysis.
-              </p>
+              <ReceiptReviewCard
+                analysis={analysis}
+                categories={state.categories}
+                allocationTotal={allocationTotal}
+                message={receiptMessage}
+                onAnalysisChange={setAnalysis}
+                onPatchAllocation={patchAllocation}
+                onAddAllocation={addAllocation}
+                onRemoveAllocation={removeAllocation}
+                onConfirm={confirmReceipt}
+              />
             </div>
+            <Button type="button" variant="secondary" className="w-full" onClick={resetReceiptFlow}>
+              <X size={17} /> Cancel
+            </Button>
+          </AddActionCard>
 
-            <ReceiptReviewCard
-              analysis={analysis}
+          <AddActionCard
+            id="recurring"
+            title="Recurring Purchase"
+            description="Track repeating bills and subscriptions."
+            icon={Repeat2}
+            expanded={expanded === "recurring"}
+            successLabel={lastCompleted === "recurring" ? "Recurring purchase created" : undefined}
+            sectionRef={recurringSectionRef}
+            onToggle={() => (expanded === "recurring" ? setExpanded(null) : openFlow("recurring"))}
+          >
+            <RecurringManagementCard
               categories={state.categories}
-              allocationTotal={allocationTotal}
-              message={receiptMessage}
-              onAnalysisChange={setAnalysis}
-              onPatchAllocation={patchAllocation}
-              onAddAllocation={addAllocation}
-              onRemoveAllocation={removeAllocation}
-              onConfirm={confirmReceipt}
+              purchases={state.purchases}
+              recurringItems={state.recurringItems}
+              firstInputRef={recurringNameRef}
+              onCancel={() => setExpanded(null)}
+              onAddRecurring={(input) => {
+                state.addRecurringItem(input);
+                completeFlow("recurring", "Recurring purchase created.");
+              }}
+              onUpdateRecurring={(id, input) => {
+                state.updateRecurringItem(id, input);
+                showFeedback("Recurring item updated.");
+              }}
+              onDeleteRecurring={(id) => {
+                state.deleteRecurringItem(id);
+                showFeedback("Recurring item deleted.");
+              }}
             />
-          </div>
-        </Card>
+          </AddActionCard>
+        </div>
 
         <Card>
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Purchase history</h2>
@@ -335,10 +385,95 @@ type RecurringFormState = {
   notes: string;
 };
 
+function AddActionCard({
+  title,
+  description,
+  icon: Icon,
+  expanded,
+  successLabel,
+  titleAdornment,
+  sectionRef,
+  onToggle,
+  children
+}: {
+  id: AddFlow;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  expanded: boolean;
+  successLabel?: string;
+  titleAdornment?: ReactNode;
+  sectionRef: Ref<HTMLDivElement>;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div ref={sectionRef} className="scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_14px_36px_rgba(16,32,28,0.07)]">
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        className="grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-3.5 text-left transition hover:bg-[#f7faf7] sm:p-4"
+        onClick={onToggle}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onToggle();
+          }
+        }}
+      >
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36]">
+          <Icon size={20} />
+        </div>
+        <div className="min-w-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="truncate text-base font-black text-[#10201c] sm:text-lg">{title}</h2>
+            {titleAdornment}
+            {successLabel ? (
+              <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                <CheckCircle2 size={13} /> {successLabel}
+              </Pill>
+            ) : null}
+          </div>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-600">{description}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={expanded ? "secondary" : "primary"}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggle();
+            }}
+          >
+            {expanded ? <X size={15} /> : <Plus size={15} />}
+            {expanded ? "Close" : "Add"}
+          </Button>
+          <ChevronRight size={18} className={`hidden text-slate-400 transition-transform sm:block ${expanded ? "rotate-90" : ""}`} />
+        </div>
+      </div>
+
+      <motion.div
+        initial={false}
+        animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
+        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+        className="overflow-hidden"
+        style={{ visibility: expanded ? "visible" : "hidden" }}
+        aria-hidden={!expanded}
+      >
+        <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div>
+      </motion.div>
+    </div>
+  );
+}
+
 function RecurringManagementCard({
   categories,
   purchases,
   recurringItems,
+  firstInputRef,
+  onCancel,
   onAddRecurring,
   onUpdateRecurring,
   onDeleteRecurring
@@ -346,6 +481,8 @@ function RecurringManagementCard({
   categories: Category[];
   purchases: Purchase[];
   recurringItems: RecurringItem[];
+  firstInputRef?: Ref<HTMLInputElement>;
+  onCancel?: () => void;
   onAddRecurring: (input: RecurringItemInput) => void;
   onUpdateRecurring: (id: string, input: RecurringItemInput) => void;
   onDeleteRecurring: (id: string) => void;
@@ -362,9 +499,7 @@ function RecurringManagementCard({
   const totals = recurringMonthlyTotals(recurringItems);
   const candidates = detectRecurringCandidates(purchases, recurringItems);
 
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    onAddRecurring(toRecurringInput(form, categories));
+  function resetForm() {
     setForm({
       name: "",
       amount: "",
@@ -374,6 +509,12 @@ function RecurringManagementCard({
       categoryId: categories[0]?.id ?? "",
       notes: ""
     });
+  }
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    onAddRecurring(toRecurringInput(form, categories));
+    resetForm();
   }
 
   function addCandidate(candidate: ReturnType<typeof detectRecurringCandidates>[number]) {
@@ -390,20 +531,8 @@ function RecurringManagementCard({
   }
 
   return (
-    <Card>
-      <div className="mb-3 flex items-start gap-3 sm:mb-4">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
-          <Repeat2 size={21} />
-        </div>
-        <div>
-          <h2 className="text-lg font-black sm:text-xl">Recurring Management</h2>
-          <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
-            Track subscriptions, recurring bills, and paycheck income without adding fake purchases.
-          </p>
-        </div>
-      </div>
-
-      <div className="mb-4 grid gap-2.5 sm:grid-cols-3">
+    <div className="grid gap-4">
+      <div className="grid gap-2.5 sm:grid-cols-3">
         <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-2xl">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Monthly charges</p>
           <p className="mt-1 text-xl font-black text-[#10201c]">{formatMoney(totals.charges)}</p>
@@ -421,7 +550,7 @@ function RecurringManagementCard({
       <form className="grid gap-3 rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4" onSubmit={submit}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Name">
-            <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
+            <Input ref={firstInputRef} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
           </Field>
           <Field label="Amount">
             <Input inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
@@ -470,6 +599,16 @@ function RecurringManagementCard({
         </div>
         <Button type="submit" disabled={form.kind !== "income" && !categories.length}>
           <Plus size={17} /> Add recurring item
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            resetForm();
+            onCancel?.();
+          }}
+        >
+          <X size={17} /> Cancel
         </Button>
       </form>
 
@@ -541,7 +680,7 @@ function RecurringManagementCard({
           <EmptyState compact icon={Repeat2} title="Recurring items will collect here" body="Use the toggle on a purchase, add one manually, or accept a detected recurring pattern." />
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 

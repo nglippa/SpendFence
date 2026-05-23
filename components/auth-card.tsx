@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowRight, Check, KeyRound, Mail, ShieldCheck } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, Field, Input, Pill } from "@/components/ui";
 import { MfaChallenge, MfaFactor, SignInResult, useAuth } from "@/lib/auth";
 import { featureFlags } from "@/lib/feature-flags";
@@ -171,7 +172,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     <main className="grid min-h-screen place-items-center px-4 py-10">
       <div className="w-full max-w-md">
         <Link href="/" className="mx-auto mb-6 flex w-max items-center gap-3">
-          <img src="/icon.svg" alt="" className="h-12 w-12 rounded-2xl shadow-soft" />
+          <BrandLogo className="h-12 w-auto" />
           <span className="text-xl font-black text-[#10201c]">SpendFence</span>
         </Link>
 

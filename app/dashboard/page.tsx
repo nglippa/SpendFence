@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const upcomingRecurring = upcomingRecurringItems(state.recurringItems, 45);
   const locked = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "locked").length;
   const warnings = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "warning").length;
+  const budgetPercent = available > 0 ? (spent / available) * 100 : 0;
+  const budgetColor = budgetPercent >= 100 ? "#F05D5E" : budgetPercent >= 80 ? "#F5B942" : "#18B889";
 
   return (
     <>
@@ -45,7 +47,7 @@ export default function DashboardPage() {
       ) : null}
 
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
-        <Card className="col-span-2 bg-[#183f36] text-white md:col-span-2">
+        <Card className="col-span-2 bg-brand-gradient text-white md:col-span-2">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
           <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
           <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
@@ -54,7 +56,7 @@ export default function DashboardPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
           <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(spent)}</p>
           <div className="mt-2">
-            <ProgressBar percent={(spent / available) * 100} color="#58c6a8" compact />
+            <ProgressBar percent={budgetPercent} color={budgetColor} compact />
           </div>
         </Card>
         <Card className="p-2.5 sm:p-3.5 md:p-5">

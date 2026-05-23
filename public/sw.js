@@ -1,5 +1,28 @@
-const CACHE_NAME = "spendfence-v1";
-const APP_SHELL = ["/", "/dashboard", "/categories", "/add-purchase", "/receipt-scanner", "/reports", "/notifications", "/settings", "/manifest.json", "/icon.svg"];
+const CACHE_NAME = "spendfence-v3";
+const APP_SHELL = [
+  "/",
+  "/dashboard",
+  "/categories",
+  "/add-purchase",
+  "/receipt-scanner",
+  "/reports",
+  "/notifications",
+  "/settings",
+  "/manifest.json",
+  "/brand/spendfence-logo-dark.png",
+  "/brand/spendfence-logo-light.png",
+  "/brand/spendfence-logo-light-transparent.png",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/apple-touch-icon.png",
+  "/favicon.ico",
+  "/favicon-16x16.png",
+  "/favicon-32x32.png",
+  "/favicon-light-16x16.png",
+  "/favicon-light-32x32.png",
+  "/favicon-dark-16x16.png",
+  "/favicon-dark-32x32.png"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));

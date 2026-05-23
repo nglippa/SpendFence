@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BellRing, ChartPie, CheckCircle2, LockKeyhole, ReceiptText, ScanLine, Shield } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, Pill, ProgressBar } from "@/components/ui";
 
 export default function LandingPage() {
@@ -10,7 +11,7 @@ export default function LandingPage() {
     <div className="overflow-hidden">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5">
         <Link href="/" className="flex items-center gap-3">
-          <img src="/icon.svg" alt="" className="h-11 w-11 rounded-2xl shadow-soft" />
+          <BrandLogo className="h-11 w-auto" />
           <span className="text-lg font-black text-[#10201c]">SpendFence</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-bold text-slate-600 md:flex">
@@ -61,9 +62,9 @@ export default function LandingPage() {
               </div>
               <div className="grid gap-4 p-5">
                 {[
-                  ["Groceries", 68, "#58c6a8", "Safe"],
-                  ["Eating out", 86, "#f59e0b", "Warning"],
-                  ["Kids", 101, "#fb7185", "Limit reached"]
+                  ["Groceries", 68, "#18B889", "Safe"],
+                  ["Eating out", 86, "#F5B942", "Warning"],
+                  ["Kids", 101, "#F05D5E", "Limit reached"]
                 ].map(([name, percent, color, status]) => (
                   <div key={name} className="rounded-3xl bg-[#f7faf7] p-4">
                     <div className="mb-2 flex items-center justify-between">
@@ -119,7 +120,7 @@ export default function LandingPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-4 py-12">
-          <Card className="bg-[#183f36] text-white">
+          <Card className="bg-brand-gradient text-white">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.16em] text-[#a8ead9]">Future ready</p>

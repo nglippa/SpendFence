@@ -27,7 +27,7 @@ export default function CategoriesPage() {
     limit: "300",
     warningThreshold: "80",
     hardStopThreshold: "100",
-    color: "#58c6a8",
+    color: "#18B889",
     icon: "tag"
   });
 
@@ -38,7 +38,7 @@ export default function CategoriesPage() {
     else state.addCategory(input);
     showFeedback(editing ? "Category saved." : "Category added.");
     setEditing(null);
-    setForm({ name: "", limit: "300", warningThreshold: "80", hardStopThreshold: "100", color: "#58c6a8", icon: "tag" });
+    setForm({ name: "", limit: "300", warningThreshold: "80", hardStopThreshold: "100", color: "#18B889", icon: "tag" });
   }
 
   function showFeedback(message: string) {

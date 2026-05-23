@@ -56,7 +56,7 @@ export default function TransactionReviewPage() {
     limit: "250",
     warningThreshold: "80",
     hardStopThreshold: "100",
-    color: "#58c6a8",
+    color: "#18B889",
     icon: "tag"
   });
   const highConfidenceCount = useMemo(
@@ -95,7 +95,7 @@ export default function TransactionReviewPage() {
       hardStopThreshold: parseDecimal(newCategory.hardStopThreshold)
     });
     setNewCategoryFor(null);
-    setNewCategory({ name: "", limit: "250", warningThreshold: "80", hardStopThreshold: "100", color: "#58c6a8", icon: "tag" });
+    setNewCategory({ name: "", limit: "250", warningThreshold: "80", hardStopThreshold: "100", color: "#18B889", icon: "tag" });
   }
 
   return (
