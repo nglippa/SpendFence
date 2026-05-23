@@ -15,7 +15,8 @@ export const initialState: SpendFenceState = {
     id: "month-current",
     month,
     income: 6200,
-    savingsTarget: 900
+    savingsTarget: 900,
+    budgetCycleStartDay: 1
   },
   categories: [
     { id: "cat-groceries", name: "Groceries", limit: 720, warningThreshold: 80, hardStopThreshold: 100, color: "#58c6a8", icon: "basket" },

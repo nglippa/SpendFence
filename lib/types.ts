@@ -6,6 +6,7 @@ export type BudgetMonth = {
   month: string;
   income: number;
   savingsTarget: number;
+  budgetCycleStartDay: number;
 };
 
 export type Category = {

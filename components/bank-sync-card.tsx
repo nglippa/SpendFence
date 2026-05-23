@@ -125,7 +125,7 @@ export function BankSyncCard() {
 
       <Card>
         <div className="grid gap-4 md:grid-cols-3">
-          <MiniFeature icon={Building2} title="Connected accounts" body={auth.isPro ? "No Sandbox accounts connected yet." : "Upgrade to manage synced accounts."} />
+          <MiniFeature icon={Building2} title="Connected accounts" body={auth.isPro ? "Your Sandbox connections will appear here after linking." : "Upgrade to manage synced accounts."} />
           <MiniFeature icon={RefreshCw} title="Review queue" body={auth.isPro ? "Imported transactions will wait here before they affect budgets." : "Pro users can review imports before saving."} />
           <MiniFeature icon={Sparkles} title="Category suggestions" body={auth.isPro ? "SpendFence will suggest categories from merchant patterns." : "Smart suggestions unlock with Pro."} />
         </div>

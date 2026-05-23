@@ -221,6 +221,7 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
   const normalized = {
     ...initialState,
     ...state,
+    budgetMonth: { ...initialState.budgetMonth, ...state.budgetMonth },
     importedTransactions: state.importedTransactions ?? [],
     merchantCategoryRules: state.merchantCategoryRules ?? initialState.merchantCategoryRules,
     categoryCorrections: state.categoryCorrections ?? [],
@@ -248,14 +249,14 @@ export function useSpendFence() {
 }
 
 function nextNotifications(current: SpendFenceState, category: SpendFenceState["categories"][number], purchases: SpendFenceState["purchases"]) {
-  const progress = categoryProgress(category, purchases);
+  const progress = categoryProgress(category, purchases, current.budgetMonth);
   const notifications = [...current.notifications];
   if (progress.status === "locked" && current.notificationSettings.limitReached) {
     notifications.unshift({
       id: makeId("notification"),
       userId: current.userId,
       title: "Limit reached",
-      body: warningMessage(category, purchases),
+      body: warningMessage(category, purchases, current.budgetMonth),
       level: "locked",
       createdAt: new Date().toISOString(),
       read: false
@@ -265,7 +266,7 @@ function nextNotifications(current: SpendFenceState, category: SpendFenceState["
       id: makeId("notification"),
       userId: current.userId,
       title: "Spending warning",
-      body: warningMessage(category, purchases),
+      body: warningMessage(category, purchases, current.budgetMonth),
       level: "warning",
       createdAt: new Date().toISOString(),
       read: false

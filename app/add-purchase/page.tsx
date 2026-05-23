@@ -1,9 +1,9 @@
 "use client";
 
 import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Plus, ScanLine, Trash2, Upload } from "lucide-react";
+import { CheckCircle2, Edit3, FileText, Plus, ReceiptText, ScanLine, Trash2, Upload } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
-import { Button, Card, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
+import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { Category, ReceiptCategoryAllocation, ReceiptLineItem, Purchase } from "@/lib/types";
@@ -236,34 +236,42 @@ export default function AddPurchasePage() {
 
         <Card>
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Purchase history</h2>
-          <div className="grid gap-2.5 sm:gap-3">
-            {state.purchases.map((purchase) => {
-              const category = state.categories.find((item) => item.id === purchase.categoryId);
-              return (
-                <div key={purchase.id} className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-black sm:text-lg">{purchase.merchant}</h3>
-                        {category ? <Pill className="border-slate-200 bg-white text-slate-600">{category.name}</Pill> : null}
-                        {purchase.source === "receipt" ? <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">receipt</Pill> : null}
+          {state.purchases.length ? (
+            <div className="grid gap-2.5 sm:gap-3">
+              {state.purchases.map((purchase) => {
+                const category = state.categories.find((item) => item.id === purchase.categoryId);
+                return (
+                  <div key={purchase.id} className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-black sm:text-lg">{purchase.merchant}</h3>
+                          {category ? <Pill className="border-slate-200 bg-white text-slate-600">{category.name}</Pill> : null}
+                          {purchase.source === "receipt" ? <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">receipt</Pill> : null}
+                        </div>
+                        <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(purchase.date)}</p>
                       </div>
-                      <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(purchase.date)}</p>
+                      <p className="text-lg font-black sm:text-xl">{formatMoney(purchase.amount)}</p>
                     </div>
-                    <p className="text-lg font-black sm:text-xl">{formatMoney(purchase.amount)}</p>
+                    <div className="mt-2.5 flex justify-end gap-2 sm:mt-3">
+                      <Button variant="secondary" size="sm" onClick={() => editPurchase(purchase)}>
+                        <Edit3 size={16} /> Edit
+                      </Button>
+                      <Button variant="danger" size="sm" onClick={() => state.deletePurchase(purchase.id)}>
+                        <Trash2 size={16} /> Delete
+                      </Button>
+                    </div>
                   </div>
-                  <div className="mt-2.5 flex justify-end gap-2 sm:mt-3">
-                    <Button variant="secondary" size="sm" onClick={() => editPurchase(purchase)}>
-                      <Edit3 size={16} /> Edit
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={() => state.deletePurchase(purchase.id)}>
-                      <Trash2 size={16} /> Delete
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              icon={ReceiptText}
+              title="Purchase history starts here"
+              body="Start with a quick manual entry, or scan a receipt when you want SpendFence to suggest the split."
+            />
+          )}
         </Card>
       </div>
     </>
@@ -293,9 +301,12 @@ function ReceiptReviewCard({
 }) {
   if (!analysis) {
     return (
-      <div className="rounded-xl bg-[#f7faf7] p-3.5 text-sm font-bold leading-5 text-slate-500 sm:rounded-3xl sm:p-5">
-        {message || "Receipt suggestions can be reviewed and edited before saving."}
-      </div>
+      <EmptyState
+        compact
+        icon={ScanLine}
+        title={message ? "Receipt ready when you are" : "Ready for a receipt when you are"}
+        body={message || "Upload a photo or paste receipt text to get editable merchant, total, line item, and category suggestions."}
+      />
     );
   }
 

@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, ListChecks, LogOut, RefreshCw, Save, ScanLine, ShieldAlert, UserRound, WalletCards } from "lucide-react";
+import { Bell, CalendarDays, ListChecks, LogOut, RefreshCw, Save, ScanLine, ShieldAlert, UserRound, WalletCards } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Field, Input, PageHeader, Pill } from "@/components/ui";
 import { BankSyncCard } from "@/components/bank-sync-card";
 import { MfaSettings } from "@/components/mfa-settings";
 import { useAuth } from "@/lib/auth";
-import { formatMoney } from "@/lib/budget";
+import { currentCycleLabel, currentCycleWindow, formatMoney, totalSpent } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 
 const secondaryTools = [
@@ -24,15 +24,43 @@ export default function SettingsPage() {
   const router = useRouter();
   const [incomeDraft, setIncomeDraft] = useState(String(state.budgetMonth.income));
   const [savingsDraft, setSavingsDraft] = useState(String(state.budgetMonth.savingsTarget));
+  const [cycleStartDraft, setCycleStartDraft] = useState(() => toDateValue(currentCycleWindow(state.budgetMonth).start));
 
   useEffect(() => {
     setIncomeDraft(String(state.budgetMonth.income));
     setSavingsDraft(String(state.budgetMonth.savingsTarget));
   }, [state.budgetMonth.income, state.budgetMonth.savingsTarget]);
 
+  useEffect(() => {
+    setCycleStartDraft(toDateValue(currentCycleWindow(state.budgetMonth).start));
+  }, [state.budgetMonth.budgetCycleStartDay]);
+
   async function logout() {
     await auth.signOut();
     router.replace("/login");
+  }
+
+  function commitCycleStart(value: string) {
+    const selected = fromDateValue(value);
+    if (!selected) return;
+    const nextDay = selected.getDate();
+    const currentDay = state.budgetMonth.budgetCycleStartDay;
+    if (nextDay === currentDay) return;
+
+    const nextBudgetMonth = { ...state.budgetMonth, budgetCycleStartDay: nextDay };
+    const currentSpent = totalSpent(state.purchases, state.budgetMonth);
+    const nextSpent = totalSpent(state.purchases, nextBudgetMonth);
+    const change = Math.abs(currentSpent - nextSpent);
+    if (change >= 100) {
+      const confirmed = window.confirm(
+        `Changing the budget reset day will update displayed cycle totals by ${formatMoney(change)}. Existing purchases will stay saved. Continue?`
+      );
+      if (!confirmed) {
+        setCycleStartDraft(toDateValue(currentCycleWindow(state.budgetMonth).start));
+        return;
+      }
+    }
+    state.updateBudgetMonth(nextBudgetMonth);
   }
 
   return (
@@ -61,6 +89,23 @@ export default function SettingsPage() {
                 onBlur={() => state.updateBudgetMonth({ ...state.budgetMonth, savingsTarget: parseDecimal(savingsDraft) })}
               />
             </Field>
+            <Field label="Budget month start date">
+              <Input
+                type="date"
+                value={cycleStartDraft}
+                onChange={(event) => {
+                  setCycleStartDraft(event.target.value);
+                  commitCycleStart(event.target.value);
+                }}
+              />
+            </Field>
+          </div>
+          <div className="mt-3 flex items-start gap-2 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:mt-4 sm:rounded-2xl sm:p-3">
+            <CalendarDays size={18} className="mt-0.5 shrink-0 text-[#327d6d]" />
+            <span>
+              <span className="block font-black text-[#10201c]">{currentCycleLabel(state.budgetMonth)}</span>
+              Choose the day your budget resets each month.
+            </span>
           </div>
           <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 p-2.5 text-sm font-black text-emerald-700 sm:mt-4 sm:rounded-2xl sm:p-3">
             <Save size={18} /> Saved automatically on this device.
@@ -156,4 +201,16 @@ export default function SettingsPage() {
 function parseDecimal(value: string) {
   const parsed = Number(value.replace(/[$,%\s,]/g, ""));
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function toDateValue(date: Date) {
+  const local = new Date(date);
+  local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+  return local.toISOString().slice(0, 10);
+}
+
+function fromDateValue(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
 }

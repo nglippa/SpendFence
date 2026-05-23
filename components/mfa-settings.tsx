@@ -559,7 +559,9 @@ export function MfaSettings() {
               </div>
             ))
           ) : (
-            <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-600">No MFA factors are enabled yet.</p>
+            <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold leading-5 text-slate-600">
+              MFA is ready when you want another layer of protection. Start with an authenticator app for the smoothest setup.
+            </p>
           )}
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, ListChecks, Plus, Sparkles, Trash2 } from "lucide-react";
-import { Button, Card, Field, Input, PageHeader, Pill, Select } from "@/components/ui";
+import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select } from "@/components/ui";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { CategoryInput, CategorySuggestion, ImportedTransactionInput, ImportedTransaction } from "@/lib/types";
@@ -194,13 +194,11 @@ export default function TransactionReviewPage() {
             ))
           ) : (
             <Card>
-              <div className="grid place-items-center gap-3 py-8 text-center">
-                <ListChecks size={34} className="text-[#327d6d]" />
-                <h2 className="text-lg font-black sm:text-xl">No transactions waiting</h2>
-                <p className="max-w-md text-sm font-semibold leading-6 text-slate-600">
-                  Imported Plaid or CSV transactions will appear here before they become purchases.
-                </p>
-              </div>
+              <EmptyState
+                icon={ListChecks}
+                title="Review queue is clear"
+                body="Imported transactions will pause here first, so you can approve categories before they affect your budget."
+              />
             </Card>
           )}
         </section>
@@ -231,7 +229,14 @@ export default function TransactionReviewPage() {
                   </Button>
                 </div>
               ))}
-              {!reviewed.length ? <p className="text-sm font-semibold text-slate-600">Reviewed imports will collect here.</p> : null}
+              {!reviewed.length ? (
+                <EmptyState
+                  compact
+                  icon={CheckCircle2}
+                  title="Reviewed imports will settle here"
+                  body="Accepted, changed, or ignored imports will collect here as a quiet audit trail."
+                />
+              ) : null}
             </div>
           </Card>
         </aside>

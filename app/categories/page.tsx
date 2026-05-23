@@ -1,10 +1,10 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
-import { Edit3, Plus, Trash2 } from "lucide-react";
+import { Edit3, Plus, Trash2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
-import { Button, Card, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
+import { Button, Card, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
 import { useSpendFence } from "@/lib/store";
 import type { Category, CategoryInput } from "@/lib/types";
 
@@ -132,19 +132,29 @@ export default function CategoriesPage() {
         </Card>
 
         <section className="grid gap-4 content-start">
-          {state.categories.map((category) => (
-            <div key={category.id} className="grid gap-2">
-              <CategoryCard category={category} purchases={state.purchases} />
-              <div className="flex justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => edit(category)}>
-                  <Edit3 size={16} /> Edit
-                </Button>
-                <Button variant="danger" size="sm" onClick={() => state.deleteCategory(category.id)}>
-                  <Trash2 size={16} /> Delete
-                </Button>
+          {state.categories.length ? (
+            state.categories.map((category) => (
+              <div key={category.id} className="grid gap-2">
+                <CategoryCard category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} />
+                <div className="flex justify-end gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => edit(category)}>
+                    <Edit3 size={16} /> Edit
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={() => state.deleteCategory(category.id)}>
+                    <Trash2 size={16} /> Delete
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <Card>
+              <EmptyState
+                icon={WalletCards}
+                title="Start with a few calm guardrails"
+                body="Create a few calm guardrails for the spending areas you care about. You can adjust limits anytime."
+              />
+            </Card>
+          )}
         </section>
       </div>
     </>

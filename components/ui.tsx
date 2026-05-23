@@ -1,4 +1,5 @@
 import { cloneElement, forwardRef, isValidElement } from "react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -102,10 +103,35 @@ export function PageHeader({ kicker, title, body, action }: { kicker: string; ti
   );
 }
 
-export function ProgressBar({ percent, color = "#58c6a8" }: { percent: number; color?: string }) {
+export function ProgressBar({ percent, color = "#58c6a8", compact = false }: { percent: number; color?: string; compact?: boolean }) {
   return (
-    <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 sm:h-3">
-      <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(percent, 125)}%`, background: color }} />
+    <div className={cn("overflow-hidden rounded-full bg-slate-100", compact ? "h-1.5 sm:h-2" : "h-2.5 sm:h-3")}>
+      <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${Math.min(percent, 125)}%`, background: color }} />
+    </div>
+  );
+}
+
+export function EmptyState({
+  icon: Icon,
+  title,
+  body,
+  action,
+  compact = false
+}: {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+  action?: React.ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <div className={cn("grid place-items-center rounded-xl bg-[#f7faf7] px-4 text-center sm:rounded-2xl", compact ? "py-4" : "py-8 sm:py-10")}>
+      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-[#327d6d] shadow-soft">
+        <Icon size={20} />
+      </div>
+      <h2 className="mt-3 text-base font-black text-[#10201c] sm:text-lg">{title}</h2>
+      <p className="mt-1.5 max-w-md text-sm font-semibold leading-5 text-slate-600 sm:leading-6">{body}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
     </div>
   );
 }
