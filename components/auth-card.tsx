@@ -286,12 +286,12 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
           {mode === "login" && auth.demoModeAvailable ? (
             <div className="mt-4 rounded-3xl border border-dashed border-[#cfe8de] bg-[#f7faf7] p-4">
-              <p className="text-sm font-black text-[#10201c]">Demo Mode</p>
+              <p className="text-sm font-black text-[#10201c]">Local Mode</p>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                Supabase keys are missing in development. Use local demo data without production authentication.
+                Supabase keys are missing in development. Use a local account without production authentication.
               </p>
               <Button type="button" variant="secondary" className="mt-3 w-full" onClick={enterDemo}>
-                Enter Demo Mode
+                Enter Local Mode
               </Button>
             </div>
           ) : null}

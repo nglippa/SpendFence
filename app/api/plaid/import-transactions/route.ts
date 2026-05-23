@@ -29,7 +29,7 @@ const sandboxTransactions: ImportedTransactionInput[] = [
 export async function POST(request: Request) {
   const plan = request.headers.get("x-spendfence-plan");
   if (plan !== "pro") {
-    return NextResponse.json({ message: "Automatic transaction imports require Pro." }, { status: 403 });
+    return NextResponse.json({ message: "Automatic transaction imports are reserved for future Premium bank sync." }, { status: 403 });
   }
 
   const body = (await request.json().catch(() => ({}))) as { userCategories?: Category[]; merchantRules?: MerchantCategoryRule[] };

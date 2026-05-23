@@ -1,25 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
-import { ProBadge, UpgradeModal } from "@/components/upgrade-modal";
-import { useState } from "react";
+import { PremiumBadge } from "@/components/upgrade-modal";
 
 const freeFeatures = ["Manual purchase entry", "Receipt upload", "Budget categories", "Spending warnings", "Reports"];
 const proFeatures = [
   "Everything in Free",
-  "Plaid Sandbox bank sync",
+  "Plaid bank sync",
   "Automatic transaction imports",
   "Connected account management",
   "Transaction review queue",
-  "Smart category suggestions"
+  "AI categorization",
+  "AI receipt understanding",
+  "Advanced analytics"
 ];
 
 export default function PricingPage() {
   const auth = useAuth();
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   return (
     <main className="min-h-screen px-4 py-8">
@@ -39,10 +39,10 @@ export default function PricingPage() {
             <ShieldCheck size={13} className="mr-1" /> Calm pricing
           </Pill>
           <h1 className="mx-auto mt-5 max-w-3xl text-5xl font-black leading-tight tracking-tight text-[#10201c]">
-            Manual budgeting stays free. Bank sync is Pro.
+            Manual budgeting stays free. Premium is planned.
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-            SpendFence keeps the core budget workflow simple. Upgrade only when you want Plaid-powered automatic transaction support.
+            SpendFence keeps the core budget workflow simple. Future Premium areas are marked now, but subscriptions are not enabled yet.
           </p>
         </section>
 
@@ -58,15 +58,12 @@ export default function PricingPage() {
           </Card>
 
           <Card className="border-[#cfe8de] p-6">
-            <ProBadge />
-            <h2 className="mt-4 text-3xl font-black text-[#10201c]">Pro</h2>
-            <p className="mt-2 text-sm font-semibold text-slate-600">For automatic bank-sync workflows, Sandbox first.</p>
+            <PremiumBadge />
+            <h2 className="mt-4 text-3xl font-black text-[#10201c]">Premium</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-600">Planned for deeper automation and analytics when subscriptions are enabled.</p>
             <FeatureList features={proFeatures} />
-            <Button size="lg" className="mt-6 w-full" onClick={() => setUpgradeOpen(true)}>
-              Upgrade to Pro <ArrowRight size={18} />
-            </Button>
             <p className="mt-3 text-xs font-bold leading-5 text-slate-500">
-              Stripe subscription checkout is scaffolded, but no real payment is processed until keys are configured.
+              No subscription checkout is active yet.
             </p>
           </Card>
         </section>
@@ -84,7 +81,6 @@ export default function PricingPage() {
           </div>
         </Card>
       </div>
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </main>
   );
 }

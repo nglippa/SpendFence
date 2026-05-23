@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Download, RefreshCw, ShieldAlert } from "lucide-react";
-import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow } from "@/components/settings-ui";
+import { Database, Download, RefreshCw, ShieldAlert, TestTube2 } from "lucide-react";
+import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow, SettingsSwitchRow } from "@/components/settings-ui";
 import { Button } from "@/components/ui";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
@@ -24,6 +24,7 @@ export default function PrivacySettingsPage() {
         budgetMonth: state.budgetMonth,
         categories: state.categories,
         purchases: state.purchases,
+        recurringItems: state.recurringItems,
         receipts: state.receipts,
         importedTransactions: state.importedTransactions,
         merchantCategoryRules: state.merchantCategoryRules,
@@ -54,6 +55,24 @@ export default function PrivacySettingsPage() {
     }, 250);
   }
 
+  function enableDemoData() {
+    try {
+      state.enableDemoData();
+      showFeedback("Demo data enabled.");
+    } catch {
+      showFeedback("Demo data could not be enabled.");
+    }
+  }
+
+  function disableDemoData() {
+    try {
+      state.disableDemoData();
+      showFeedback("Demo data disabled.");
+    } catch {
+      showFeedback("Demo data could not be disabled.");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl">
       <SettingsDetailHeader title="Data & Privacy" subtitle="Review local data and control reset/export actions." />
@@ -61,17 +80,38 @@ export default function PrivacySettingsPage() {
 
       <div className="grid gap-4">
         <SettingsGroup title="Local data">
-          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases`} subtitle={`Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
+          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases, ${state.recurringItems.length} recurring`} subtitle={`${state.demoDataEnabled ? "Demo mode is showing sample data." : "Personal data is active."} Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
           <SettingsRow icon={ShieldAlert} title="Frontend secrets stay out" subtitle="Provider tokens and AI keys belong server-side only." />
         </SettingsGroup>
 
-        <SettingsGroup title="Actions">
+        <SettingsGroup title="Demo Data">
+          <SettingsSwitchRow
+            icon={TestTube2}
+            title={state.demoDataEnabled ? "Disable Demo Data" : "Enable Demo Data"}
+            subtitle="Demo data lets testers explore SpendFence with sample categories and purchases."
+            checked={state.demoDataEnabled}
+            onChange={(checked) => {
+              if (checked) enableDemoData();
+              else disableDemoData();
+            }}
+          />
           <div className="grid gap-2 p-3 sm:grid-cols-2">
+            <Button variant="secondary" onClick={enableDemoData} disabled={state.demoDataEnabled}>
+              <TestTube2 size={18} /> Enable Demo Data
+            </Button>
+            <Button variant="secondary" onClick={disableDemoData} disabled={!state.demoDataEnabled}>
+              <ShieldAlert size={18} /> Disable Demo Data
+            </Button>
+            <Button variant="danger" className="sm:col-span-2" onClick={() => setConfirmResetOpen(true)}>
+              <RefreshCw size={18} /> Reset Demo Data
+            </Button>
+          </div>
+        </SettingsGroup>
+
+        <SettingsGroup title="Actions">
+          <div className="grid gap-2 p-3">
             <Button variant="secondary" onClick={exportData}>
               <Download size={18} /> Export data
-            </Button>
-            <Button variant="danger" onClick={() => setConfirmResetOpen(true)}>
-              <RefreshCw size={18} /> Reset demo data
             </Button>
           </div>
         </SettingsGroup>
@@ -82,7 +122,7 @@ export default function PrivacySettingsPage() {
         danger
         working={working}
         title="Reset demo data?"
-        body="This replaces the local demo budget with the curated sample data. Your current local categories, purchases, receipts, and settings will be replaced."
+        body="This refreshes only the separate demo workspace with curated sample categories, purchases, and reports. Your personal categories, purchases, receipts, and settings will not be changed."
         confirmLabel="Reset"
         onCancel={() => setConfirmResetOpen(false)}
         onConfirm={resetDemoData}

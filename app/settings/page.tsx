@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { SettingsGroup, SettingsRow } from "@/components/settings-ui";
 import { Pill } from "@/components/ui";
-import { useAuth } from "@/lib/auth";
 import { currentCycleLabel } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 
@@ -44,7 +43,7 @@ const settingsSections = [
       href: "/settings/notifications",
       icon: Bell,
       title: "Notifications",
-      subtitle: "Tune local spending nudges"
+      subtitle: "Tune local nudges and spending insights"
     }
   ],
   [
@@ -58,7 +57,7 @@ const settingsSections = [
       href: "/settings/premium",
       icon: Crown,
       title: "Premium",
-      subtitle: "Plan status and Pro demo controls"
+      subtitle: "Future Premium areas"
     },
     {
       href: "/settings/bank-sync",
@@ -97,7 +96,6 @@ const settingsSections = [
 
 export default function SettingsPage() {
   const state = useSpendFence();
-  const auth = useAuth();
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -105,7 +103,7 @@ export default function SettingsPage() {
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
         <h1 className="mt-1.5 text-3xl font-black tracking-tight text-[#10201c]">SpendFence</h1>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{auth.planLabel} plan</Pill>
+          <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Free plan</Pill>
           <Pill className="border-slate-200 bg-white text-slate-600">{currentCycleLabel(state.budgetMonth).replace("Current cycle: ", "")}</Pill>
         </div>
       </div>

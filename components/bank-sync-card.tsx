@@ -2,31 +2,32 @@
 
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Building2, CheckCircle2, ExternalLink, LockKeyhole, RefreshCw, Sparkles } from "lucide-react";
+import { Building2, CheckCircle2, LockKeyhole, RefreshCw, Sparkles } from "lucide-react";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
+import { isPremiumFeatureEnabled, premiumFeatures } from "@/lib/premium-features";
 import { useSpendFence } from "@/lib/store";
 import type { ImportedTransactionInput } from "@/lib/types";
-import { ProBadge, UpgradeModal } from "@/components/upgrade-modal";
+import { PremiumBadge } from "@/components/upgrade-modal";
 
 export function BankSyncCard() {
   const auth = useAuth();
   const state = useSpendFence();
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const bankSyncEnabled = auth.isPro && isPremiumFeatureEnabled("bank-sync");
 
   async function connectBank() {
     setMessage("");
-    if (!auth.isPro) {
-      setUpgradeOpen(true);
+    if (!bankSyncEnabled) {
+      setMessage("Bank sync is marked as a future Premium area. Subscriptions are not enabled yet.");
       return;
     }
 
     setLoading(true);
     const response = await fetch("/api/plaid/create-link-token", {
       method: "POST",
-      headers: { "x-spendfence-plan": auth.isPro ? "pro" : "free" }
+      headers: { "x-spendfence-plan": bankSyncEnabled ? "pro" : "free" }
     });
     setLoading(false);
 
@@ -49,7 +50,7 @@ export function BankSyncCard() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-spendfence-plan": auth.isPro ? "pro" : "free"
+            "x-spendfence-plan": bankSyncEnabled ? "pro" : "free"
           },
           body: JSON.stringify({ publicToken })
         });
@@ -62,15 +63,15 @@ export function BankSyncCard() {
 
   async function importSandboxTransactions() {
     setMessage("");
-    if (!auth.isPro) {
-      setUpgradeOpen(true);
+    if (!bankSyncEnabled) {
+      setMessage("Automatic imports are planned for Premium. You can keep using manual entry and receipt review today.");
       return;
     }
     const response = await fetch("/api/plaid/import-transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-spendfence-plan": auth.isPro ? "pro" : "free"
+        "x-spendfence-plan": bankSyncEnabled ? "pro" : "free"
       },
       body: JSON.stringify({ userCategories: state.categories, merchantRules: state.merchantCategoryRules })
     });
@@ -88,15 +89,15 @@ export function BankSyncCard() {
       <Card>
         <div className="flex items-start gap-3 sm:gap-4">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
-            {auth.isPro ? <Building2 size={20} /> : <LockKeyhole size={20} />}
+            {bankSyncEnabled ? <Building2 size={20} /> : <LockKeyhole size={20} />}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg font-black sm:text-xl">Plaid bank sync</h2>
-              <ProBadge />
+              <h2 className="text-lg font-black sm:text-xl">{premiumFeatures["bank-sync"].title}</h2>
+              <PremiumBadge />
             </div>
             <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
-              SpendFence uses Plaid for secure bank connection. We never collect bank usernames, passwords, account numbers, routing numbers, card numbers, or CVV.
+              {premiumFeatures["bank-sync"].description} SpendFence will keep sensitive bank credentials out of the app.
             </p>
             <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
               {["Automatic transaction imports", "Connected account management", "Transaction review queue", "Smart category suggestions"].map((item) => (
@@ -108,13 +109,14 @@ export function BankSyncCard() {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
-              <Button onClick={connectBank} disabled={loading}>
-                {auth.isPro ? <ExternalLink size={18} /> : <LockKeyhole size={18} />}
-                {loading ? "Preparing Sandbox..." : "Connect Bank"}
+              <Button onClick={connectBank} disabled={loading || !bankSyncEnabled}>
+                <LockKeyhole size={18} />
+                {loading ? "Preparing Sandbox..." : "Bank sync planned"}
               </Button>
-              <Button variant="secondary" onClick={importSandboxTransactions}>
-                Import Sandbox Transactions
+              <Button variant="secondary" onClick={importSandboxTransactions} disabled={!bankSyncEnabled}>
+                Sandbox imports planned
               </Button>
+              <Pill className="border-[#d9e7ff] bg-[#f4f8ff] text-[#315f96]">Subscriptions not enabled</Pill>
               <Pill className="border-slate-200 bg-white text-slate-600">Sandbox only</Pill>
               <Pill className="border-slate-200 bg-white text-slate-600">No access tokens in frontend</Pill>
             </div>
@@ -125,27 +127,11 @@ export function BankSyncCard() {
 
       <Card>
         <div className="grid gap-4 md:grid-cols-3">
-          <MiniFeature icon={Building2} title="Connected accounts" body={auth.isPro ? "Your Sandbox connections will appear here after linking." : "Upgrade to manage synced accounts."} />
-          <MiniFeature icon={RefreshCw} title="Review queue" body={auth.isPro ? "Imported transactions will wait here before they affect budgets." : "Pro users can review imports before saving."} />
-          <MiniFeature icon={Sparkles} title="Category suggestions" body={auth.isPro ? "SpendFence will suggest categories from merchant patterns." : "Smart suggestions unlock with Pro."} />
+          <MiniFeature icon={Building2} title="Connected accounts" body="Planned for Premium once subscriptions are available." />
+          <MiniFeature icon={RefreshCw} title="Review queue" body="Imported transactions will pause for review before they affect budgets." />
+          <MiniFeature icon={Sparkles} title="Category suggestions" body="Premium suggestions will build on merchant rules and your corrections." />
         </div>
       </Card>
-
-      {auth.demoProAvailable ? (
-        <Card>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-lg font-black sm:text-xl">Development Demo Pro</h2>
-              <p className="mt-1 text-sm font-semibold text-slate-600">Unlock Plaid Sandbox UI locally without a real subscription. Hidden in production.</p>
-            </div>
-            <Button variant={auth.demoProEnabled ? "secondary" : "primary"} onClick={() => auth.setDemoPro(!auth.demoProEnabled)}>
-              {auth.demoProEnabled ? "Disable Demo Pro" : "Enable Demo Pro"}
-            </Button>
-          </div>
-        </Card>
-      ) : null}
-
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </>
   );
 }

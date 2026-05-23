@@ -1,10 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import { BarChart3, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
+import { SmartInsightsSection } from "@/components/insights/smart-insights-section";
+import { PremiumBadge } from "@/components/upgrade-modal";
 import { Card, EmptyState, PageHeader, Pill } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle } from "@/lib/budget";
+import { selectSmartReportInsights } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
 import { formatShortDate } from "@/lib/utils";
 
@@ -15,10 +19,42 @@ export default function ReportsPage() {
   const close = state.categories
     .map((category) => ({ category, progress: categoryProgress(category, state.purchases, state.budgetMonth) }))
     .filter((item) => item.progress.status !== "safe");
+  const smartInsights = useMemo(
+    () => selectSmartReportInsights(state),
+    [state.budgetMonth, state.categories, state.insightSettings, state.purchases]
+  );
+  const cycleTotal = cyclePurchases.reduce((sum, purchase) => sum + purchase.amount, 0);
+  const activeCategories = new Set(cyclePurchases.map((purchase) => purchase.categoryId)).size;
 
   return (
     <>
-      <PageHeader kicker="Reports" title="Clean cycle insights" body={`${currentCycleLabel(state.budgetMonth)}. Simple charts and lists that show where your money is going.`} />
+      <PageHeader
+        kicker="Reports"
+        title="Clean cycle insights"
+        body={`${currentCycleLabel(state.budgetMonth)}. A calm read on what changed, what stayed steady, and what may need attention. Advanced analytics are marked for future Premium.`}
+        action={<PremiumBadge />}
+      />
+
+      <SmartInsightsSection insights={smartInsights} />
+
+      <section className="mb-4 grid grid-cols-2 gap-2.5 sm:mb-5 sm:gap-3 md:grid-cols-4">
+        <Card className="p-3 sm:p-4">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Cycle spend</p>
+          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{formatMoney(cycleTotal)}</p>
+        </Card>
+        <Card className="p-3 sm:p-4">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Active categories</p>
+          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{activeCategories}</p>
+        </Card>
+        <Card className="p-3 sm:p-4">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Close to fence</p>
+          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{close.length}</p>
+        </Card>
+        <Card className="p-3 sm:p-4">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Purchases</p>
+          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{cyclePurchases.length}</p>
+        </Card>
+      </section>
 
       <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <Card>

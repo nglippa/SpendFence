@@ -5,10 +5,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, PenLine, ReceiptText, Trash2 } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icons";
+import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { PurchaseForm } from "@/components/purchase-form";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusCopy, warningMessage } from "@/lib/budget";
+import { selectCategoryInsight } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
 import type { Purchase, PurchaseInput } from "@/lib/types";
 import { formatShortDate } from "@/lib/utils";
@@ -57,6 +59,7 @@ export default function CategoryDetailPage() {
   }
 
   const progress = categoryProgress(category, state.purchases, state.budgetMonth);
+  const categoryInsight = selectCategoryInsight(state, category.id);
 
   function updatePurchase(input: PurchaseInput) {
     if (!editing) return;
@@ -91,6 +94,7 @@ export default function CategoryDetailPage() {
         }
       />
       <SettingsFeedback message={feedback} />
+      <SpendInsightCard insight={categoryInsight} className="mb-4 sm:mb-5" />
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.88fr_1.12fr]">
         <section className="grid content-start gap-4 sm:gap-5">

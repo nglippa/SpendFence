@@ -28,9 +28,8 @@ export default function AccountSettingsPage() {
         <SettingsGroup title="Profile">
           <SettingsRow icon={UserRound} title={auth.user?.email ?? "Signed-in user"} subtitle="Current SpendFence account" />
           <div className="flex flex-wrap gap-1.5 border-b border-slate-100 px-3 py-3 last:border-b-0">
-            <Pill className="border-slate-200 bg-white text-slate-600">{auth.planLabel} plan</Pill>
+            <Pill className="border-slate-200 bg-white text-slate-600">Free plan</Pill>
             {auth.user?.isDemo ? <Pill className="border-amber-100 bg-amber-50 text-amber-800">Demo Mode</Pill> : null}
-            {auth.demoProEnabled ? <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Demo Pro</Pill> : null}
           </div>
         </SettingsGroup>
 

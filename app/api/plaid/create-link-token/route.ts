@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const plan = request.headers.get("x-spendfence-plan");
   if (plan !== "pro") {
-    return NextResponse.json({ message: "Plaid bank sync requires an active Pro subscription." }, { status: 403 });
+    return NextResponse.json({ message: "Plaid bank sync is marked as a future Premium area. Subscriptions are not enabled yet." }, { status: 403 });
   }
 
   const plaidEnv = process.env.PLAID_ENV ?? "sandbox";

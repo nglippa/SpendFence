@@ -104,9 +104,10 @@ export function PageHeader({ kicker, title, body, action }: { kicker: string; ti
 }
 
 export function ProgressBar({ percent, color = "#58c6a8", compact = false }: { percent: number; color?: string; compact?: boolean }) {
+  const width = Number.isFinite(percent) ? Math.min(Math.max(percent, 0), 125) : 0;
   return (
     <div className={cn("overflow-hidden rounded-full bg-slate-100", compact ? "h-1.5 sm:h-2" : "h-2.5 sm:h-3")}>
-      <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${Math.min(percent, 125)}%`, background: color }} />
+      <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${width}%`, background: color }} />
     </div>
   );
 }

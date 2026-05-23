@@ -29,6 +29,7 @@ export type Purchase = {
   date: string;
   notes?: string;
   receiptImage?: string;
+  recurringId?: string;
   source: "manual" | "receipt" | "future-bank-import";
 };
 
@@ -73,6 +74,12 @@ export type NotificationSettings = {
   limitReached: boolean;
   dailySummary: boolean;
   weeklyCheckIn: boolean;
+};
+
+export type InsightSettings = {
+  spendingInsights: boolean;
+  encouragementTone: "minimal" | "balanced";
+  showDashboardInsights: boolean;
 };
 
 export type Notification = {
@@ -129,23 +136,62 @@ export type UserCategoryCorrection = {
   createdAt: string;
 };
 
+export type RecurringFrequency = "weekly" | "biweekly" | "monthly" | "quarterly" | "yearly";
+
+export type RecurringKind = "subscription" | "bill" | "income";
+
+export type RecurringItem = {
+  id: string;
+  userId?: string;
+  name: string;
+  amount: number;
+  kind: RecurringKind;
+  frequency: RecurringFrequency;
+  nextDate: string;
+  categoryId?: string;
+  notes?: string;
+  active: boolean;
+  sourcePurchaseId?: string;
+  detected: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type SpendFenceState = {
   userId?: string;
   budgetMonth: BudgetMonth;
   categories: Category[];
   purchases: Purchase[];
+  recurringItems: RecurringItem[];
   receipts: Receipt[];
   importedTransactions: ImportedTransaction[];
   merchantCategoryRules: MerchantCategoryRule[];
   categoryCorrections: UserCategoryCorrection[];
   prompts: Prompt[];
   notificationSettings: NotificationSettings;
+  insightSettings: InsightSettings;
   notifications: Notification[];
   aiCategorizationEnabled: boolean;
 };
 
+export type StoredSpendFenceData = {
+  version: 2;
+  demoDataEnabled: boolean;
+  realState: SpendFenceState;
+  demoState: SpendFenceState;
+};
+
 export type CategoryInput = Omit<Category, "id">;
-export type PurchaseInput = Omit<Purchase, "id" | "source"> & { source?: Purchase["source"] };
+export type PurchaseInput = Omit<Purchase, "id" | "source" | "recurringId"> & {
+  source?: Purchase["source"];
+  recurring?: {
+    enabled: boolean;
+    frequency: RecurringFrequency;
+    kind: Exclude<RecurringKind, "income">;
+  };
+};
+export type RecurringItemInput = Omit<RecurringItem, "id" | "active" | "detected" | "createdAt" | "updatedAt"> &
+  Partial<Pick<RecurringItem, "active" | "detected">>;
 export type ReceiptDraftInput = Omit<Receipt, "id" | "status">;
 export type ImportedTransactionInput = Omit<
   ImportedTransaction,

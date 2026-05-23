@@ -105,9 +105,11 @@ export default function TransactionReviewPage() {
         title="Approve imported transactions"
         body="SpendFence suggests categories based on your past choices, merchant patterns, and optional AI assistance."
         action={
-          <Button onClick={importDemoTransactions}>
-            <Sparkles size={18} /> Import demo transactions
-          </Button>
+          state.demoDataEnabled ? (
+            <Button onClick={importDemoTransactions}>
+              <Sparkles size={18} /> Import demo transactions
+            </Button>
+          ) : undefined
         }
       />
 

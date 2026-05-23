@@ -3,22 +3,27 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { categoryProgress, formatMoney, warningMessage } from "@/lib/budget";
 import { categorizeTransaction, normalizeMerchant } from "@/lib/categorization";
-import { initialState } from "@/lib/mock-data";
+import { createDemoState, initialState } from "@/lib/mock-data";
+import { nextRecurringDate } from "@/lib/recurring";
 import type {
   BudgetMonth,
   CategoryInput,
   CategorySuggestion,
   ImportedTransaction,
   ImportedTransactionInput,
+  InsightSettings,
   Notification,
   NotificationSettings,
   PurchaseInput,
+  RecurringItemInput,
   Receipt,
   ReceiptDraftInput,
-  SpendFenceState
+  SpendFenceState,
+  StoredSpendFenceData
 } from "@/lib/types";
 
-const STORAGE_KEY = "spendfence-state-v1";
+const LEGACY_STORAGE_KEY = "spendfence-state-v1";
+const STORAGE_KEY = "spendfence-state-v2";
 
 type SpendFenceContextValue = SpendFenceState & {
   ready: boolean;
@@ -29,10 +34,14 @@ type SpendFenceContextValue = SpendFenceState & {
   addPurchase: (input: PurchaseInput) => void;
   updatePurchase: (id: string, input: PurchaseInput) => void;
   deletePurchase: (id: string) => void;
+  addRecurringItem: (input: RecurringItemInput) => void;
+  updateRecurringItem: (id: string, input: RecurringItemInput) => void;
+  deleteRecurringItem: (id: string) => void;
   createReceiptDraft: (input: ReceiptDraftInput) => Receipt;
   updateReceiptDraft: (id: string, input: ReceiptDraftInput) => void;
   confirmReceipt: (id: string) => void;
   updateNotificationSettings: (settings: NotificationSettings) => void;
+  updateInsightSettings: (settings: InsightSettings) => void;
   updateAiCategorization: (enabled: boolean) => void;
   addImportedTransactions: (transactions: ImportedTransactionInput[]) => void;
   applySuggestionToImportedTransaction: (id: string, suggestion: CategorySuggestion) => void;
@@ -44,6 +53,9 @@ type SpendFenceContextValue = SpendFenceState & {
   markNotificationRead: (id: string) => void;
   addToast: (notification: Omit<Notification, "id" | "createdAt" | "read">) => void;
   dismissToast: (id: string) => void;
+  demoDataEnabled: boolean;
+  enableDemoData: () => void;
+  disableDemoData: () => void;
   resetDemoData: () => void;
 };
 
@@ -52,32 +64,54 @@ const colors = ["#58c6a8", "#5b8def", "#f59e6b", "#a78bfa", "#38bdf8", "#f472b6"
 
 export function SpendFenceProvider({ children, userId }: { children: React.ReactNode; userId: string }) {
   const storageKey = `${STORAGE_KEY}:${userId}`;
-  const [state, setState] = useState<SpendFenceState>(() => withUserId(initialState, userId));
+  const legacyStorageKey = `${LEGACY_STORAGE_KEY}:${userId}`;
+  const [realState, setRealState] = useState<SpendFenceState>(() => withUserId(initialState, userId));
+  const [demoState, setDemoState] = useState<SpendFenceState>(() => withUserId(createDemoState(), userId));
+  const [demoDataEnabled, setDemoDataEnabled] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey) ?? window.localStorage.getItem(STORAGE_KEY);
+    const saved =
+      window.localStorage.getItem(storageKey) ??
+      window.localStorage.getItem(legacyStorageKey) ??
+      window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (saved) {
       try {
-        setState(withUserId(JSON.parse(saved) as SpendFenceState, userId));
+        const next = loadStoredData(JSON.parse(saved), userId);
+        setRealState(next.realState);
+        setDemoState(next.demoState);
+        setDemoDataEnabled(next.demoDataEnabled);
       } catch {
-        setState(withUserId(initialState, userId));
+        setRealState(withUserId(initialState, userId));
+        setDemoState(withUserId(createDemoState(), userId));
+        setDemoDataEnabled(false);
       }
     }
     setReady(true);
-  }, [storageKey, userId]);
+  }, [legacyStorageKey, storageKey, userId]);
 
   useEffect(() => {
-    if (ready) window.localStorage.setItem(storageKey, JSON.stringify(state));
-  }, [ready, state, storageKey]);
+    if (!ready) return;
+    const stored: StoredSpendFenceData = {
+      version: 2,
+      demoDataEnabled,
+      realState,
+      demoState
+    };
+    window.localStorage.setItem(storageKey, JSON.stringify(stored));
+  }, [demoDataEnabled, demoState, ready, realState, storageKey]);
+
+  const state = demoDataEnabled ? demoState : realState;
+  const setActiveState = demoDataEnabled ? setDemoState : setRealState;
 
   const value = useMemo<SpendFenceContextValue>(
     () => ({
       ...state,
       ready,
-      updateBudgetMonth: (budgetMonth) => setState((current) => ({ ...current, budgetMonth: { ...budgetMonth, userId } })),
+      demoDataEnabled,
+      updateBudgetMonth: (budgetMonth) => setActiveState((current) => ({ ...current, budgetMonth: { ...budgetMonth, userId } })),
       addCategory: (input) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           categories: [
             { ...input, id: makeId("category"), userId, color: input.color || colors[current.categories.length % colors.length] },
@@ -85,42 +119,94 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           ]
         })),
       updateCategory: (id, input) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           categories: current.categories.map((category) => (category.id === id ? { ...input, id, userId } : category))
         })),
       deleteCategory: (id) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           categories: current.categories.filter((category) => category.id !== id),
           purchases: current.purchases.filter((purchase) => purchase.categoryId !== id)
         })),
       addPurchase: (input) =>
-        setState((current) => {
-          const purchase = { ...input, id: makeId("purchase"), userId, source: input.source ?? "manual" };
+        setActiveState((current) => {
+          const recurringId = input.recurring?.enabled ? makeId("recurring") : undefined;
+          const purchase = buildPurchase(input, makeId("purchase"), userId, recurringId);
           const nextPurchases = [purchase, ...current.purchases];
           const category = current.categories.find((item) => item.id === input.categoryId);
           const notifications = category ? nextNotifications(current, category, nextPurchases) : current.notifications;
-          return { ...current, purchases: nextPurchases, notifications };
+          const recurringItems = input.recurring?.enabled
+            ? [
+                buildRecurringItem(
+                  {
+                    name: input.merchant,
+                    amount: input.amount,
+                    kind: input.recurring.kind,
+                    frequency: input.recurring.frequency,
+                    nextDate: nextRecurringDate(input.date, input.recurring.frequency),
+                    categoryId: input.categoryId,
+                    notes: input.notes,
+                    sourcePurchaseId: purchase.id,
+                    detected: false
+                  },
+                  recurringId!,
+                  userId
+                ),
+                ...current.recurringItems
+              ]
+            : current.recurringItems;
+          return { ...current, purchases: nextPurchases, recurringItems, notifications };
         }),
       updatePurchase: (id, input) =>
-        setState((current) => ({
+        setActiveState((current) => {
+          const existing = current.purchases.find((purchase) => purchase.id === id);
+          const recurringId = input.recurring?.enabled ? existing?.recurringId ?? makeId("recurring") : undefined;
+          const purchases = current.purchases.map((purchase) =>
+            purchase.id === id ? buildPurchase(input, id, userId, recurringId, purchase.source) : purchase
+          );
+          const recurringItems = syncRecurringFromPurchase(current.recurringItems, input, id, recurringId, userId, existing?.recurringId);
+          return { ...current, purchases, recurringItems };
+        }),
+      deletePurchase: (id) =>
+        setActiveState((current) => {
+          const purchase = current.purchases.find((item) => item.id === id);
+          return {
+            ...current,
+            purchases: current.purchases.filter((item) => item.id !== id),
+            recurringItems: purchase?.recurringId
+              ? current.recurringItems.map((item) => (item.id === purchase.recurringId ? { ...item, active: false, updatedAt: new Date().toISOString() } : item))
+              : current.recurringItems
+          };
+        }),
+      addRecurringItem: (input) =>
+        setActiveState((current) => ({
           ...current,
-          purchases: current.purchases.map((purchase) => (purchase.id === id ? { ...input, id, userId, source: input.source ?? purchase.source } : purchase))
+          recurringItems: [buildRecurringItem(input, makeId("recurring"), userId), ...current.recurringItems]
         })),
-      deletePurchase: (id) => setState((current) => ({ ...current, purchases: current.purchases.filter((purchase) => purchase.id !== id) })),
+      updateRecurringItem: (id, input) =>
+        setActiveState((current) => ({
+          ...current,
+          recurringItems: current.recurringItems.map((item) => (item.id === id ? buildRecurringItem(input, id, userId, item.createdAt) : item))
+        })),
+      deleteRecurringItem: (id) =>
+        setActiveState((current) => ({
+          ...current,
+          recurringItems: current.recurringItems.filter((item) => item.id !== id),
+          purchases: current.purchases.map((purchase) => (purchase.recurringId === id ? { ...purchase, recurringId: undefined } : purchase))
+        })),
       createReceiptDraft: (input) => {
         const receipt = { ...input, id: makeId("receipt"), userId, status: "draft" as const };
-        setState((current) => ({ ...current, receipts: [receipt, ...current.receipts] }));
+        setActiveState((current) => ({ ...current, receipts: [receipt, ...current.receipts] }));
         return receipt;
       },
       updateReceiptDraft: (id, input) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           receipts: current.receipts.map((receipt) => (receipt.id === id ? { ...input, id, userId, status: receipt.status } : receipt))
         })),
       confirmReceipt: (id) =>
-        setState((current) => {
+        setActiveState((current) => {
           const receipt = current.receipts.find((item) => item.id === id);
           if (!receipt) return current;
           const allocations = receipt.allocations?.length ? receipt.allocations : [{ id: "allocation-default", categoryId: receipt.categoryId, amount: receipt.total, confidence: receipt.confidence ?? 0.5, reason: receipt.reason ?? "Receipt matched to selected category." }];
@@ -146,10 +232,11 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
             notifications: category ? nextNotifications(current, category, nextPurchases) : current.notifications
           };
         }),
-      updateNotificationSettings: (settings) => setState((current) => ({ ...current, notificationSettings: settings })),
-      updateAiCategorization: (enabled) => setState((current) => ({ ...current, aiCategorizationEnabled: enabled })),
+      updateNotificationSettings: (settings) => setActiveState((current) => ({ ...current, notificationSettings: settings })),
+      updateInsightSettings: (settings) => setActiveState((current) => ({ ...current, insightSettings: settings })),
+      updateAiCategorization: (enabled) => setActiveState((current) => ({ ...current, aiCategorizationEnabled: enabled })),
       addImportedTransactions: (transactions) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           importedTransactions: [
             ...transactions.map((transaction) => buildImportedTransaction(transaction, current, userId)),
@@ -157,7 +244,7 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           ]
         })),
       applySuggestionToImportedTransaction: (id, suggestion) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           importedTransactions: current.importedTransactions.map((transaction) =>
             transaction.id === id
@@ -172,24 +259,24 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           )
         })),
       acceptImportedTransaction: (id, categoryId) =>
-        setState((current) => acceptImported(current, id, categoryId, userId, false)),
+        setActiveState((current) => acceptImported(current, id, categoryId, userId, false)),
       changeImportedTransactionCategory: (id, categoryId) =>
-        setState((current) => acceptImported(current, id, categoryId, userId, true)),
+        setActiveState((current) => acceptImported(current, id, categoryId, userId, true)),
       ignoreImportedTransaction: (id) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           importedTransactions: current.importedTransactions.map((transaction) =>
             transaction.id === id ? { ...transaction, reviewStatus: "ignored" } : transaction
           )
         })),
       bulkAcceptHighConfidenceImports: () =>
-        setState((current) =>
+        setActiveState((current) =>
           current.importedTransactions
             .filter((transaction) => transaction.reviewStatus === "pending" && transaction.confidence >= 0.82 && transaction.suggestedCategoryId)
             .reduce((next, transaction) => acceptImported(next, transaction.id, transaction.suggestedCategoryId, userId, false), current)
         ),
       createCategoryForImportedTransaction: (id, input) =>
-        setState((current) => {
+        setActiveState((current) => {
           const category = {
             ...input,
             id: makeId("category"),
@@ -199,19 +286,21 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           return acceptImported({ ...current, categories: [category, ...current.categories] }, id, category.id, userId, true);
         }),
       markNotificationRead: (id) =>
-        setState((current) => ({ ...current, notifications: current.notifications.map((item) => (item.id === id ? { ...item, read: true } : item)) })),
+        setActiveState((current) => ({ ...current, notifications: current.notifications.map((item) => (item.id === id ? { ...item, read: true } : item)) })),
       addToast: (notification) =>
-        setState((current) => ({
+        setActiveState((current) => ({
           ...current,
           notifications: [
             { ...notification, id: makeId("notification"), userId, createdAt: new Date().toISOString(), read: false },
             ...current.notifications
           ]
         })),
-      dismissToast: (id) => setState((current) => ({ ...current, notifications: current.notifications.filter((item) => item.id !== id) })),
-      resetDemoData: () => setState(withUserId(initialState, userId))
+      dismissToast: (id) => setActiveState((current) => ({ ...current, notifications: current.notifications.filter((item) => item.id !== id) })),
+      enableDemoData: () => setDemoDataEnabled(true),
+      disableDemoData: () => setDemoDataEnabled(false),
+      resetDemoData: () => setDemoState(withUserId(createDemoState(), userId))
     }),
-    [ready, state, userId]
+    [demoDataEnabled, ready, setActiveState, state, userId]
   );
 
   return <SpendFenceContext.Provider value={value}>{children}</SpendFenceContext.Provider>;
@@ -221,10 +310,18 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
   const normalized = {
     ...initialState,
     ...state,
-    budgetMonth: { ...initialState.budgetMonth, ...state.budgetMonth },
+    budgetMonth: { ...initialState.budgetMonth, ...(state.budgetMonth ?? {}) },
+    categories: state.categories ?? [],
+    purchases: state.purchases ?? [],
+    recurringItems: state.recurringItems ?? [],
+    receipts: state.receipts ?? [],
     importedTransactions: state.importedTransactions ?? [],
-    merchantCategoryRules: state.merchantCategoryRules ?? initialState.merchantCategoryRules,
+    merchantCategoryRules: state.merchantCategoryRules ?? [],
     categoryCorrections: state.categoryCorrections ?? [],
+    prompts: state.prompts ?? [],
+    notificationSettings: { ...initialState.notificationSettings, ...state.notificationSettings },
+    insightSettings: { ...initialState.insightSettings, ...state.insightSettings },
+    notifications: state.notifications ?? [],
     aiCategorizationEnabled: state.aiCategorizationEnabled ?? true
   };
 
@@ -234,6 +331,7 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     budgetMonth: { ...normalized.budgetMonth, userId },
     categories: normalized.categories.map((category) => ({ ...category, userId })),
     purchases: normalized.purchases.map((purchase) => ({ ...purchase, userId })),
+    recurringItems: normalized.recurringItems.map((item) => ({ ...item, userId })),
     receipts: normalized.receipts.map((receipt) => ({ ...receipt, userId })),
     importedTransactions: normalized.importedTransactions.map((transaction) => ({ ...transaction, userId })),
     merchantCategoryRules: normalized.merchantCategoryRules.map((rule) => ({ ...rule, userId })),
@@ -242,10 +340,101 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
   };
 }
 
+function loadStoredData(raw: unknown, userId: string): StoredSpendFenceData {
+  if (isStoredSpendFenceData(raw)) {
+    return {
+      version: 2,
+      demoDataEnabled: raw.demoDataEnabled,
+      realState: withUserId(raw.realState, userId),
+      demoState: withUserId(raw.demoState, userId)
+    };
+  }
+
+  const legacyState = raw && typeof raw === "object" ? (raw as SpendFenceState) : initialState;
+  return {
+    version: 2,
+    demoDataEnabled: false,
+    realState: withUserId(isLegacyDefaultDemoState(legacyState) ? initialState : legacyState, userId),
+    demoState: withUserId(createDemoState(), userId)
+  };
+}
+
+function isStoredSpendFenceData(raw: unknown): raw is StoredSpendFenceData {
+  if (!raw || typeof raw !== "object") return false;
+  const candidate = raw as Partial<StoredSpendFenceData>;
+  return candidate.version === 2 && Boolean(candidate.realState) && Boolean(candidate.demoState);
+}
+
+function isLegacyDefaultDemoState(state: SpendFenceState) {
+  const categoryIds = state.categories?.map((category) => category.id).sort().join(",");
+  const purchaseIds = state.purchases?.map((purchase) => purchase.id).sort().join(",");
+  const demoCategoryIds = ["cat-bills", "cat-eating", "cat-fun", "cat-gas", "cat-groceries", "cat-kids", "cat-subs"].join(",");
+  const demoPurchaseIds = ["p-1", "p-2", "p-3", "p-4", "p-5", "p-6", "p-7"].join(",");
+  const hasUserCreatedData = Boolean(state.receipts?.length || state.importedTransactions?.length || state.categoryCorrections?.length);
+
+  return categoryIds === demoCategoryIds && purchaseIds === demoPurchaseIds && !hasUserCreatedData;
+}
+
 export function useSpendFence() {
   const context = useContext(SpendFenceContext);
   if (!context) throw new Error("useSpendFence must be used inside SpendFenceProvider");
   return context;
+}
+
+function buildPurchase(input: PurchaseInput, id: string, userId: string, recurringId?: string, fallbackSource?: SpendFenceState["purchases"][number]["source"]) {
+  const { recurring, ...purchaseInput } = input;
+  return {
+    ...purchaseInput,
+    id,
+    userId,
+    recurringId,
+    source: input.source ?? fallbackSource ?? "manual"
+  };
+}
+
+function buildRecurringItem(input: RecurringItemInput, id: string, userId: string, createdAt = new Date().toISOString()) {
+  const now = new Date().toISOString();
+  return {
+    ...input,
+    id,
+    userId,
+    active: input.active ?? true,
+    detected: input.detected ?? false,
+    createdAt,
+    updatedAt: now
+  };
+}
+
+function syncRecurringFromPurchase(
+  recurringItems: SpendFenceState["recurringItems"],
+  input: PurchaseInput,
+  purchaseId: string,
+  recurringId: string | undefined,
+  userId: string,
+  previousRecurringId?: string
+) {
+  if (!input.recurring?.enabled || !recurringId) {
+    if (!previousRecurringId) return recurringItems;
+    return recurringItems.map((item) => (item.id === previousRecurringId ? { ...item, active: false, updatedAt: new Date().toISOString() } : item));
+  }
+
+  const nextInput: RecurringItemInput = {
+    name: input.merchant,
+    amount: input.amount,
+    kind: input.recurring.kind,
+    frequency: input.recurring.frequency,
+    nextDate: nextRecurringDate(input.date, input.recurring.frequency),
+    categoryId: input.categoryId,
+    notes: input.notes,
+    sourcePurchaseId: purchaseId,
+    active: true,
+    detected: false
+  };
+  const existing = recurringItems.find((item) => item.id === recurringId);
+  if (existing) {
+    return recurringItems.map((item) => (item.id === recurringId ? buildRecurringItem(nextInput, recurringId, userId, item.createdAt) : item));
+  }
+  return [buildRecurringItem(nextInput, recurringId, userId), ...recurringItems];
 }
 
 function nextNotifications(current: SpendFenceState, category: SpendFenceState["categories"][number], purchases: SpendFenceState["purchases"]) {

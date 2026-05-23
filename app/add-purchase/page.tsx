@@ -1,13 +1,15 @@
 "use client";
 
-import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Plus, ReceiptText, ScanLine, Trash2, Upload } from "lucide-react";
+import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
+import { CalendarClock, CheckCircle2, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
+import { PremiumBadge } from "@/components/upgrade-modal";
 import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { formatMoney } from "@/lib/budget";
+import { detectRecurringCandidates, monthlyRecurringAmount, nextRecurringDate, recurringFrequencyLabel, recurringKindLabel, recurringMonthlyTotals } from "@/lib/recurring";
 import { useSpendFence } from "@/lib/store";
-import type { Category, ReceiptCategoryAllocation, ReceiptLineItem, Purchase } from "@/lib/types";
+import type { Category, ReceiptCategoryAllocation, ReceiptLineItem, Purchase, RecurringFrequency, RecurringItem, RecurringItemInput, RecurringKind } from "@/lib/types";
 import { formatShortDate, fromDateInput, toDateInput } from "@/lib/utils";
 
 type ReceiptAnalysis = {
@@ -178,13 +180,14 @@ export default function AddPurchasePage() {
               key={editing?.id ?? "new-purchase"}
               categories={state.categories}
               initial={editing ?? undefined}
+              recurringItem={editing?.recurringId ? state.recurringItems.find((item) => item.id === editing.recurringId) : undefined}
               firstInputRef={amountInputRef}
               showReceiptUpload={false}
               submitLabel={editing ? "Save changes" : "Save purchase"}
               onSubmit={(input) => {
                 if (editing) state.updatePurchase(editing.id, input);
                 else state.addPurchase(input);
-                showFeedback(editing ? "Purchase saved." : "Purchase added.");
+                showFeedback(input.recurring?.enabled ? "Purchase and recurring rule saved." : editing ? "Purchase saved." : "Purchase added.");
                 setEditing(null);
               }}
             />
@@ -196,15 +199,36 @@ export default function AddPurchasePage() {
           </section>
         </Card>
 
+        <RecurringManagementCard
+          categories={state.categories}
+          purchases={state.purchases}
+          recurringItems={state.recurringItems}
+          onAddRecurring={(input) => {
+            state.addRecurringItem(input);
+            showFeedback("Recurring item saved.");
+          }}
+          onUpdateRecurring={(id, input) => {
+            state.updateRecurringItem(id, input);
+            showFeedback("Recurring item updated.");
+          }}
+          onDeleteRecurring={(id) => {
+            state.deleteRecurringItem(id);
+            showFeedback("Recurring item deleted.");
+          }}
+        />
+
         <Card>
           <div className="mb-3 flex items-start gap-3 sm:mb-4">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
               <ScanLine size={21} />
             </div>
             <div>
-              <h2 className="text-lg font-black sm:text-xl">Scan Receipt</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-black sm:text-xl">Scan Receipt</h2>
+                <PremiumBadge />
+              </div>
               <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
-                Upload or take a receipt photo, analyze it, then confirm categories before anything is saved.
+                Upload or take a receipt photo, review suggestions, then confirm categories before anything is saved.
               </p>
             </div>
           </div>
@@ -299,6 +323,239 @@ export default function AddPurchasePage() {
       />
     </>
   );
+}
+
+type RecurringFormState = {
+  name: string;
+  amount: string;
+  kind: RecurringKind;
+  frequency: RecurringFrequency;
+  nextDate: string;
+  categoryId: string;
+  notes: string;
+};
+
+function RecurringManagementCard({
+  categories,
+  purchases,
+  recurringItems,
+  onAddRecurring,
+  onUpdateRecurring,
+  onDeleteRecurring
+}: {
+  categories: Category[];
+  purchases: Purchase[];
+  recurringItems: RecurringItem[];
+  onAddRecurring: (input: RecurringItemInput) => void;
+  onUpdateRecurring: (id: string, input: RecurringItemInput) => void;
+  onDeleteRecurring: (id: string) => void;
+}) {
+  const [form, setForm] = useState<RecurringFormState>({
+    name: "",
+    amount: "",
+    kind: "subscription",
+    frequency: "monthly",
+    nextDate: toDateInput(new Date().toISOString()),
+    categoryId: categories[0]?.id ?? "",
+    notes: ""
+  });
+  const totals = recurringMonthlyTotals(recurringItems);
+  const candidates = detectRecurringCandidates(purchases, recurringItems);
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    onAddRecurring(toRecurringInput(form, categories));
+    setForm({
+      name: "",
+      amount: "",
+      kind: "subscription",
+      frequency: "monthly",
+      nextDate: toDateInput(new Date().toISOString()),
+      categoryId: categories[0]?.id ?? "",
+      notes: ""
+    });
+  }
+
+  function addCandidate(candidate: ReturnType<typeof detectRecurringCandidates>[number]) {
+    onAddRecurring({
+      name: candidate.merchant,
+      amount: candidate.amount,
+      kind: candidate.kind,
+      frequency: candidate.frequency,
+      nextDate: nextRecurringDate(candidate.lastDate, candidate.frequency),
+      categoryId: candidate.categoryId,
+      notes: `Detected from ${candidate.purchaseCount} matching purchases.`,
+      detected: true
+    });
+  }
+
+  return (
+    <Card>
+      <div className="mb-3 flex items-start gap-3 sm:mb-4">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
+          <Repeat2 size={21} />
+        </div>
+        <div>
+          <h2 className="text-lg font-black sm:text-xl">Recurring Management</h2>
+          <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
+            Track subscriptions, recurring bills, and paycheck income without adding fake purchases.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-4 grid gap-2.5 sm:grid-cols-3">
+        <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-2xl">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Monthly charges</p>
+          <p className="mt-1 text-xl font-black text-[#10201c]">{formatMoney(totals.charges)}</p>
+        </div>
+        <div className="rounded-xl bg-emerald-50 p-3 sm:rounded-2xl">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700/70">Monthly income</p>
+          <p className="mt-1 text-xl font-black text-emerald-800">{formatMoney(totals.income)}</p>
+        </div>
+        <div className="rounded-xl bg-slate-50 p-3 sm:rounded-2xl">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Net impact</p>
+          <p className={`mt-1 text-xl font-black ${totals.net >= 0 ? "text-emerald-800" : "text-rose-700"}`}>{formatMoney(totals.net)}</p>
+        </div>
+      </div>
+
+      <form className="grid gap-3 rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4" onSubmit={submit}>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Name">
+            <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
+          </Field>
+          <Field label="Amount">
+            <Input inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
+          </Field>
+          <Field label="Type">
+            <Select
+              value={form.kind}
+              onChange={(event) => {
+                const kind = event.target.value as RecurringKind;
+                setForm({ ...form, kind, categoryId: kind === "income" ? "" : form.categoryId || (categories[0]?.id ?? "") });
+              }}
+            >
+              <option value="subscription">Subscription</option>
+              <option value="bill">Recurring bill</option>
+              <option value="income">Paycheck income</option>
+            </Select>
+          </Field>
+          <Field label="Frequency">
+            <Select value={form.frequency} onChange={(event) => setForm({ ...form, frequency: event.target.value as RecurringFrequency })}>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Biweekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </Select>
+          </Field>
+          <Field label="Next date">
+            <Input type="date" value={form.nextDate} onChange={(event) => setForm({ ...form, nextDate: event.target.value })} required />
+          </Field>
+          <Field label="Category">
+            <Select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })} disabled={form.kind === "income" || !categories.length}>
+              {form.kind === "income" ? <option value="">Income</option> : null}
+              {!categories.length && form.kind !== "income" ? <option value="">Add a category first</option> : null}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <div className="sm:col-span-2">
+            <Field label="Notes">
+              <Input value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional detail" />
+            </Field>
+          </div>
+        </div>
+        <Button type="submit" disabled={form.kind !== "income" && !categories.length}>
+          <Plus size={17} /> Add recurring item
+        </Button>
+      </form>
+
+      {candidates.length ? (
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-black text-[#10201c]">Detected recurring purchases</h3>
+          <div className="grid gap-2">
+            {candidates.map((candidate) => (
+              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-xl bg-white p-3 sm:flex-row sm:items-center sm:justify-between sm:rounded-2xl">
+                <div>
+                  <p className="font-black text-[#10201c]">{candidate.merchant}</p>
+                  <p className="text-xs font-bold text-slate-500">
+                    {recurringKindLabel(candidate.kind)} - {recurringFrequencyLabel(candidate.frequency)} - about {formatMoney(monthlyRecurringAmount(candidate))}/mo
+                  </p>
+                </div>
+                <Button type="button" size="sm" variant="secondary" onClick={() => addCandidate(candidate)}>
+                  <Plus size={15} /> Add
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-4 grid gap-2.5 sm:gap-3">
+        {recurringItems.length ? (
+          recurringItems.map((item) => {
+            const category = categories.find((categoryItem) => categoryItem.id === item.categoryId);
+            return (
+              <div key={item.id} className="rounded-xl bg-white p-3 sm:rounded-2xl">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-black text-[#10201c]">{item.name}</h3>
+                      <Pill className={item.active ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
+                        {item.active ? "active" : "paused"}
+                      </Pill>
+                      {item.detected ? <Pill className="border-amber-100 bg-amber-50 text-amber-800">detected</Pill> : null}
+                    </div>
+                    <p className="mt-1 text-xs font-bold text-slate-500">
+                      {recurringKindLabel(item.kind)} - {recurringFrequencyLabel(item.frequency)} - {category?.name ?? "No category"}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                      <CalendarClock size={14} /> Next: {formatShortDate(item.nextDate)}
+                    </p>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="text-lg font-black text-[#10201c]">{formatMoney(item.amount)}</p>
+                    <p className="text-xs font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo projected</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap justify-end gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => onUpdateRecurring(item.id, { ...item, active: !item.active })}
+                  >
+                    {item.active ? "Pause" : "Resume"}
+                  </Button>
+                  <Button type="button" size="sm" variant="danger" onClick={() => onDeleteRecurring(item.id)}>
+                    <Trash2 size={15} /> Delete
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <EmptyState compact icon={Repeat2} title="Recurring items will collect here" body="Use the toggle on a purchase, add one manually, or accept a detected recurring pattern." />
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function toRecurringInput(form: RecurringFormState, categories: Category[]): RecurringItemInput {
+  const categoryId = form.kind === "income" ? undefined : form.categoryId || categories[0]?.id;
+  return {
+    name: form.name,
+    amount: parseDecimal(form.amount),
+    kind: form.kind,
+    frequency: form.frequency,
+    nextDate: fromDateInput(form.nextDate),
+    categoryId,
+    notes: form.notes
+  };
 }
 
 function ReceiptReviewCard({

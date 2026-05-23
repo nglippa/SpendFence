@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, CalendarClock, CheckCircle2, Gauge, LockKeyhole, TrendingUp } from "lucide-react";
+import { Bell, Brain, CalendarClock, CheckCircle2, Gauge, LayoutDashboard, LockKeyhole, MessageCircle, TrendingUp } from "lucide-react";
 import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsSwitchRow } from "@/components/settings-ui";
 import { useSpendFence } from "@/lib/store";
 
@@ -13,6 +13,8 @@ const settings = [
   { key: "weeklyCheckIn", title: "Weekly budget check-in", subtitle: "A weekly prompt to review the cycle.", icon: CheckCircle2 }
 ] as const;
 
+type BooleanInsightSetting = "spendingInsights" | "showDashboardInsights";
+
 export default function NotificationSettingsPage() {
   const state = useSpendFence();
   const [feedback, setFeedback] = useState("");
@@ -23,22 +25,87 @@ export default function NotificationSettingsPage() {
     window.setTimeout(() => setFeedback(""), 1800);
   }
 
+  function updateInsight(key: BooleanInsightSetting, value: boolean) {
+    state.updateInsightSettings({ ...state.insightSettings, [key]: value });
+    setFeedback("Insight settings updated.");
+    window.setTimeout(() => setFeedback(""), 1800);
+  }
+
+  function updateTone(value: typeof state.insightSettings.encouragementTone) {
+    state.updateInsightSettings({ ...state.insightSettings, encouragementTone: value });
+    setFeedback("Insight tone updated.");
+    window.setTimeout(() => setFeedback(""), 1800);
+  }
+
   return (
     <div className="mx-auto max-w-2xl">
       <SettingsDetailHeader title="Notifications" subtitle="Tune local spending nudges without adding noise." />
       <SettingsFeedback message={feedback} />
-      <SettingsGroup title="In-app nudges">
-        {settings.map((item) => (
-          <SettingsSwitchRow
-            key={item.key}
-            icon={item.icon}
-            title={item.title}
-            subtitle={item.subtitle}
-            checked={state.notificationSettings[item.key]}
-            onChange={(checked) => update(item.key, checked)}
-          />
-        ))}
+      <SettingsGroup title="Spending insights">
+        <SettingsSwitchRow
+          icon={Brain}
+          title="Spending insights"
+          subtitle="Generate local behavioral feedback from your own categories and purchases."
+          checked={state.insightSettings.spendingInsights}
+          onChange={(checked) => updateInsight("spendingInsights", checked)}
+        />
+        <SettingsSwitchRow
+          icon={LayoutDashboard}
+          title="Show insights on dashboard"
+          subtitle="Keep one tactful insight near the top of Home."
+          checked={state.insightSettings.showDashboardInsights}
+          onChange={(checked) => updateInsight("showDashboardInsights", checked)}
+        />
+        <div className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2.5 last:border-b-0">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#327d6d] text-white">
+            <MessageCircle size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black text-[#10201c] sm:text-base">Encouragement tone</p>
+            <p className="mt-0.5 text-xs font-semibold leading-4 text-slate-500 sm:text-sm sm:leading-5">Choose how much supportive language SpendFence uses.</p>
+          </div>
+          <div className="grid shrink-0 grid-cols-2 rounded-xl bg-slate-100 p-1 text-xs font-black">
+            {(["minimal", "balanced"] as const).map((tone) => (
+              <button
+                key={tone}
+                type="button"
+                onClick={() => updateTone(tone)}
+                className={`rounded-lg px-3 py-2 capitalize transition ${
+                  state.insightSettings.encouragementTone === tone ? "bg-white text-[#183f36] shadow-soft" : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
+        </div>
       </SettingsGroup>
+      <div className="mt-4">
+        <SettingsGroup title="Privacy">
+          <SettingsSwitchRow
+            icon={CheckCircle2}
+            title="Generated locally"
+            subtitle="No spending insight data leaves this device or app."
+            checked
+            disabled
+            onChange={() => undefined}
+          />
+        </SettingsGroup>
+      </div>
+      <div className="mt-4">
+        <SettingsGroup title="In-app nudges">
+          {settings.map((item) => (
+            <SettingsSwitchRow
+              key={item.key}
+              icon={item.icon}
+              title={item.title}
+              subtitle={item.subtitle}
+              checked={state.notificationSettings[item.key]}
+              onChange={(checked) => update(item.key, checked)}
+            />
+          ))}
+        </SettingsGroup>
+      </div>
       <div className="mt-4">
         <SettingsGroup title="Inbox">
           <SettingsSwitchRow

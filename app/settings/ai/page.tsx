@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Brain, ScanLine } from "lucide-react";
+import { PremiumBadge } from "@/components/upgrade-modal";
 import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow, SettingsSwitchRow } from "@/components/settings-ui";
+import { premiumFeatures } from "@/lib/premium-features";
 import { useSpendFence } from "@/lib/store";
 
 export default function AiSettingsPage() {
@@ -23,17 +25,19 @@ export default function AiSettingsPage() {
         <SettingsGroup title="Categorization">
           <SettingsSwitchRow
             icon={Brain}
-            title="AI categorization"
-            subtitle="Imported transactions can use server-side AI after merchant rules, keywords, and Plaid category hints."
+            title={premiumFeatures["ai-categorization"].title}
+            subtitle={`${premiumFeatures["ai-categorization"].description} Marked as a future Premium area.`}
             checked={state.aiCategorizationEnabled}
             onChange={update}
+            accessory={<PremiumBadge />}
           />
         </SettingsGroup>
         <SettingsGroup title="Receipt suggestions">
           <SettingsRow
             icon={ScanLine}
-            title="Receipt review stays manual-confirmed"
-            subtitle="Receipt suggestions can be edited before saving. Images and sensitive payment details should not be stored unless confirmed."
+            title={premiumFeatures["ai-receipt-understanding"].title}
+            subtitle={`${premiumFeatures["ai-receipt-understanding"].description} Receipt suggestions stay manual-confirmed before saving.`}
+            accessory={<PremiumBadge />}
           />
         </SettingsGroup>
       </div>

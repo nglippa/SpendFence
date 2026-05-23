@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const plan = request.headers.get("x-spendfence-plan");
   if (plan !== "pro") {
-    return NextResponse.json({ message: "Plaid token exchange requires Pro." }, { status: 403 });
+    return NextResponse.json({ message: "Plaid token exchange is reserved for future Premium bank sync." }, { status: 403 });
   }
 
   const plaidEnv = process.env.PLAID_ENV ?? "sandbox";

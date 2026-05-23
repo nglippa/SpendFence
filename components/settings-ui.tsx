@@ -69,6 +69,7 @@ export function SettingsSwitchRow({
   icon: Icon,
   title,
   subtitle,
+  accessory,
   checked,
   onChange,
   disabled = false
@@ -76,6 +77,7 @@ export function SettingsSwitchRow({
   icon: LucideIcon;
   title: string;
   subtitle?: string;
+  accessory?: React.ReactNode;
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
@@ -94,6 +96,7 @@ export function SettingsSwitchRow({
         <span className="block text-sm font-black text-[#10201c] sm:text-base">{title}</span>
         {subtitle ? <span className="mt-0.5 block text-xs font-semibold leading-4 text-slate-500 sm:text-sm sm:leading-5">{subtitle}</span> : null}
       </span>
+      {accessory}
       <span className={cn("relative h-7 w-12 shrink-0 rounded-full p-1 transition-colors duration-200", checked ? "bg-[#183f36]" : "bg-slate-300")}>
         <span className={cn("block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200", checked && "translate-x-5")} />
       </span>

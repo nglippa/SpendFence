@@ -1,10 +1,10 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import type { Ref } from "react";
-import { Save, Upload } from "lucide-react";
+import { Repeat2, Save, Upload } from "lucide-react";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
-import type { Category, Purchase, PurchaseInput } from "@/lib/types";
+import type { Category, Purchase, PurchaseInput, RecurringFrequency, RecurringItem } from "@/lib/types";
 import { fromDateInput, toDateInput } from "@/lib/utils";
 
 export function PurchaseForm({
@@ -13,7 +13,8 @@ export function PurchaseForm({
   onSubmit,
   submitLabel = "Save purchase",
   firstInputRef,
-  showReceiptUpload = true
+  showReceiptUpload = true,
+  recurringItem
 }: {
   categories: Category[];
   initial?: Purchase;
@@ -21,7 +22,9 @@ export function PurchaseForm({
   submitLabel?: string;
   firstInputRef?: Ref<HTMLInputElement>;
   showReceiptUpload?: boolean;
+  recurringItem?: RecurringItem;
 }) {
+  const hasCategories = categories.length > 0;
   const [form, setForm] = useState<Omit<PurchaseInput, "amount"> & { amount: string }>({
     amount: initial?.amount === undefined ? "" : String(initial.amount),
     categoryId: initial?.categoryId ?? categories[0]?.id ?? "",
@@ -30,10 +33,33 @@ export function PurchaseForm({
     notes: initial?.notes ?? "",
     receiptImage: initial?.receiptImage
   });
+  const [recurring, setRecurring] = useState<{
+    enabled: boolean;
+    frequency: RecurringFrequency;
+    kind: "subscription" | "bill";
+  }>({
+    enabled: Boolean(recurringItem?.active),
+    frequency: recurringItem?.frequency ?? ("monthly" as RecurringFrequency),
+    kind: recurringItem?.kind === "subscription" ? "subscription" : "bill"
+  });
+
+  useEffect(() => {
+    if (!form.categoryId && categories[0]?.id) {
+      setForm((current) => ({ ...current, categoryId: categories[0].id }));
+    }
+  }, [categories, form.categoryId]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    onSubmit({ ...form, amount: parseDecimal(form.amount) });
+    onSubmit({
+      ...form,
+      amount: parseDecimal(form.amount),
+      recurring: {
+        enabled: recurring.enabled,
+        frequency: recurring.frequency,
+        kind: recurring.kind
+      }
+    });
     if (!initial) {
       setForm({
         amount: "",
@@ -43,6 +69,7 @@ export function PurchaseForm({
         notes: "",
         receiptImage: undefined
       });
+      setRecurring({ enabled: false, frequency: "monthly", kind: "bill" });
     }
   }
 
@@ -61,7 +88,8 @@ export function PurchaseForm({
           <Input ref={firstInputRef} inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
         </Field>
         <Field label="Category">
-          <Select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>
+          <Select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })} disabled={!hasCategories}>
+            {!hasCategories ? <option value="">Add a category first</option> : null}
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -79,6 +107,38 @@ export function PurchaseForm({
       <Field label="Notes">
         <Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional detail" />
       </Field>
+      <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-2xl">
+        <label className="flex min-h-11 items-center gap-3 text-sm font-black text-[#10201c]">
+          <input
+            type="checkbox"
+            checked={recurring.enabled}
+            onChange={(event) => setRecurring({ ...recurring, enabled: event.target.checked })}
+            className="h-5 w-5 accent-[#183f36]"
+          />
+          <span className="inline-flex items-center gap-2">
+            <Repeat2 size={17} /> Recurring purchase
+          </span>
+        </label>
+        {recurring.enabled ? (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <Field label="Recurring type">
+              <Select value={recurring.kind} onChange={(event) => setRecurring({ ...recurring, kind: event.target.value as "subscription" | "bill" })}>
+                <option value="bill">Recurring bill</option>
+                <option value="subscription">Subscription</option>
+              </Select>
+            </Field>
+            <Field label="Frequency">
+              <Select value={recurring.frequency} onChange={(event) => setRecurring({ ...recurring, frequency: event.target.value as RecurringFrequency })}>
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Biweekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+              </Select>
+            </Field>
+          </div>
+        ) : null}
+      </div>
       {showReceiptUpload ? (
         <>
           <Field label="Receipt image">
@@ -87,9 +147,9 @@ export function PurchaseForm({
           {form.receiptImage ? <img src={form.receiptImage} alt="Receipt preview" className="max-h-56 w-full rounded-2xl object-cover" /> : null}
         </>
       ) : null}
-      <Button type="submit" size="lg">
+      <Button type="submit" size="lg" disabled={!hasCategories}>
         {showReceiptUpload && form.receiptImage ? <Upload size={18} /> : <Save size={18} />}
-        {submitLabel}
+        {hasCategories ? submitLabel : "Add a category first"}
       </Button>
     </form>
   );

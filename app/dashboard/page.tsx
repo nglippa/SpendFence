@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, LockKeyhole, Plus, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
+import { AlertTriangle, CalendarClock, LockKeyhole, Plus, ReceiptText, Repeat2, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
+import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
 import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, getSmartPrompts, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
+import { selectDashboardInsight } from "@/lib/insights/behavioral-insights";
+import { monthlyRecurringAmount, recurringFrequencyLabel, recurringKindLabel, upcomingRecurringItems } from "@/lib/recurring";
 import { useSpendFence } from "@/lib/store";
 import { formatShortDate } from "@/lib/utils";
 
@@ -15,6 +18,8 @@ export default function DashboardPage() {
   const available = availableBudget(state);
   const remaining = remainingBudget(state);
   const prompts = getSmartPrompts(state);
+  const dashboardInsight = selectDashboardInsight(state);
+  const upcomingRecurring = upcomingRecurringItems(state.recurringItems, 45);
   const locked = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "locked").length;
   const warnings = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "warning").length;
 
@@ -32,6 +37,12 @@ export default function DashboardPage() {
           </Button>
         }
       />
+
+      {state.demoDataEnabled ? (
+        <div className="mb-4 flex items-center gap-2 rounded-2xl border border-amber-100 bg-amber-50 px-3 py-2.5 text-sm font-black text-amber-800 shadow-soft sm:mb-5">
+          <TestTube2 size={17} /> Demo Mode
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
         <Card className="col-span-2 bg-[#183f36] text-white md:col-span-2">
@@ -55,6 +66,12 @@ export default function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      {dashboardInsight ? (
+        <div className="mt-4 sm:mt-5">
+          <SpendInsightCard insight={dashboardInsight} />
+        </div>
+      ) : null}
 
       <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-[1fr_0.82fr]">
         <section className="content-start">
@@ -113,13 +130,53 @@ export default function DashboardPage() {
 
           <Card>
             <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Smart prompts</h2>
-            <div className="grid gap-2.5 sm:gap-3">
-              {prompts.map((prompt) => (
-                <div key={prompt.id} className="rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-700 sm:rounded-2xl sm:p-3">
-                  {prompt.message}
-                </div>
-              ))}
+            {prompts.length ? (
+              <div className="grid gap-2.5 sm:gap-3">
+                {prompts.map((prompt) => (
+                  <div key={prompt.id} className="rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-700 sm:rounded-2xl sm:p-3">
+                    {prompt.message}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState compact icon={ShieldCheck} title="Prompts will appear after you start tracking" body="SpendFence will surface setup notes and spending nudges once categories and purchases exist." />
+            )}
+          </Card>
+
+          <Card>
+            <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+              <h2 className="text-lg font-black sm:text-xl">Upcoming recurring charges</h2>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/add-purchase">Manage</Link>
+              </Button>
             </div>
+            {upcomingRecurring.length ? (
+              <div className="grid gap-2">
+                {upcomingRecurring.slice(0, 5).map(({ item, date }) => (
+                  <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-white p-2.5 sm:rounded-2xl sm:p-3">
+                    <div className="min-w-0">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-black sm:text-base">{item.name}</p>
+                        <span className={item.kind === "income" ? "text-xs font-black text-emerald-700" : "text-xs font-black text-slate-500"}>
+                          {recurringKindLabel(item.kind)}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 flex items-center gap-1.5 text-xs font-bold text-slate-500 sm:text-sm">
+                        <CalendarClock size={14} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className={item.kind === "income" ? "text-sm font-black text-emerald-700 sm:text-base" : "text-sm font-black sm:text-base"}>
+                        {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
+                      </p>
+                      <p className="text-[0.68rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState compact icon={Repeat2} title="Recurring charges will appear here" body="Mark purchases as recurring or add paycheck income to see upcoming dates and projected monthly impact." />
+            )}
           </Card>
 
           <Card>
