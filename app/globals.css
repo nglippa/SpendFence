@@ -51,16 +51,23 @@
 }
 
 html {
+  min-height: 100%;
+  background-color: var(--app-bg);
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 12% -10%, rgb(46 211 183 / 0.18), transparent 34rem),
     radial-gradient(circle at 100% 4%, rgb(75 140 255 / 0.09), transparent 32rem),
     var(--app-bg);
   color: var(--app-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
   transition: background-color 180ms ease, color 180ms ease;
 }
 
@@ -80,6 +87,14 @@ textarea {
 
 button {
   -webkit-tap-highlight-color: transparent;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 ::selection {

@@ -23,7 +23,7 @@ export default function PricingPage() {
   const auth = useAuth();
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen px-4 pb-8 pt-[calc(env(safe-area-inset-top)+2rem)]">
       <div className="mx-auto max-w-6xl">
         <header className="flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">

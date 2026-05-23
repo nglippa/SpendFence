@@ -9,7 +9,7 @@ import { Button, Card, Pill, ProgressBar } from "@/components/ui";
 export default function LandingPage() {
   return (
     <div className="overflow-hidden">
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 pb-5 pt-[calc(env(safe-area-inset-top)+1.25rem)]">
         <Link href="/" className="flex items-center gap-3">
           <BrandLogo className="h-11 w-auto" />
           <span className="text-lg font-black text-[#10201c]">SpendFence</span>

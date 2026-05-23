@@ -6,6 +6,7 @@ import { AppearanceProvider, appearanceInitScript } from "@/lib/appearance";
 import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
+  applicationName: "SpendFence",
   title: "SpendFence",
   description: "A clean local-first budget control app.",
   manifest: "/manifest.json",
@@ -20,15 +21,25 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "SpendFence"
+  },
+  formatDetection: {
+    telephone: false
+  },
+  other: {
+    "msapplication-TileColor": "#0B1114"
   }
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#F5F7F6"
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F5F7F6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B1114" }
+  ]
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

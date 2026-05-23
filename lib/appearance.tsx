@@ -38,7 +38,7 @@ function resolvePreference(preference: AppearancePreference) {
 
 function syncThemeMeta(resolvedTheme: "light" | "dark") {
   const color = resolvedTheme === "dark" ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
-  const appleStatusBar = resolvedTheme === "dark" ? "black-translucent" : "default";
+  const appleStatusBar = "black-translucent";
   const favicon = resolvedTheme === "dark" ? DARK_FAVICON : LIGHT_FAVICON;
   let themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]:not([media])');
   let appleStatusMeta = document.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
@@ -140,7 +140,7 @@ export const appearanceInitScript = `
     var themeMeta = document.querySelector('meta[name="theme-color"]:not([media])');
     if (themeMeta) themeMeta.setAttribute("content", isDark ? "${DARK_THEME_COLOR}" : "${LIGHT_THEME_COLOR}");
     var appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-    if (appleStatusMeta) appleStatusMeta.setAttribute("content", isDark ? "black-translucent" : "default");
+    if (appleStatusMeta) appleStatusMeta.setAttribute("content", "black-translucent");
     var faviconLink = document.querySelector('link[rel="icon"][data-spendfence-theme-icon]');
     if (!faviconLink) {
       faviconLink = document.createElement("link");

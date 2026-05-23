@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (isPublic) return <>{children}</>;
   if (loading || !user) {
     return (
-      <div className="grid min-h-screen place-items-center px-4">
+      <div className="grid min-h-dvh place-items-center px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div className="rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-5 text-center shadow-soft">
           <BrandLogo className="mx-auto h-16 w-auto" />
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--brand-primary)]">SpendFence</p>
@@ -80,7 +80,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.86)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)]">
+      <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.86)] pt-[env(safe-area-inset-top)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3">
             <BrandLogo className="h-10 w-auto sm:h-11" />
