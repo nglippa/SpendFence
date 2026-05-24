@@ -17,6 +17,7 @@ export default function AccountSettingsPage() {
     setWorking(true);
     setFeedback("Signing out...");
     await auth.signOut();
+    window.sessionStorage.setItem("spendfence-auth-flash-v1", "Signed out securely.");
     router.replace("/login");
   }
 

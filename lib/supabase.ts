@@ -19,6 +19,7 @@ const missingSupabaseEnvVars: SupabaseEnvVar[] = [
 export const hasSupabaseConfig = missingSupabaseEnvVars.length === 0;
 
 let client: SupabaseClient | null = null;
+const memoryStorage = new Map<string, string>();
 
 export function getMissingSupabaseEnvVars() {
   return [...missingSupabaseEnvVars];
@@ -41,10 +42,49 @@ export function getSupabaseClient() {
   if (!hasSupabaseConfig) return null;
   client ??= createClient(supabaseUrl!, supabaseKey!, {
     auth: {
+      // Persist only inside the active browser/PWA session. A closed app or
+      // browser tab should require a fresh login next time.
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      storage: getSessionOnlyStorage()
     }
   });
   return client;
+}
+
+export function clearPersistentAuthStorage() {
+  if (typeof window === "undefined") return;
+  clearSupabaseAuthKeys(window.localStorage);
+}
+
+export function clearActiveAuthStorage() {
+  if (typeof window === "undefined") return;
+  clearSupabaseAuthKeys(window.localStorage);
+  clearSupabaseAuthKeys(window.sessionStorage);
+}
+
+function getSessionOnlyStorage() {
+  if (typeof window === "undefined") {
+    return {
+      getItem: (key: string) => memoryStorage.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        memoryStorage.set(key, value);
+      },
+      removeItem: (key: string) => {
+        memoryStorage.delete(key);
+      }
+    };
+  }
+
+  return window.sessionStorage;
+}
+
+function clearSupabaseAuthKeys(storage: Storage) {
+  for (let index = storage.length - 1; index >= 0; index -= 1) {
+    const key = storage.key(index);
+    if (key && /^sb-.+-auth-token(?:-.+)?$/.test(key)) {
+      storage.removeItem(key);
+    }
+  }
 }

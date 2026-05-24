@@ -3,11 +3,11 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { featureFlags } from "@/lib/feature-flags";
-import { getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
+import { clearActiveAuthStorage, clearPersistentAuthStorage, getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
 
 const DEMO_SESSION_KEY = "spendfence-demo-session-v1";
 const DEMO_PRO_KEY = "spendfence-demo-pro-v1";
-const TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
+const LEGACY_TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
 
 export type MfaFactorType = "totp" | "phone";
 
@@ -53,7 +53,7 @@ type AuthContextValue = {
   signUp: (email: string, password: string) => Promise<{ error?: string; message?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
   startMfaChallenge: (factor: MfaFactor) => Promise<{ error?: string; challenge?: MfaChallenge }>;
-  verifyMfaChallenge: (challenge: MfaChallenge, code: string, trustDevice: boolean) => Promise<{ error?: string }>;
+  verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
   enterDemoMode: () => void;
   setDemoPro: (enabled: boolean) => void;
   startUpgrade: () => Promise<{ error?: string; message?: string }>;
@@ -73,9 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isPro = demoProEnabled;
 
   useEffect(() => {
+    clearPersistentAuthStorage();
+    window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
     setDemoProEnabled(window.localStorage.getItem(DEMO_PRO_KEY) === "true");
     if (!supabase) {
-      const demoSession = window.localStorage.getItem(DEMO_SESSION_KEY);
+      const demoSession = window.sessionStorage.getItem(DEMO_SESSION_KEY);
       setUser(demoSession ? { id: "demo-user", email: "demo@spendfence.local", isDemo: true } : null);
       setLoading(false);
       return;
@@ -148,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!supabase) return { error: supabaseConfigError };
         return createMfaChallenge(supabase, factor);
       },
-      verifyMfaChallenge: async (challenge, code, trustDevice) => {
+      verifyMfaChallenge: async (challenge, code) => {
         if (!supabase) return { error: supabaseConfigError };
         const { data, error } = await supabase.auth.mfa.verify({
           factorId: challenge.factorId,
@@ -157,16 +159,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         if (error) return { error: error.message };
 
-        if (trustDevice) {
-          window.localStorage.setItem(TRUSTED_DEVICE_KEY, JSON.stringify({ trustedAt: Date.now(), expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 }));
-        }
-
         setUser(toAuthUser(data.user));
         return {};
       },
       enterDemoMode: () => {
         if (!demoModeAvailable) return;
-        window.localStorage.setItem(DEMO_SESSION_KEY, "true");
+        window.sessionStorage.setItem(DEMO_SESSION_KEY, "true");
         setUser({ id: "demo-user", email: "demo@spendfence.local", isDemo: true });
       },
       setDemoPro: (enabled) => {
@@ -182,9 +180,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { message: data.message ?? "Upgrade flow prepared." };
       },
       signOut: async () => {
-        window.localStorage.removeItem(DEMO_SESSION_KEY);
+        window.sessionStorage.removeItem(DEMO_SESSION_KEY);
         window.localStorage.removeItem(DEMO_PRO_KEY);
+        window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
         if (supabase) await supabase.auth.signOut();
+        clearActiveAuthStorage();
         setUser(null);
         setDemoProEnabled(false);
       }

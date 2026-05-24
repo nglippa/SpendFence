@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Brain, ScanLine } from "lucide-react";
 import { PremiumBadge } from "@/components/upgrade-modal";
 import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow, SettingsSwitchRow } from "@/components/settings-ui";
+import { Pill } from "@/components/ui";
 import { premiumFeatures } from "@/lib/premium-features";
 import { useSpendFence } from "@/lib/store";
 
@@ -35,9 +36,9 @@ export default function AiSettingsPage() {
         <SettingsGroup title="Receipt suggestions">
           <SettingsRow
             icon={ScanLine}
-            title={premiumFeatures["ai-receipt-understanding"].title}
-            subtitle={`${premiumFeatures["ai-receipt-understanding"].description} Receipt suggestions stay manual-confirmed before saving.`}
-            accessory={<PremiumBadge />}
+            title="AI receipt analysis"
+            subtitle="Receipt text understanding, line-item extraction, category suggestions, and split allocations are included for all users. Review suggestions before saving."
+            accessory={<Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">Included</Pill>}
           />
         </SettingsGroup>
       </div>

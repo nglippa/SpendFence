@@ -97,7 +97,7 @@ function fallbackAnalysis(categories: Category[], merchantHint?: string, totalHi
     lineItems,
     allocations,
     confidence: 0.64,
-    reason: "Mock receipt extraction is shown for review because OCR text was not available.",
+    reason: "Receipt suggestions are shown for review because OCR text was not available.",
     aiUsed: false
   };
 }

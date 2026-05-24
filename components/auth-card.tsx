@@ -11,6 +11,8 @@ import { featureFlags } from "@/lib/feature-flags";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthResult = SignInResult & { message?: string };
+const REMEMBERED_EMAIL_KEY = "spendfence-remembered-email-v1";
+const AUTH_FLASH_KEY = "spendfence-auth-flash-v1";
 
 const copy = {
   login: {
@@ -53,7 +55,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const [mfaFactors, setMfaFactors] = useState<MfaFactor[]>([]);
   const [mfaChallenge, setMfaChallenge] = useState<MfaChallenge | null>(null);
   const [mfaCode, setMfaCode] = useState("");
-  const [trustDevice, setTrustDevice] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(0);
   const content = copy[mode];
   const smsMfaEnabled = featureFlags.ENABLE_SMS_MFA;
@@ -64,6 +66,20 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const passwordChecks = getPasswordChecks(password);
   const passwordScore = passwordChecks.filter((check) => check.met).length;
   const passwordStrength = getPasswordStrength(password, passwordScore);
+
+  useEffect(() => {
+    if (mode !== "login") return;
+    const rememberedEmail = window.localStorage.getItem(REMEMBERED_EMAIL_KEY);
+    const flash = window.sessionStorage.getItem(AUTH_FLASH_KEY);
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberEmail(true);
+    }
+    if (flash) {
+      setMessage(flash);
+      window.sessionStorage.removeItem(AUTH_FLASH_KEY);
+    }
+  }, [mode]);
 
   useEffect(() => {
     // TODO(sms-mfa): Timer is retained for future SMS MFA but remains inert while
@@ -118,6 +134,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
       return;
     }
 
+    updateRememberedEmail();
     router.replace("/dashboard");
   }
 
@@ -128,7 +145,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     setError("");
     setMessage("");
 
-    const result = await auth.verifyMfaChallenge(mfaChallenge, mfaCode, trustDevice);
+    const result = await auth.verifyMfaChallenge(mfaChallenge, mfaCode);
     setSubmitting(false);
 
     if (result.error) {
@@ -136,6 +153,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
       return;
     }
 
+    updateRememberedEmail();
     router.replace("/dashboard");
   }
 
@@ -166,6 +184,17 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   function enterDemo() {
     auth.enterDemoMode();
     router.replace("/dashboard");
+  }
+
+  function updateRememberedEmail() {
+    if (mode !== "login") return;
+    const normalizedEmail = email.trim();
+    if (rememberEmail && normalizedEmail) {
+      window.localStorage.setItem(REMEMBERED_EMAIL_KEY, normalizedEmail);
+      return;
+    }
+
+    window.localStorage.removeItem(REMEMBERED_EMAIL_KEY);
   }
 
   return (
@@ -238,24 +267,33 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                   Authenticator-based MFA is currently the recommended security method. Additional verification methods may arrive in future updates.
                 </p>
 
-                <label className="flex items-start gap-3 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-700">
-                  <input
-                    className="mt-1 h-4 w-4 accent-[#183f36]"
-                    type="checkbox"
-                    checked={trustDevice}
-                    onChange={(event) => setTrustDevice(event.target.checked)}
-                  />
-                  <span>Trust this device for 30 days</span>
-                </label>
+                <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold leading-6 text-slate-700">
+                  SpendFence asks for MFA again when you start a new browser or PWA session.
+                </p>
               </>
             ) : (
               <>
                 <Field label="Email">
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <Input className="pl-11" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+                    <Input className="pl-11" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
                   </div>
                 </Field>
+
+                {mode === "login" ? (
+                  <label className="flex items-start gap-3 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-700">
+                    <input
+                      className="mt-1 h-4 w-4 accent-[#183f36]"
+                      type="checkbox"
+                      checked={rememberEmail}
+                      onChange={(event) => {
+                        setRememberEmail(event.target.checked);
+                        if (!event.target.checked) window.localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+                      }}
+                    />
+                    <span>Remember my email</span>
+                  </label>
+                ) : null}
 
                 {mode !== "forgot" ? (
                   <Field label="Password">
@@ -264,6 +302,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                       <Input
                         className="pl-11"
                         type="password"
+                        autoComplete={mode === "signup" ? "new-password" : "current-password"}
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         minLength={mode === "signup" ? 12 : 6}

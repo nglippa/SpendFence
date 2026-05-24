@@ -82,7 +82,7 @@ export default function LandingPage() {
         <section id="features" className="mx-auto grid max-w-7xl gap-4 px-4 py-12 md:grid-cols-3">
           {[
             { icon: ReceiptText, title: "Fast purchase logging", body: "Amount, category, merchant, date, notes, and receipt image." },
-            { icon: ScanLine, title: "Receipt scanner draft", body: "Upload a receipt and confirm mocked merchant, total, and line items." },
+            { icon: ScanLine, title: "Scan Receipt", body: "Analyze a receipt and review category suggestions before saving." },
             { icon: BellRing, title: "In-app warnings", body: "50%, soft warning, limit reached, daily summary, and weekly check-in UI." }
           ].map((feature) => {
             const Icon = feature.icon;

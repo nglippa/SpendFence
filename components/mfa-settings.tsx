@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, KeyRound, LockKeyhole, RefreshCw, ShieldCheck, ShieldPlus, Smartphone, Trash2 } from "lucide-react";
+import { CheckCircle2, KeyRound, RefreshCw, ShieldCheck, ShieldPlus, Smartphone, Trash2 } from "lucide-react";
 import { Button, Card, Field, Input, Pill, Select } from "@/components/ui";
 import { ConfirmSheet } from "@/components/settings-ui";
 import { useAuth } from "@/lib/auth";
@@ -9,7 +9,6 @@ import { featureFlags } from "@/lib/feature-flags";
 import { assertSmsMfaEnabled, mfaProviders } from "@/lib/mfa-providers";
 import { getSupabaseClient } from "@/lib/supabase";
 
-const TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
 const RESEND_COOLDOWN_SECONDS = 45;
 const SMS_MFA_PLANNED_COPY = "Additional verification methods may arrive in future updates.";
 
@@ -68,7 +67,6 @@ export function MfaSettings() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
-  const [trustedDeviceText, setTrustedDeviceText] = useState("No trusted device marker on this browser.");
   const [pendingRemoval, setPendingRemoval] = useState<FactorSummary | null>(null);
 
   const hasTotp = factors.some((factor) => factor.type === "totp");
@@ -100,7 +98,6 @@ export function MfaSettings() {
     setLoading(true);
     setError("");
     setMessage("");
-    updateTrustedDeviceText();
 
     if (!supabase || !auth.user || auth.user.isDemo) {
       setLoading(false);
@@ -349,34 +346,6 @@ export function MfaSettings() {
     setWorking(false);
   }
 
-  function removeTrustedDevices() {
-    window.localStorage.removeItem(TRUSTED_DEVICE_KEY);
-    updateTrustedDeviceText();
-    setMessage("Trusted device markers were removed from this browser.");
-  }
-
-  function updateTrustedDeviceText() {
-    const value = window.localStorage.getItem(TRUSTED_DEVICE_KEY);
-    if (!value) {
-      setTrustedDeviceText("No trusted device marker on this browser.");
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(value) as { expiresAt?: number };
-      if (!parsed.expiresAt || parsed.expiresAt <= Date.now()) {
-        window.localStorage.removeItem(TRUSTED_DEVICE_KEY);
-        setTrustedDeviceText("No trusted device marker on this browser.");
-        return;
-      }
-
-      setTrustedDeviceText(`Current browser trusted until ${new Date(parsed.expiresAt).toLocaleDateString()}.`);
-    } catch {
-      window.localStorage.removeItem(TRUSTED_DEVICE_KEY);
-      setTrustedDeviceText("No trusted device marker on this browser.");
-    }
-  }
-
   if (!supabase || auth.user?.isDemo) {
     return (
       <Card className="lg:col-span-2">
@@ -541,13 +510,13 @@ export function MfaSettings() {
 
         <div className="rounded-3xl border border-slate-200 bg-white p-4">
           <h3 className="text-lg font-black text-[#10201c]">Trusted devices</h3>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{trustedDeviceText}</p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+            Trusted-device bypass is disabled. New browser and PWA sessions require sign-in again.
+          </p>
           <p className="mt-2 text-xs font-bold leading-5 text-slate-500">
             Abuse prevention placeholder: Supabase rate limits MFA challenges; SMS cooldown controls are preserved for future reactivation.
           </p>
-          <Button className="mt-4" onClick={removeTrustedDevices} variant="secondary">
-            <LockKeyhole size={18} /> Remove trusted devices
-          </Button>
+          <Pill className="mt-4 border-slate-200 bg-slate-50 text-slate-600">Locked off</Pill>
         </div>
       </div>
 

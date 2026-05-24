@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { CalendarClock, CheckCircle2, ChevronRight, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload, X } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
-import { PremiumBadge } from "@/components/upgrade-modal";
 import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { formatMoney } from "@/lib/budget";
@@ -131,7 +130,7 @@ export default function AddPurchasePage() {
       }
       const analysisData = data as ReceiptAnalysisResponse;
       setAnalysis(toReceiptAnalysisDraft(analysisData));
-      setReceiptMessage(analysisData.aiUsed ? "AI receipt suggestions are ready for review." : "Mock receipt suggestions are ready for review.");
+      setReceiptMessage(analysisData.aiUsed ? "AI receipt suggestions are ready for review." : "Receipt suggestions are ready for review.");
     } finally {
       setAnalyzing(false);
     }
@@ -240,12 +239,11 @@ export default function AddPurchasePage() {
           <AddActionCard
             id="receipt"
             title="Scan Receipt"
-            description="Extract purchases from a receipt photo."
+            description="Analyze a receipt and review suggestions before saving."
             icon={ScanLine}
             expanded={expanded === "receipt"}
             successLabel={lastCompleted === "receipt" ? "Receipt saved" : undefined}
             sectionRef={receiptSectionRef}
-            titleAdornment={<PremiumBadge />}
             onToggle={() => (expanded === "receipt" ? setExpanded(null) : openFlow("receipt"))}
           >
             <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
@@ -265,7 +263,7 @@ export default function AddPurchasePage() {
                   <FileText size={17} /> {analyzing ? "Analyzing..." : "Analyze receipt"}
                 </Button>
                 <p className="text-xs font-bold leading-5 text-slate-500">
-                  Receipt images stay in this review screen unless you confirm. Obvious card or account digits are redacted before AI analysis.
+                  Receipt images stay in this review screen unless you confirm. Obvious card or account digits are redacted before analysis.
                 </p>
               </div>
 

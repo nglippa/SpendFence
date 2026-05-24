@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, Brain, Building2, ScanLine } from "lucide-react";
+import { BarChart3, Brain, Building2 } from "lucide-react";
 
-export type PremiumFeatureId = "bank-sync" | "ai-categorization" | "ai-receipt-understanding" | "advanced-analytics";
+export type PremiumFeatureId = "bank-sync" | "ai-categorization" | "advanced-analytics";
 
 export type PremiumFeature = {
   id: PremiumFeatureId;
@@ -24,13 +24,6 @@ export const premiumFeatures = {
     title: "AI categorization",
     description: "Server-side assistance for transaction category suggestions after local rules run.",
     icon: Brain,
-    status: "planned"
-  },
-  "ai-receipt-understanding": {
-    id: "ai-receipt-understanding",
-    title: "AI receipt understanding",
-    description: "Receipt text understanding, line-item extraction, and editable category allocation suggestions.",
-    icon: ScanLine,
     status: "planned"
   },
   "advanced-analytics": {

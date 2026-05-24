@@ -7,7 +7,7 @@ import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { PremiumBadge } from "@/components/upgrade-modal";
 
-const freeFeatures = ["Manual purchase entry", "Receipt upload", "Budget categories", "Spending warnings", "Reports"];
+const freeFeatures = ["Manual purchase entry", "Receipt upload", "Scan Receipt", "AI receipt analysis", "Budget categories", "Spending warnings", "Reports"];
 const proFeatures = [
   "Everything in Free",
   "Plaid bank sync",
@@ -15,7 +15,6 @@ const proFeatures = [
   "Connected account management",
   "Transaction review queue",
   "AI categorization",
-  "AI receipt understanding",
   "Advanced analytics"
 ];
 

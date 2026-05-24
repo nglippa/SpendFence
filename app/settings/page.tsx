@@ -51,7 +51,7 @@ const settingsSections = [
       href: "/settings/security",
       icon: LockKeyhole,
       title: "Security",
-      subtitle: "MFA and trusted-device controls"
+      subtitle: "Session login and MFA controls"
     },
     {
       href: "/settings/premium",
