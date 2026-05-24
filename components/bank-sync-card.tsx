@@ -129,7 +129,7 @@ export function BankSyncCard() {
         <div className="grid gap-4 md:grid-cols-3">
           <MiniFeature icon={Building2} title="Connected accounts" body="Planned for Premium once subscriptions are available." />
           <MiniFeature icon={RefreshCw} title="Review queue" body="Imported transactions will pause for review before they affect budgets." />
-          <MiniFeature icon={Sparkles} title="Category suggestions" body="Premium suggestions will build on merchant rules and your corrections." />
+          <MiniFeature icon={Sparkles} title="Import automation" body="Future automation will reduce repeated review work after transaction import." />
         </div>
       </Card>
     </>

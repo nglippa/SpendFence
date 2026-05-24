@@ -2,7 +2,6 @@
 
 import { Brain } from "lucide-react";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
-import { PremiumBadge } from "@/components/upgrade-modal";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 
 export function SmartInsightsSection({ insights }: { insights: BehavioralInsight[] }) {
@@ -13,15 +12,14 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <p className="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">
-            <Brain size={14} /> Local intelligence
+            <Brain size={14} /> Basic intelligence
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-black tracking-tight text-[#10201c] sm:text-2xl">Smart Insights</h2>
-            <PremiumBadge />
           </div>
         </div>
         <p className="hidden max-w-xs text-right text-xs font-bold leading-5 text-slate-500 sm:block">
-          Generated locally from this cycle, prior activity, timing, merchants, and category fences.
+          Basic guidance from this cycle, prior activity, timing, merchants, and category fences.
         </p>
       </div>
 

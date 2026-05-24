@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { Brain, ScanLine } from "lucide-react";
-import { PremiumBadge } from "@/components/upgrade-modal";
 import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow, SettingsSwitchRow } from "@/components/settings-ui";
 import { Pill } from "@/components/ui";
-import { premiumFeatures } from "@/lib/premium-features";
 import { useSpendFence } from "@/lib/store";
 
 export default function AiSettingsPage() {
@@ -26,11 +24,11 @@ export default function AiSettingsPage() {
         <SettingsGroup title="Categorization">
           <SettingsSwitchRow
             icon={Brain}
-            title={premiumFeatures["ai-categorization"].title}
-            subtitle={`${premiumFeatures["ai-categorization"].description} Marked as a future Premium area.`}
+            title="AI purchase categorization"
+            subtitle="Server-side category suggestions are included for all users and always require review before saving."
             checked={state.aiCategorizationEnabled}
             onChange={update}
-            accessory={<PremiumBadge />}
+            accessory={<Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">Included</Pill>}
           />
         </SettingsGroup>
         <SettingsGroup title="Receipt suggestions">

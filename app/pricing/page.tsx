@@ -7,15 +7,27 @@ import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { PremiumBadge } from "@/components/upgrade-modal";
 
-const freeFeatures = ["Manual purchase entry", "Receipt upload", "Scan Receipt", "AI receipt analysis", "Budget categories", "Spending warnings", "Reports"];
+const freeFeatures = [
+  "Manual purchase entry",
+  "Receipt upload",
+  "Scan Receipt",
+  "AI receipt analysis",
+  "Purchase category suggestions",
+  "Basic smart insights",
+  "Budget categories",
+  "Spending warnings",
+  "Reports"
+];
 const proFeatures = [
   "Everything in Free",
   "Plaid bank sync",
   "Automatic transaction imports",
   "Connected account management",
   "Transaction review queue",
-  "AI categorization",
-  "Advanced analytics"
+  "Deeper behavioral intelligence",
+  "Predictive spending trends",
+  "Advanced AI reports",
+  "Automation features"
 ];
 
 export default function PricingPage() {
@@ -60,7 +72,7 @@ export default function PricingPage() {
           <Card className="border-[#cfe8de] p-6">
             <PremiumBadge />
             <h2 className="mt-4 text-3xl font-black text-[#10201c]">Premium</h2>
-            <p className="mt-2 text-sm font-semibold text-slate-600">Planned for deeper automation and analytics when subscriptions are enabled.</p>
+            <p className="mt-2 text-sm font-semibold text-slate-600">Planned for deeper intelligence and automation when subscriptions are enabled.</p>
             <FeatureList features={proFeatures} />
             <p className="mt-3 text-xs font-bold leading-5 text-slate-500">
               No subscription checkout is active yet.

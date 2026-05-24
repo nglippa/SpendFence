@@ -262,30 +262,33 @@ async function getServerSuggestion(transaction: ImportedTransactionInput, state:
   if (!state.aiCategorizationEnabled) return {};
 
   try {
-    const response = await fetch("/api/ai/categorize-transaction", {
+    const response = await fetch("/api/ai/categorize-purchase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        transaction: {
-          merchantName: transaction.merchantName,
-          description: transaction.description,
-          amount: transaction.amount,
-          plaidCategory: transaction.plaidCategory
-        },
-        userCategories: state.categories,
+        merchant: transaction.merchantName,
+        amount: transaction.amount,
+        notes: transaction.description,
+        categories: state.categories,
         merchantRules: state.merchantCategoryRules
       })
     });
     if (!response.ok) return {};
-    const data = (await response.json()) as { suggestion?: CategorySuggestion };
-    if (!data.suggestion) return {};
+    const data = (await response.json()) as { suggestedCategoryId?: string | null; confidence?: "low" | "medium" | "high"; reason?: string };
+    if (!data.suggestedCategoryId) return {};
     return {
-      suggestedCategoryId: data.suggestion.suggestedCategoryId,
-      confidence: data.suggestion.confidence,
-      suggestionReason: data.suggestion.reason,
-      suggestionSource: data.suggestion.source
+      suggestedCategoryId: data.suggestedCategoryId,
+      confidence: confidenceScore(data.confidence),
+      suggestionReason: data.reason ?? "AI suggested this category for review.",
+      suggestionSource: "ai" as const
     };
   } catch {
     return {};
   }
+}
+
+function confidenceScore(confidence?: "low" | "medium" | "high") {
+  if (confidence === "high") return 0.86;
+  if (confidence === "medium") return 0.68;
+  return 0.48;
 }

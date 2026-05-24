@@ -27,9 +27,22 @@ type ReceiptAnalysis = {
 
 type ReceiptAllocationDraft = Omit<ReceiptCategoryAllocation, "amount"> & { amount: string };
 
-type ReceiptAnalysisResponse = Omit<ReceiptAnalysis, "total" | "allocations"> & {
-  total: number;
-  allocations: ReceiptCategoryAllocation[];
+type ReceiptAnalysisResponse = {
+  merchant: string;
+  date: string | null;
+  total: number | null;
+  lineItems: Array<{
+    name: string;
+    amount: number | null;
+    suggestedCategoryId: string | null;
+    confidence: "low" | "medium" | "high";
+  }>;
+  categorySplits: Array<{
+    categoryId: string;
+    amount: number;
+    reason: string;
+  }>;
+  summary: string;
 };
 
 type AddFlow = "manual" | "receipt" | "recurring";
@@ -114,12 +127,12 @@ export default function AddPurchasePage() {
     setAnalyzing(true);
     setReceiptMessage("");
     try {
-      const response = await fetch("/api/ai/analyze-receipt", {
+      const response = await fetch("/api/ai/receipt-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           receiptText,
-          userCategories: state.categories,
+          categories: state.categories,
           merchantRules: state.merchantCategoryRules
         })
       });
@@ -130,7 +143,7 @@ export default function AddPurchasePage() {
       }
       const analysisData = data as ReceiptAnalysisResponse;
       setAnalysis(toReceiptAnalysisDraft(analysisData));
-      setReceiptMessage(analysisData.aiUsed ? "AI receipt suggestions are ready for review." : "Receipt suggestions are ready for review.");
+      setReceiptMessage("AI receipt suggestions are ready for review.");
     } finally {
       setAnalyzing(false);
     }
@@ -804,10 +817,28 @@ function ReceiptReviewCard({
 }
 
 function toReceiptAnalysisDraft(analysis: ReceiptAnalysisResponse): ReceiptAnalysis {
+  const splitTotal = analysis.categorySplits.reduce((sum, split) => sum + split.amount, 0);
+  const lineItemTotal = analysis.lineItems.reduce((sum, item) => sum + (item.amount ?? 0), 0);
+  const total = (analysis.total ?? splitTotal) || lineItemTotal;
   return {
-    ...analysis,
-    total: String(analysis.total),
-    allocations: analysis.allocations.map((allocation) => ({ ...allocation, amount: String(allocation.amount) }))
+    merchant: analysis.merchant,
+    date: analysis.date ?? new Date().toISOString(),
+    total: String(total),
+    lineItems: analysis.lineItems.map((item, index) => ({
+      id: `line-${index + 1}`,
+      name: item.name,
+      amount: item.amount ?? 0
+    })),
+    allocations: analysis.categorySplits.map((split, index) => ({
+      id: `allocation-${index + 1}`,
+      categoryId: split.categoryId,
+      amount: String(split.amount),
+      confidence: 0.72,
+      reason: split.reason
+    })),
+    confidence: 0.72,
+    reason: analysis.summary,
+    aiUsed: true
   };
 }
 

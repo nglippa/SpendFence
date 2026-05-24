@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, Brain, Building2 } from "lucide-react";
+import { BarChart3, Bot, Building2, Repeat2 } from "lucide-react";
 
-export type PremiumFeatureId = "bank-sync" | "ai-categorization" | "advanced-analytics";
+export type PremiumFeatureId = "bank-sync" | "advanced-ai-intelligence" | "advanced-analytics" | "automation";
 
 export type PremiumFeature = {
   id: PremiumFeatureId;
@@ -19,18 +19,25 @@ export const premiumFeatures = {
     icon: Building2,
     status: "planned"
   },
-  "ai-categorization": {
-    id: "ai-categorization",
-    title: "AI categorization",
-    description: "Server-side assistance for transaction category suggestions after local rules run.",
-    icon: Brain,
+  "advanced-ai-intelligence": {
+    id: "advanced-ai-intelligence",
+    title: "Advanced AI intelligence",
+    description: "Deeper behavioral insights, predictive trends, anomaly detection, and proactive recommendations.",
+    icon: Bot,
     status: "planned"
   },
   "advanced-analytics": {
     id: "advanced-analytics",
     title: "Advanced analytics",
-    description: "Deeper trends, behavioral insights, projections, and recurring spending analysis.",
+    description: "Multi-cycle comparisons, long-term pattern recognition, and AI-generated monthly reports.",
     icon: BarChart3,
+    status: "planned"
+  },
+  automation: {
+    id: "automation",
+    title: "Automation features",
+    description: "Advanced recurring detection and future automation that reduces repeated review work.",
+    icon: Repeat2,
     status: "planned"
   }
 } satisfies Record<PremiumFeatureId, PremiumFeature>;
