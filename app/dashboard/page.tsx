@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, Repeat2, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
+import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const upcomingRecurring = upcomingRecurringItems(state.recurringItems, 45);
   const locked = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "locked").length;
   const warnings = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "warning").length;
+  const safe = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "safe").length;
   const budgetPercent = available > 0 ? (spent / available) * 100 : 0;
   const budgetColor = budgetPercent >= 100 ? "#F05D5E" : budgetPercent >= 80 ? "#F5B942" : "#18B889";
 
@@ -51,17 +52,6 @@ export default function DashboardPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
           <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
           <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
-          <div className="mt-3 grid grid-cols-3 gap-1.5 text-[0.68rem] font-black leading-4 sm:mt-4 sm:gap-2 sm:text-xs">
-            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
-              Safe <span className="block font-bold text-white/60">Inside fence</span>
-            </span>
-            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
-              Warning <span className="block font-bold text-white/60">Slow down</span>
-            </span>
-            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
-              Locked <span className="block font-bold text-white/60">Limit hit</span>
-            </span>
-          </div>
         </Card>
         <Card className="p-2.5 sm:p-3.5 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
@@ -74,6 +64,7 @@ export default function DashboardPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Remaining</p>
           <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(remaining)}</p>
           <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
+            <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
             <Pill className="border-amber-100 bg-amber-50 text-amber-800"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
             <Pill className="border-rose-100 bg-rose-50 text-rose-700"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
           </div>
@@ -124,40 +115,42 @@ export default function DashboardPage() {
         </section>
 
         <section className="grid content-start gap-4 sm:gap-5">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-            <Card className="p-3 sm:p-4">
+          <div className="grid items-stretch gap-3 md:grid-cols-2">
+            <Card className="h-full p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <h2 className="text-base font-black sm:text-lg">Smart prompts</h2>
+                <h2 className="text-sm font-black sm:text-base">Smart prompts</h2>
                 {prompts.length > 2 ? (
                   <Link href="/reports" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
-                    View more <ChevronRight size={14} />
+                    View all <ChevronRight size={14} />
                   </Link>
                 ) : null}
               </div>
               {prompts.length ? (
                 <div className="grid gap-2">
                   {prompts.slice(0, 2).map((prompt) => (
-                    <div key={prompt.id} className="line-clamp-3 rounded-xl bg-[var(--app-secondary)] p-2.5 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">
+                    <div key={prompt.id} className="line-clamp-2 rounded-xl bg-[var(--app-secondary)] px-2.5 py-2 text-xs font-bold leading-5 text-[var(--app-text-secondary)]">
                       {prompt.message}
                     </div>
                   ))}
                 </div>
               ) : (
-                <EmptyState compact icon={ShieldCheck} title="Prompts will appear" body="SpendFence will surface short setup notes once categories and purchases exist." />
+                <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+                  SpendFence will surface short setup notes once categories and purchases exist.
+                </div>
               )}
             </Card>
 
-            <Card className="p-3 sm:p-4">
+            <Card className="h-full p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <h2 className="text-base font-black sm:text-lg">Recurring charges</h2>
+                <h2 className="text-sm font-black sm:text-base">Recurring charges</h2>
                 <Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
-                  Manage <ChevronRight size={14} />
+                  View all <ChevronRight size={14} />
                 </Link>
               </div>
               {upcomingRecurring.length ? (
                 <div className="grid gap-2">
-                  {upcomingRecurring.slice(0, 3).map(({ item, date }) => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-xl bg-[var(--app-secondary)] p-2.5">
+                  {upcomingRecurring.slice(0, 2).map(({ item, date }) => (
+                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-xl bg-[var(--app-secondary)] px-2.5 py-2">
                       <div className="min-w-0">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <p className="truncate text-sm font-black">{item.name}</p>
@@ -179,7 +172,9 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <EmptyState compact icon={Repeat2} title="Recurring charges" body="Mark recurring purchases or paycheck income to see upcoming dates." />
+                <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+                  Mark recurring purchases or paycheck income to see upcoming dates.
+                </div>
               )}
             </Card>
           </div>
