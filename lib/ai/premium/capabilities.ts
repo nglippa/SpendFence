@@ -15,7 +15,7 @@ export const premiumAiCapabilities: PremiumAiCapability[] = [
   {
     id: "behavioral-recommendations",
     title: "Personalized behavioral recommendations",
-    description: "Surface calm, proactive suggestions based on longer-term spending patterns.",
+    description: "Surface proactive suggestions based on longer-term spending patterns.",
     status: "planned"
   },
   {

@@ -1,7 +1,7 @@
 {
   "name": "SpendFence",
   "short_name": "SpendFence",
-  "description": "A calm budget control app for monthly spending guardrails.",
+  "description": "A budget control app for monthly spending fences.",
   "id": "/dashboard",
   "start_url": "/dashboard?source=pwa",
   "scope": "/",

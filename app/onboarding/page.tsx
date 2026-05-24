@@ -183,9 +183,9 @@ function WelcomeStep({ onNext, onDemo }: { onNext: () => void; onDemo: () => voi
         <Pill className="border-white/15 bg-white/10 text-white">60 to 120 seconds</Pill>
       </div>
       <div className="p-5">
-        <h1 className="text-3xl font-black tracking-tight text-[#10201c]">Create calm financial guardrails.</h1>
+        <h1 className="text-3xl font-black tracking-tight text-[#10201c]">Create simple financial fences.</h1>
         <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-          SpendFence helps you set gentle boundaries, see your budget rhythm, and start with a dashboard that feels manageable.
+          SpendFence helps you set clear boundaries, track your budget rhythm, and start with a dashboard that gives spending structure.
         </p>
         <div className="mt-5 grid gap-2">
           <Button size="lg" onClick={onNext}>
@@ -338,7 +338,7 @@ function LimitsStep({ draft, setDraft, monthlyIncome, onNext }: StepProps & { mo
       <Segmented
         value={draft.guardrailMode}
         options={[
-          ["gentle", "Gentle"],
+          ["gentle", "Light"],
           ["balanced", "Balanced"],
           ["strict", "Strict"]
         ]}
@@ -402,7 +402,7 @@ function PreviewStep({ draft, monthlyIncome, onNext }: Pick<StepProps, "draft" |
   const categories = buildCategoryDrafts(draft, monthlyIncome);
   const window = currentCycleWindow({ budgetCycleStartDay: normalizeCycleStartDay(draft.cycleDay) });
   return (
-    <StepShell icon={CheckCircle2} title="Your first dashboard is ready" body="A calm starting point. Add real purchases when you are ready." actionLabel="Looks good" onNext={onNext}>
+    <StepShell icon={CheckCircle2} title="Your first dashboard is ready" body="A structured starting point. Add real purchases when you are ready." actionLabel="Looks good" onNext={onNext}>
       <div className="rounded-[1.25rem] bg-[#183f36] p-4 text-white shadow-float">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Budget cycle</p>
         <p className="mt-1 text-lg font-black">{formatShort(window.start)} to {formatShort(window.end)}</p>
@@ -423,7 +423,7 @@ function PreviewStep({ draft, monthlyIncome, onNext }: Pick<StepProps, "draft" |
         ))}
       </div>
       <div className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold leading-5 text-emerald-800">
-        You are ready to start building steadier spending habits.
+        You are ready to start building steadier spending patterns.
       </div>
     </StepShell>
   );
@@ -572,9 +572,9 @@ function thresholds(mode: Draft["guardrailMode"]) {
 }
 
 function guardrailCopy(mode: Draft["guardrailMode"]) {
-  if (mode === "gentle") return "Less interruption.";
+  if (mode === "gentle") return "Light pacing alerts.";
   if (mode === "strict") return "Stay tightly inside limits.";
-  return "Helpful awareness.";
+  return "Balanced pacing.";
 }
 
 function formatShort(date: Date) {

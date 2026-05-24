@@ -86,7 +86,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
             <BrandLogo className="h-10 w-auto sm:h-11" />
             <div>
               <p className="text-base font-black leading-tight text-[var(--app-text)] sm:text-lg">SpendFence</p>
-              <p className="text-xs font-bold text-[var(--app-text-muted)]">Monthly guardrails</p>
+              <p className="text-xs font-bold text-[var(--app-text-muted)]">Monthly fences</p>
             </div>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">

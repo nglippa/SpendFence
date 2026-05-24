@@ -29,7 +29,7 @@ export default function LandingPage() {
         <section className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-8 lg:grid-cols-[1fr_0.88fr] lg:items-center lg:pt-16">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <Pill className="border-[#cfe8de] bg-white text-[#327d6d]">
-              <Shield size={13} className="mr-1" /> Calm spending guardrails
+              <Shield size={13} className="mr-1" /> Simple spending fences
             </Pill>
             <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.96] tracking-tight text-[#10201c] sm:text-6xl lg:text-7xl">
               Simple budgets that tell you when to pause.

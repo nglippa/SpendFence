@@ -8,7 +8,7 @@ import { useAppearance } from "@/lib/appearance";
 import { cn } from "@/lib/utils";
 
 const options = [
-  { key: "light", label: "Light", body: "Use the calm light interface.", icon: Sun },
+  { key: "light", label: "Light", body: "Use the clean light interface.", icon: Sun },
   { key: "dark", label: "Dark", body: "Use the premium dark interface.", icon: Moon },
   { key: "system", label: "Follow System", body: "Follow this device automatically.", icon: Smartphone }
 ] satisfies Array<{ key: AppearancePreference; label: string; body: string; icon: typeof Sun }>;
@@ -25,7 +25,7 @@ export default function AppearanceSettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <SettingsDetailHeader title="Appearance" subtitle="Keep SpendFence calm and readable on this device." />
+      <SettingsDetailHeader title="Appearance" subtitle="Keep SpendFence readable on this device." />
       <SettingsFeedback message={feedback} />
       <SettingsGroup title="Theme">
         {options.map(({ key, label, body, icon: Icon }) => (

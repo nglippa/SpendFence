@@ -90,7 +90,7 @@ export function Pill({ children, className }: { children: React.ReactNode; class
   return <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-black leading-5 sm:px-2.5 sm:py-1 sm:text-xs", className)}>{children}</span>;
 }
 
-export function PageHeader({ kicker, title, body, action }: { kicker: string; title: string; body?: string; action?: React.ReactNode }) {
+export function PageHeader({ kicker, title, body, action }: { kicker: string; title: string; body?: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="mb-4 flex flex-col gap-3 md:mb-5 md:flex-row md:items-end md:justify-between">
       <div>

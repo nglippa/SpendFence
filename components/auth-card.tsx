@@ -18,14 +18,14 @@ const copy = {
   login: {
     kicker: "Welcome back",
     title: "Log in to SpendFence",
-    body: "Your budget guardrails stay private and ready when you come back.",
+    body: "Your budget fences stay private and ready when you come back.",
     button: "Log in",
     foot: "No account yet?",
     footHref: "/signup",
     footLink: "Create one"
   },
   signup: {
-    kicker: "Start calm",
+    kicker: "Start structured",
     title: "Create your account",
     body: "Set up SpendFence now. Local-first budget data stays in place for this MVP.",
     button: "Create account",

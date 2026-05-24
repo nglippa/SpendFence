@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock, LockKeyhole, Plus, ReceiptText, Repeat2, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
+import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, Repeat2, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
@@ -51,6 +51,17 @@ export default function DashboardPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
           <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
           <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
+          <div className="mt-3 grid grid-cols-3 gap-1.5 text-[0.68rem] font-black leading-4 sm:mt-4 sm:gap-2 sm:text-xs">
+            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
+              Safe <span className="block font-bold text-white/60">Inside fence</span>
+            </span>
+            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
+              Warning <span className="block font-bold text-white/60">Slow down</span>
+            </span>
+            <span className="rounded-xl border border-white/15 bg-white/10 px-2 py-1.5 text-white/90">
+              Locked <span className="block font-bold text-white/60">Limit hit</span>
+            </span>
+          </div>
         </Card>
         <Card className="p-2.5 sm:p-3.5 md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
@@ -99,7 +110,7 @@ export default function DashboardPage() {
               <EmptyState
                 icon={WalletCards}
                 title="Your budget categories are ready to be shaped"
-                body="Start with one or two spending areas you want to watch. SpendFence will use them to organize purchases and surface gentle warnings."
+                body="Start with one or two spending areas you want to watch. SpendFence will use them to organize purchases and surface pacing alerts."
                 action={
                   <Button asChild size="sm">
                     <Link href="/categories">
@@ -113,73 +124,65 @@ export default function DashboardPage() {
         </section>
 
         <section className="grid content-start gap-4 sm:gap-5">
-          <Card>
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700 sm:h-12 sm:w-12 sm:rounded-2xl">
-                <ShieldCheck size={21} />
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+            <Card className="p-3 sm:p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="text-base font-black sm:text-lg">Smart prompts</h2>
+                {prompts.length > 2 ? (
+                  <Link href="/reports" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
+                    View more <ChevronRight size={14} />
+                  </Link>
+                ) : null}
               </div>
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Visual status</p>
-                <h2 className="text-lg font-black sm:text-xl">Safe / warning / limit reached</h2>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-2 sm:mt-4">
-              <div className="rounded-xl bg-emerald-50 p-2.5 text-sm font-black text-emerald-700 sm:rounded-2xl sm:p-3">Safe means the category is comfortably inside the fence.</div>
-              <div className="rounded-xl bg-amber-50 p-2.5 text-sm font-black text-amber-800 sm:rounded-2xl sm:p-3">Warning means a pause or lighter choice is smart.</div>
-              <div className="rounded-xl bg-rose-50 p-2.5 text-sm font-black text-rose-700 sm:rounded-2xl sm:p-3">Limit reached means spending lock: avoid more spending this month.</div>
-            </div>
-          </Card>
+              {prompts.length ? (
+                <div className="grid gap-2">
+                  {prompts.slice(0, 2).map((prompt) => (
+                    <div key={prompt.id} className="line-clamp-3 rounded-xl bg-[var(--app-secondary)] p-2.5 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">
+                      {prompt.message}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState compact icon={ShieldCheck} title="Prompts will appear" body="SpendFence will surface short setup notes once categories and purchases exist." />
+              )}
+            </Card>
 
-          <Card>
-            <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Smart prompts</h2>
-            {prompts.length ? (
-              <div className="grid gap-2.5 sm:gap-3">
-                {prompts.map((prompt) => (
-                  <div key={prompt.id} className="rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-700 sm:rounded-2xl sm:p-3">
-                    {prompt.message}
-                  </div>
-                ))}
+            <Card className="p-3 sm:p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="text-base font-black sm:text-lg">Recurring charges</h2>
+                <Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
+                  Manage <ChevronRight size={14} />
+                </Link>
               </div>
-            ) : (
-              <EmptyState compact icon={ShieldCheck} title="Prompts will appear after you start tracking" body="SpendFence will surface setup notes and spending nudges once categories and purchases exist." />
-            )}
-          </Card>
-
-          <Card>
-            <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
-              <h2 className="text-lg font-black sm:text-xl">Upcoming recurring charges</h2>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/add-purchase">Manage</Link>
-              </Button>
-            </div>
-            {upcomingRecurring.length ? (
-              <div className="grid gap-2">
-                {upcomingRecurring.slice(0, 5).map(({ item, date }) => (
-                  <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-white p-2.5 sm:rounded-2xl sm:p-3">
-                    <div className="min-w-0">
-                      <div className="flex min-w-0 flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-black sm:text-base">{item.name}</p>
-                        <span className={item.kind === "income" ? "text-xs font-black text-emerald-700" : "text-xs font-black text-slate-500"}>
-                          {recurringKindLabel(item.kind)}
-                        </span>
+              {upcomingRecurring.length ? (
+                <div className="grid gap-2">
+                  {upcomingRecurring.slice(0, 3).map(({ item, date }) => (
+                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-xl bg-[var(--app-secondary)] p-2.5">
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          <p className="truncate text-sm font-black">{item.name}</p>
+                          <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
+                            {recurringKindLabel(item.kind)}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 flex items-center gap-1 text-[0.68rem] font-bold text-slate-500">
+                          <CalendarClock size={12} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
+                        </p>
                       </div>
-                      <p className="mt-0.5 flex items-center gap-1.5 text-xs font-bold text-slate-500 sm:text-sm">
-                        <CalendarClock size={14} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
-                      </p>
+                      <div className="shrink-0 text-right">
+                        <p className={item.kind === "income" ? "text-sm font-black text-emerald-700" : "text-sm font-black"}>
+                          {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
+                        </p>
+                        <p className="text-[0.65rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className={item.kind === "income" ? "text-sm font-black text-emerald-700 sm:text-base" : "text-sm font-black sm:text-base"}>
-                        {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
-                      </p>
-                      <p className="text-[0.68rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState compact icon={Repeat2} title="Recurring charges will appear here" body="Mark purchases as recurring or add paycheck income to see upcoming dates and projected monthly impact." />
-            )}
-          </Card>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState compact icon={Repeat2} title="Recurring charges" body="Mark recurring purchases or paycheck income to see upcoming dates." />
+              )}
+            </Card>
+          </div>
 
           <Card>
             <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Recent purchases</h2>

@@ -160,8 +160,8 @@ export default function CategoriesPage() {
             <Card>
               <EmptyState
                 icon={WalletCards}
-                title="Start with a few calm guardrails"
-                body="Create a few calm guardrails for the spending areas you care about. You can adjust limits anytime."
+                title="Start with a few simple fences"
+                body="Create a few simple fences for the spending areas you care about. You can adjust limits anytime."
               />
             </Card>
           )}

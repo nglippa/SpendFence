@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { BarChart3, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
 import { SmartInsightsSection } from "@/components/insights/smart-insights-section";
-import { PremiumBadge } from "@/components/upgrade-modal";
+import { PremiumBadge, UpgradeModal } from "@/components/upgrade-modal";
 import { Card, EmptyState, PageHeader, Pill } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle } from "@/lib/budget";
 import { selectSmartReportInsights } from "@/lib/insights/behavioral-insights";
@@ -14,6 +14,7 @@ import { formatShortDate } from "@/lib/utils";
 
 export default function ReportsPage() {
   const state = useSpendFence();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const cyclePurchases = purchasesForCycle(state.purchases, state.budgetMonth);
   const biggest = [...cyclePurchases].sort((a, b) => b.amount - a.amount).slice(0, 5);
   const close = state.categories
@@ -31,9 +32,16 @@ export default function ReportsPage() {
       <PageHeader
         kicker="Reports"
         title="Clean cycle insights"
-        body={`${currentCycleLabel(state.budgetMonth)}. A calm read on what changed, what stayed steady, and what may need attention. Advanced analytics are marked for future Premium.`}
-        action={<PremiumBadge />}
+        body={
+          <>
+            {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics are marked for future Premium.{" "}
+            <button type="button" className="align-baseline" onClick={() => setUpgradeOpen(true)} aria-label="Open Premium details">
+              <PremiumBadge />
+            </button>
+          </>
+        }
       />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
 
       <SmartInsightsSection insights={smartInsights} />
 
