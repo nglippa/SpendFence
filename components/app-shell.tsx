@@ -32,12 +32,12 @@ const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/pricing"];
 const pageTransition = {
   type: "tween" as const,
   ease: [0.22, 1, 0.36, 1] as const,
-  duration: 0.2
+  duration: 0.18
 };
 const pageVariants = {
-  initial: { opacity: 0, y: 8, scale: 0.996, filter: "blur(2px)" },
-  animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -6, scale: 0.998, filter: "blur(1px)" }
+  initial: { opacity: 0, x: 10, scale: 0.998 },
+  animate: { opacity: 1, x: 0, scale: 1 },
+  exit: { opacity: 0, x: -8, scale: 0.998 }
 };
 const SWIPE_THRESHOLD = 62;
 const SWIPE_VERTICAL_RATIO = 1.25;
@@ -91,13 +91,25 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
   const isOnboarding = pathname.startsWith("/onboarding");
 
   useEffect(() => {
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+  }, []);
+
+  useEffect(() => {
+    const resetTimer = window.setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }, pageTransition.duration * 1000);
+
+    return () => window.clearTimeout(resetTimer);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!ready) return;
     if (!onboardingProfile.completed && !isOnboarding) router.replace("/onboarding");
     if (onboardingProfile.completed && isOnboarding) router.replace("/dashboard");
   }, [isOnboarding, onboardingProfile.completed, ready, router]);
 
   if (isOnboarding) {
-    return <div className="min-h-screen">{children}</div>;
+    return <div className="min-h-dvh">{children}</div>;
   }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
@@ -140,7 +152,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0">
+    <div className="min-h-dvh">
       <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.86)] pt-[env(safe-area-inset-top)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3">
@@ -162,8 +174,8 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl overflow-x-clip px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
-        <div className="relative min-h-[calc(100dvh-10rem)]">
+      <main className="mx-auto w-full max-w-7xl overflow-x-clip px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
+        <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={pathname}

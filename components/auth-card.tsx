@@ -198,7 +198,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center px-4 py-10">
+    <main className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-md">
         <Link href="/" className="mx-auto mb-6 flex w-max items-center gap-3">
           <BrandLogo className="h-12 w-auto" />

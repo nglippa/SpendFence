@@ -122,8 +122,8 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7faf7] px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+0.75rem)]">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col">
+    <main className="min-h-dvh bg-[#f7faf7] px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+      <div className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-md flex-col">
         <div className="sticky top-0 z-10 -mx-3 bg-[#f7faf7]/90 px-3 pb-3 pt-1 backdrop-blur-xl">
           <div className="mb-3 flex items-center justify-between gap-3">
             <button
