@@ -35,8 +35,8 @@ export default function CategoryDetailPage() {
 
   useEffect(() => {
     if (!editing) return;
-    editFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => firstInputRef.current?.focus(), 250);
+    editFormRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+    window.setTimeout(() => firstInputRef.current?.focus(), 0);
   }, [editing]);
 
   if (!category) {

@@ -2,7 +2,6 @@
 
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import type { ReactNode, Ref } from "react";
-import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { CalendarClock, CheckCircle2, ChevronRight, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload, X } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
@@ -71,13 +70,13 @@ export default function AddPurchasePage() {
 
   function openFlow(flow: AddFlow) {
     setExpanded(flow);
-    window.setTimeout(() => {
+    window.requestAnimationFrame(() => {
       const section = flow === "manual" ? manualSectionRef.current : flow === "receipt" ? receiptSectionRef.current : recurringSectionRef.current;
-      section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      section?.scrollIntoView({ behavior: "auto", block: "start" });
       if (flow === "manual") amountInputRef.current?.focus();
       if (flow === "receipt") receiptTextRef.current?.focus();
       if (flow === "recurring") recurringNameRef.current?.focus();
-    }, 180);
+    });
   }
 
   function editPurchase(purchase: Purchase) {
@@ -461,20 +460,11 @@ function AddActionCard({
             {expanded ? <X size={15} /> : <Plus size={15} />}
             {expanded ? "Close" : "Add"}
           </Button>
-          <ChevronRight size={18} className={`hidden text-slate-400 transition-transform sm:block ${expanded ? "rotate-90" : ""}`} />
+          <ChevronRight size={18} className={`hidden text-slate-400 sm:block ${expanded ? "rotate-90" : ""}`} />
         </div>
       </div>
 
-      <motion.div
-        initial={false}
-        animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
-        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-        className="overflow-hidden"
-        style={{ visibility: expanded ? "visible" : "hidden" }}
-        aria-hidden={!expanded}
-      >
-        <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div>
-      </motion.div>
+      {expanded ? <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div> : null}
     </div>
   );
 }

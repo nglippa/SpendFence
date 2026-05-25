@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Plus, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icons";
 import { Button, Card, Field, Input, Pill, Select } from "@/components/ui";
@@ -145,14 +144,7 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.22 }}
-          className="flex flex-1 flex-col justify-center py-4"
-        >
+        <div key={step} className="flex flex-1 flex-col justify-center py-4">
           {step === 0 ? <WelcomeStep onNext={next} onDemo={exploreDemo} /> : null}
           {step === 1 ? <RhythmStep draft={draft} setDraft={setDraft} onNext={next} /> : null}
           {step === 2 ? <IncomeStep draft={draft} setDraft={setDraft} monthlyIncome={monthlyIncome} onNext={next} /> : null}
@@ -161,7 +153,7 @@ export default function OnboardingPage() {
           {step === 5 ? <PreferencesStep draft={draft} setDraft={setDraft} onNext={next} /> : null}
           {step === 6 ? <PreviewStep draft={draft} monthlyIncome={monthlyIncome} onNext={next} /> : null}
           {step === 7 ? <CompleteStep onFinish={() => finish(false)} /> : null}
-        </motion.div>
+        </div>
       </div>
     </main>
   );

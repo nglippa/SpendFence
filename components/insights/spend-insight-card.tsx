@@ -64,7 +64,7 @@ export function SpendInsightCard({
   return (
     <article
       className={cn(
-        "rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:shadow-float sm:px-4",
+        "rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:shadow-float sm:px-4",
         isRoomLeft ? roomLeftCard : stylesBySeverity[insight.severity],
         className
       )}

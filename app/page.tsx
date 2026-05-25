@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight, BellRing, ChartPie, CheckCircle2, LockKeyhole, ReceiptText, ScanLine, Shield } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, Pill, ProgressBar } from "@/components/ui";
@@ -27,7 +26,7 @@ export default function LandingPage() {
 
       <main>
         <section className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-8 lg:grid-cols-[1fr_0.88fr] lg:items-center lg:pt-16">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+          <div>
             <Pill className="border-[#cfe8de] bg-white text-[#327d6d]">
               <Shield size={13} className="mr-1" /> Simple spending fences
             </Pill>
@@ -47,9 +46,9 @@ export default function LandingPage() {
                 <Link href="/pricing">View pricing</Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.08, duration: 0.45 }}>
+          <div>
             <Card className="p-0">
               <div className="border-b border-slate-100 p-5">
                 <div className="flex items-center justify-between">
@@ -76,7 +75,7 @@ export default function LandingPage() {
                 ))}
               </div>
             </Card>
-          </motion.div>
+          </div>
         </section>
 
         <section id="features" className="mx-auto grid max-w-7xl gap-4 px-4 py-12 md:grid-cols-3">

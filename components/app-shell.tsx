@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useLayoutEffect } from "react";
 import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
@@ -29,17 +28,6 @@ const mobileNav = [
 ];
 
 const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/pricing"];
-const pageTransition = {
-  type: "tween" as const,
-  ease: [0.22, 1, 0.36, 1] as const,
-  duration: 0.18
-};
-const pageVariants = {
-  initial: { opacity: 0, x: 10 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -8 }
-};
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -82,12 +70,8 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
   }, []);
 
-  useEffect(() => {
-    const resetTimer = window.setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    }, pageTransition.duration * 1000);
-
-    return () => window.clearTimeout(resetTimer);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [pathname]);
 
   useEffect(() => {
@@ -125,20 +109,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
       <main className="mx-auto w-full max-w-7xl overflow-x-clip px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={pageTransition}
-              className="w-full will-change-transform"
-              style={{ transformOrigin: "50% 0%" }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <div className="w-full">{children}</div>
         </div>
       </main>
 

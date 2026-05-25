@@ -27,7 +27,7 @@ export function CategoryCard({
     return (
       <Card
         className={cn(
-          "relative flex min-h-[9.25rem] flex-col overflow-hidden p-3 transition hover:-translate-y-0.5 hover:shadow-float sm:min-h-[9.5rem]",
+          "relative flex min-h-[9.25rem] flex-col overflow-hidden p-3 transition hover:shadow-float sm:min-h-[9.5rem]",
           progress.status === "locked" && "border-rose-100 bg-rose-50/70",
           progress.status === "warning" && "border-amber-100 bg-amber-50/60"
         )}

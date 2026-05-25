@@ -64,7 +64,7 @@ export default function CategoriesPage() {
       icon: category.icon
     });
     window.setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      formRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
       nameInputRef.current?.focus();
     }, 0);
   }
