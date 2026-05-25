@@ -192,7 +192,7 @@ function SuggestionCard({
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article data-carousel-item="true" className={cn(intelligenceCardSurfaceClass, "flex min-h-[15rem] basis-full shrink-0 snap-center snap-always flex-col self-stretch sm:min-h-[15.5rem]")}>
+    <article data-carousel-item="true" className={cn(intelligenceCardSurfaceClass, "app-carousel-card flex min-h-[15rem] shrink-0 snap-center snap-always flex-col self-stretch sm:min-h-[15.5rem]")}>
       <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">
@@ -214,7 +214,7 @@ function SuggestionCard({
         <span className="mt-2 inline-flex text-xs font-black text-[var(--brand-primary)]">{expanded ? "Show less" : "Read more"}</span>
       </button>
       <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-[var(--app-card)] px-2.5 py-1.5 sm:mt-3 sm:px-3 sm:py-2">
-        <span className="min-w-0 truncate text-xs font-black text-[var(--app-text)] sm:text-sm">{suggestion.suggestedAction}</span>
+        <span className="min-w-0 text-xs font-black leading-4 text-[var(--app-text)] sm:text-sm sm:leading-5">{suggestion.suggestedAction}</span>
         {suggestion.metric ? <span className="shrink-0 text-[0.68rem] font-black text-[var(--app-text-muted)] sm:text-xs">{suggestion.metric}</span> : <ChevronRight size={15} className="shrink-0 text-[var(--app-text-muted)]" />}
       </div>
       {suggestion.suggestedLimit ? (

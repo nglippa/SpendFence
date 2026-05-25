@@ -119,7 +119,7 @@ export default function CategoryDetailPage() {
                   <CategoryIcon icon={category.icon} size={22} />
                 </span>
                 <div className="min-w-0">
-                  <h2 className="truncate text-xl font-black text-[#10201c] sm:text-2xl">{category.name}</h2>
+                  <h2 className="text-xl font-black leading-6 text-[#10201c] sm:text-2xl sm:leading-7">{category.name}</h2>
                   <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">Monthly limit {formatMoney(category.limit)}</p>
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function CategoryDetailPage() {
                 <article key={purchase.id} className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-2xl sm:p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate text-sm font-black text-[#10201c] sm:text-base">{purchase.merchant}</h3>
+                      <h3 className="text-sm font-black leading-5 text-[#10201c] sm:text-base sm:leading-6">{purchase.merchant}</h3>
                       <p className="mt-1 text-xs font-bold text-slate-500">
                         {formatShortDate(purchase.date)}
                         {purchase.notes ? ` - ${purchase.notes}` : ""}

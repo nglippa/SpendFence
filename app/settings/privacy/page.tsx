@@ -74,7 +74,7 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Data & Privacy" subtitle="Review local data and control reset/export actions." />
       <SettingsFeedback message={feedback} />
 

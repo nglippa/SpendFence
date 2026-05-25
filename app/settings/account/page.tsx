@@ -22,7 +22,7 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Account" subtitle="Profile, plan, and session controls." />
       <SettingsFeedback message={feedback} />
       <div className="grid gap-4">

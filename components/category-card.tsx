@@ -47,16 +47,16 @@ export function CategoryCard({
         </div>
 
         <div className="mt-2.5 min-w-0">
-          <h2 className="truncate text-sm font-black leading-5 text-[#10201c] sm:text-base" title={category.name}>{category.name}</h2>
+          <h2 className="text-sm font-black leading-5 text-[#10201c] sm:text-base">{category.name}</h2>
         </div>
 
         <div className="mt-auto grid gap-2 pt-2.5">
           <ProgressBar percent={progress.percent} color={stateColor} compact />
           <div className="grid gap-1">
-            <p className="truncate text-[0.7rem] font-black leading-4 text-slate-500 sm:text-xs">
+            <p className="text-[0.7rem] font-black leading-4 text-slate-500 sm:text-xs">
               {formatMoney(progress.spent)} of {formatMoney(category.limit)} used
             </p>
-            <p className="truncate text-xs font-black leading-4 text-[#10201c] sm:text-sm">
+            <p className="text-xs font-black leading-4 text-[#10201c] sm:text-sm">
               {formatMoney(progress.remaining)} left
             </p>
           </div>
@@ -69,11 +69,11 @@ export function CategoryCard({
     <Card>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-xl text-white shadow-soft" style={{ background: category.color }}>
+          <div className="flex items-start gap-2">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl text-white shadow-soft" style={{ background: category.color }}>
               <CategoryIcon icon={category.icon} size={15} />
             </span>
-            <h2 className="truncate text-base font-black text-[var(--app-text)] sm:text-lg">{category.name}</h2>
+            <h2 className="text-base font-black leading-5 text-[var(--app-text)] sm:text-lg sm:leading-6">{category.name}</h2>
           </div>
           <p className="mt-1 text-xs font-bold text-[var(--app-text-muted)] sm:text-sm">{formatMoney(progress.remaining)} remaining</p>
         </div>

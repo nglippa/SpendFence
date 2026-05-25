@@ -24,7 +24,7 @@ export default function AiSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="AI Features" subtitle="Control server-side assistance for categorization and receipt review." />
       <SettingsFeedback message={feedback} />
       <div className="grid gap-4">

@@ -121,9 +121,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-[#f7faf7] px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+    <main className="app-shell-frame min-h-dvh bg-[#f7faf7] pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       <div className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-md flex-col">
-        <div className="sticky top-0 z-10 -mx-3 bg-[#f7faf7]/90 px-3 pb-3 pt-1 backdrop-blur-xl">
+        <div className="app-edge-to-edge sticky top-0 z-10 bg-[#f7faf7]/90 pb-3 pt-1 backdrop-blur-xl">
           <div className="mb-3 flex items-center justify-between gap-3">
             <button
               type="button"
@@ -409,7 +409,7 @@ function PreviewStep({ draft, monthlyIncome, onNext }: Pick<StepProps, "draft" |
               </span>
               <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">{index === 1 ? "Watch" : "Ready"}</Pill>
             </div>
-            <p className="truncate text-sm font-black text-[#10201c]">{category.name}</p>
+            <p className="text-sm font-black leading-5 text-[#10201c]">{category.name}</p>
             <p className="mt-1 text-xs font-bold text-slate-500">{formatMoney(category.limit)} fence</p>
           </div>
         ))}

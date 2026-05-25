@@ -32,7 +32,7 @@ export default function BudgetCycleSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Budget Cycle" subtitle="Choose the date your spending cycle starts. SpendFence calculates the end date automatically." />
       <SettingsFeedback message={feedback} />
 
@@ -50,7 +50,7 @@ export default function BudgetCycleSettingsPage() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-black text-[var(--app-text)] sm:text-base">Edit Cycle Start Date</span>
-              <span className="mt-0.5 block truncate text-xs font-semibold text-[var(--app-text-muted)] sm:text-sm">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
+              <span className="mt-0.5 block text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
             </span>
             <span className="hidden shrink-0 rounded-full border border-[var(--app-border)] bg-[var(--app-secondary)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] sm:inline-flex">
               {formatShortDate(parseDateValue(startDateValue) ?? cycle.start)}

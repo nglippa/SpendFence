@@ -24,7 +24,7 @@ export default function AppearanceSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Appearance" subtitle="Keep SpendFence readable on this device." />
       <SettingsFeedback message={feedback} />
       <SettingsGroup title="Theme">

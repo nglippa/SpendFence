@@ -128,7 +128,7 @@ export default function DashboardPage() {
               {prompts.length ? (
                 <div className="grid gap-2">
                   {prompts.slice(0, 2).map((prompt) => (
-                    <div key={prompt.id} className="line-clamp-2 rounded-xl bg-[var(--app-secondary)] px-2.5 py-2 text-xs font-bold leading-5 text-[var(--app-text-secondary)]">
+                    <div key={prompt.id} className="rounded-xl bg-[var(--app-secondary)] px-2.5 py-2 text-xs font-bold leading-5 text-[var(--app-text-secondary)]">
                       {prompt.message}
                     </div>
                   ))}
@@ -152,8 +152,8 @@ export default function DashboardPage() {
                   {upcomingRecurring.slice(0, 2).map(({ item, date }) => (
                     <div key={item.id} className="flex items-center justify-between gap-2 rounded-xl bg-[var(--app-secondary)] px-2.5 py-2">
                       <div className="min-w-0">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <p className="truncate text-sm font-black">{item.name}</p>
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          <p className="text-sm font-black leading-5">{item.name}</p>
                           <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
                             {recurringKindLabel(item.kind)}
                           </span>

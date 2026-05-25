@@ -35,7 +35,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
               insight={insight}
               dismissible={false}
               compact
-              className="min-h-[11.5rem] basis-full shrink-0 snap-center snap-always"
+              className="app-carousel-card min-h-[11.5rem] shrink-0 snap-center snap-always"
             />
           ))}
         </div>

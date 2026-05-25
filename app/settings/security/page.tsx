@@ -6,7 +6,7 @@ import { SettingsDetailHeader, SettingsGroup, SettingsSwitchRow } from "@/compon
 
 export default function SecuritySettingsPage() {
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <SettingsDetailHeader title="Security" subtitle="Protect your account with session-only login and MFA." />
       <div className="mb-4">
         <SettingsGroup title="Session protection">

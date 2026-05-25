@@ -8,7 +8,7 @@ import { premiumFeatures } from "@/lib/premium-features";
 
 export default function PremiumSettingsPage() {
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Premium" subtitle="Future Premium areas are marked now. Subscription checkout is not enabled yet." />
       <div className="grid gap-4">
         <SettingsGroup title="Status">

@@ -74,11 +74,11 @@ export function SpendInsightCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            <h2 className="min-w-0 truncate text-sm font-black text-[#10201c] dark:text-[#F4F7F6] sm:text-base">{insight.title}</h2>
+            <h2 className="min-w-0 text-sm font-black leading-5 text-[#10201c] dark:text-[#F4F7F6] sm:text-base sm:leading-6">{insight.title}</h2>
             {insight.categoryLabel ? <InsightChip>{insight.categoryLabel}</InsightChip> : null}
             {insight.supportingMetric ? <InsightChip>{insight.supportingMetric}</InsightChip> : null}
           </div>
-          <p className={cn("mt-1 text-sm font-semibold leading-5 text-slate-600 dark:text-[#A7B3BC]", compact && "line-clamp-3")}>{insight.message}</p>
+          <p className="mt-1 text-sm font-semibold leading-5 text-slate-600 dark:text-[#A7B3BC]">{insight.message}</p>
         </div>
         {dismissible ? (
           <button

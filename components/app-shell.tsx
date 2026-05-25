@@ -90,7 +90,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.86)] pt-[env(safe-area-inset-top)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)]">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+        <div className="app-shell-frame flex items-center justify-between gap-3 py-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3">
             <BrandLogo className="h-10 w-auto sm:h-11" />
             <div>
@@ -110,14 +110,14 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl overflow-x-clip px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
+      <main className="app-shell-frame overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
           <div className="w-full">{children}</div>
         </div>
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.95)] px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_30px_rgba(11,17,20,.08)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.95)] lg:hidden">
-        <div className="mx-auto grid max-w-lg grid-cols-5 gap-1.5">
+      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.95)] pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_30px_rgba(11,17,20,.08)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.95)] lg:hidden">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-5 gap-1.5">
           {mobileNav.map((item) => (
             <MobileNavLink key={item.href} {...item} pathname={pathname} />
           ))}
@@ -155,7 +155,7 @@ function MobileNavLink({ href, label, icon: Icon, pathname }: (typeof mobileNav)
       aria-current={active ? "page" : undefined}
     >
       <Icon size={17} strokeWidth={2.35} />
-      <span className="max-w-full truncate">{label}</span>
+      <span className="max-w-full text-center leading-none">{label}</span>
     </Link>
   );
 }

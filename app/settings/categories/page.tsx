@@ -12,7 +12,7 @@ export default function CategorySettingsPage() {
   const totalLimits = state.categories.reduce((sum, category) => sum + category.limit, 0);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Categories" subtitle="Manage the budget fences that power dashboard cards and reports." />
       <div className="grid gap-4">
         <SettingsGroup title="Overview">

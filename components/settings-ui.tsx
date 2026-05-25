@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 -mx-4 mb-4 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.92)] px-4 py-3 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)] sm:-top-5 lg:-top-8">
+    <div className="app-edge-to-edge sticky -top-4 z-20 mb-4 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.92)] py-3 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)] sm:-top-5 lg:-top-8">
       <Link href="/settings" className="mb-3 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)]">
         <ArrowLeft size={17} /> Settings
       </Link>
@@ -20,9 +20,9 @@ export function SettingsDetailHeader({ title, subtitle }: { title: string; subti
 
 export function SettingsGroup({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <section className="grid gap-2">
+    <section className="grid w-full min-w-0 gap-2">
       {title ? <h2 className="px-1 text-xs font-black uppercase tracking-[0.16em] text-[var(--app-text-muted)]">{title}</h2> : null}
-      <div className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur">{children}</div>
+      <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur">{children}</div>
     </section>
   );
 }
@@ -48,8 +48,8 @@ export function SettingsRow({
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-black sm:text-base", danger ? "text-[var(--app-danger)]" : "text-[var(--app-text)]")}>{title}</p>
-        {subtitle ? <p className="mt-0.5 line-clamp-2 text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{subtitle}</p> : null}
+        <p className={cn("text-sm font-black leading-5 sm:text-base", danger ? "text-[var(--app-danger)]" : "text-[var(--app-text)]")}>{title}</p>
+        {subtitle ? <p className="mt-0.5 text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{subtitle}</p> : null}
       </div>
       {accessory ?? (href ? <ChevronRight size={18} className="shrink-0 text-slate-300" /> : null)}
     </>
@@ -138,7 +138,7 @@ export function ConfirmSheet({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-end bg-slate-950/30 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm sm:place-items-center sm:p-4">
+    <div className="app-bottom-nav fixed inset-0 z-[80] grid items-end justify-items-center bg-slate-950/30 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm sm:place-items-center sm:p-4">
       <div className="w-full max-w-md rounded-3xl bg-[var(--app-card)] p-4 shadow-float">
         <div className="flex items-start justify-between gap-3">
           <div>

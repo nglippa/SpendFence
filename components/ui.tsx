@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <section className={cn("rounded-[1.15rem] border border-[var(--app-border)] bg-[var(--app-card)] p-3.5 shadow-soft backdrop-blur sm:rounded-[1.55rem] sm:p-5", className)}>{children}</section>;
+  return <section className={cn("w-full min-w-0 rounded-[1.15rem] border border-[var(--app-border)] bg-[var(--app-card)] p-3.5 shadow-soft backdrop-blur sm:rounded-[1.55rem] sm:p-5", className)}>{children}</section>;
 }
 
 export function Button({
@@ -92,8 +92,8 @@ export function Pill({ children, className }: { children: React.ReactNode; class
 
 export function PageHeader({ kicker, title, body, action }: { kicker: string; title: string; body?: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="mb-4 flex flex-col gap-3 md:mb-5 md:flex-row md:items-end md:justify-between">
-      <div>
+    <div className="mb-4 flex w-full min-w-0 flex-col gap-3 md:mb-5 md:flex-row md:items-end md:justify-between">
+      <div className="min-w-0">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--brand-primary)]">{kicker}</p>
         <h1 className="mt-1.5 text-2xl font-black tracking-tight text-[var(--app-text)] sm:text-3xl md:text-4xl">{title}</h1>
         {body ? <p className="mt-1.5 max-w-2xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)] sm:mt-2 sm:leading-6">{body}</p> : null}

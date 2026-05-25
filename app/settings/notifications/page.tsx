@@ -38,7 +38,7 @@ export default function NotificationSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Notifications" subtitle="Tune local spending nudges without adding noise." />
       <SettingsFeedback message={feedback} />
       <SettingsGroup title="Spending insights">

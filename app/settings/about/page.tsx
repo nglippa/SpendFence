@@ -7,7 +7,7 @@ import { Pill } from "@/components/ui";
 
 export default function AboutSettingsPage() {
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="About" subtitle="SpendFence MVP notes and product posture." />
       <div className="grid gap-4">
         <SettingsGroup title="App">

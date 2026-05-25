@@ -27,6 +27,8 @@
   --app-border: #dce5e1;
   --app-ring: rgb(46 211 183 / 0.18);
   --app-shadow: 0 16px 42px rgb(11 17 20 / 0.08);
+  --app-page-gutter: 1rem;
+  --app-shell-max: 80rem;
 }
 
 :root.dark {
@@ -88,6 +90,42 @@ main {
 
 main {
   overflow-x: clip;
+}
+
+.app-shell-frame {
+  width: 100%;
+  max-width: var(--app-shell-max);
+  margin-inline: auto;
+  padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
+  padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+}
+
+.app-edge-to-edge {
+  margin-left: calc((var(--app-page-gutter) + env(safe-area-inset-left)) * -1);
+  margin-right: calc((var(--app-page-gutter) + env(safe-area-inset-right)) * -1);
+  padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
+  padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+}
+
+.app-bottom-nav {
+  padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
+  padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+}
+
+.app-carousel-card {
+  flex-basis: 100%;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-page-gutter: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --app-page-gutter: 1.5rem;
+  }
 }
 
 .dark body {

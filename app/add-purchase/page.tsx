@@ -439,7 +439,7 @@ function AddActionCard({
         </div>
         <div className="min-w-0">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="truncate text-base font-black text-[#10201c] sm:text-lg">{title}</h2>
+            <h2 className="text-base font-black leading-5 text-[#10201c] sm:text-lg sm:leading-6">{title}</h2>
             {titleAdornment}
             {successLabel ? (
               <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">
@@ -447,7 +447,7 @@ function AddActionCard({
               </Pill>
             ) : null}
           </div>
-          <p className="mt-0.5 truncate text-sm font-semibold text-slate-600">{description}</p>
+          <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-600">{description}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
