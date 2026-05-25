@@ -145,7 +145,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
             ref={carouselRef}
             data-carousel="true"
             onScroll={handleScroll}
-            className="flex min-h-[16rem] snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:pb-4"
+            className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:pb-4"
           >
             {activeSuggestions.map((suggestion) => (
               <SuggestionCard
@@ -162,11 +162,11 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           <CarouselDots count={activeSuggestions.length} activeIndex={activeIndex} className="pb-3 sm:pb-4" />
         </>
       ) : (
-        <div className="grid min-h-[17.875rem] content-start px-4 pb-4 sm:px-5">
-          <div className="rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3">
+        <div className="px-3 pb-3 sm:px-5 sm:pb-4">
+          <div className="rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 sm:p-3.5">
             <p className="text-sm font-black text-[var(--app-text)]">{loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}</p>
             <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-muted)]">
-              {loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface small adjustments as category patterns become steadier."}
+              {loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface small adjustments as patterns become steadier."}
             </p>
           </div>
         </div>
