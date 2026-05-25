@@ -29,6 +29,16 @@ const mobileNav = [
 ];
 
 const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/pricing"];
+const pageTransition = {
+  type: "tween" as const,
+  ease: [0.22, 1, 0.36, 1] as const,
+  duration: 0.2
+};
+const pageVariants = {
+  initial: { opacity: 0, y: 8, scale: 0.996, filter: "blur(2px)" },
+  animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+  exit: { opacity: 0, y: -6, scale: 0.998, filter: "blur(1px)" }
+};
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -101,12 +111,23 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
-        <AnimatePresence mode="wait">
-          <motion.div key={pathname} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+      <main className="mx-auto w-full max-w-7xl overflow-x-clip px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
+        <div className="relative min-h-[calc(100dvh-10rem)]">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
+              key={pathname}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+              className="w-full will-change-transform"
+              style={{ transformOrigin: "50% 0%" }}
+            >
             {children}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.95)] px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_30px_rgba(11,17,20,.08)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.95)] lg:hidden">
