@@ -69,7 +69,7 @@ const settingsSections = [
       href: "/settings/ai",
       icon: Brain,
       title: "AI Features",
-      subtitle: "Receipt and import categorization settings"
+      subtitle: "Receipt, categorization, and adaptive fence settings"
     }
   ],
   [

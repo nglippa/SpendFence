@@ -45,6 +45,13 @@ export function createCleanState(): SpendFenceState {
       trendSummaries: true,
       detailLevel: "balanced"
     },
+    adaptiveFenceSettings: {
+      enabled: true,
+      frequency: "balanced",
+      automationLevel: "require-confirmation",
+      learningSensitivity: "moderate"
+    },
+    fenceLearningEvents: [],
     onboardingProfile: {
       completed: false,
       skipped: false,

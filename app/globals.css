@@ -50,8 +50,18 @@
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
+  width: 100%;
+  max-width: 100%;
   min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html {
   background-color: var(--app-bg);
   scroll-behavior: smooth;
   overscroll-behavior-y: none;
@@ -69,6 +79,17 @@ body {
   text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
   transition: background-color 180ms ease, color 180ms ease;
+}
+
+#__next,
+body > div,
+main {
+  width: 100%;
+  max-width: 100%;
+}
+
+main {
+  overflow-x: clip;
 }
 
 .dark body {
@@ -90,10 +111,23 @@ button {
 }
 
 @supports (-webkit-touch-callout: none) {
+  html,
+  body {
+    min-height: -webkit-fill-available;
+  }
+
   input,
   select,
   textarea {
-    font-size: 16px;
+    font-size: max(16px, 1rem);
+  }
+}
+
+@media (display-mode: standalone) {
+  html,
+  body {
+    min-height: 100dvh;
+    overflow-x: hidden;
   }
 }
 

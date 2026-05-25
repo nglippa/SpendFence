@@ -7,8 +7,11 @@ import { createDemoState, initialState } from "@/lib/mock-data";
 import { nextRecurringDate } from "@/lib/recurring";
 import type {
   BudgetMonth,
+  AdaptiveFenceSettings,
+  AdaptiveFenceSuggestion,
   CategoryInput,
   CategorySuggestion,
+  FenceLearningEvent,
   ImportedTransaction,
   ImportedTransactionInput,
   InsightSettings,
@@ -43,6 +46,9 @@ type SpendFenceContextValue = SpendFenceState & {
   confirmReceipt: (id: string) => void;
   updateNotificationSettings: (settings: NotificationSettings) => void;
   updateInsightSettings: (settings: InsightSettings) => void;
+  updateAdaptiveFenceSettings: (settings: AdaptiveFenceSettings) => void;
+  acceptAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion) => void;
+  dismissAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion) => void;
   updateAiCategorization: (enabled: boolean) => void;
   addImportedTransactions: (transactions: ImportedTransactionInput[]) => void;
   applySuggestionToImportedTransaction: (id: string, suggestion: CategorySuggestion) => void;
@@ -237,6 +243,26 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
         }),
       updateNotificationSettings: (settings) => setActiveState((current) => ({ ...current, notificationSettings: settings })),
       updateInsightSettings: (settings) => setActiveState((current) => ({ ...current, insightSettings: settings })),
+      updateAdaptiveFenceSettings: (settings) => setActiveState((current) => ({ ...current, adaptiveFenceSettings: settings })),
+      acceptAdaptiveFenceSuggestion: (suggestion) =>
+        setActiveState((current) => {
+          const category = current.categories.find((item) => item.id === suggestion.categoryId);
+          if (!category) return current;
+          const nextCategories =
+            suggestion.suggestedLimit && suggestion.suggestedLimit > 0
+              ? current.categories.map((item) => (item.id === category.id ? { ...item, limit: suggestion.suggestedLimit ?? item.limit } : item))
+              : current.categories;
+          return {
+            ...current,
+            categories: nextCategories,
+            fenceLearningEvents: [buildFenceLearningEvent(suggestion, "accepted"), ...current.fenceLearningEvents].slice(0, 300)
+          };
+        }),
+      dismissAdaptiveFenceSuggestion: (suggestion) =>
+        setActiveState((current) => ({
+          ...current,
+          fenceLearningEvents: [buildFenceLearningEvent(suggestion, "dismissed"), ...current.fenceLearningEvents].slice(0, 300)
+        })),
       updateAiCategorization: (enabled) => setActiveState((current) => ({ ...current, aiCategorizationEnabled: enabled })),
       addImportedTransactions: (transactions) =>
         setActiveState((current) => ({
@@ -362,6 +388,8 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     prompts: state.prompts ?? [],
     notificationSettings: { ...initialState.notificationSettings, ...state.notificationSettings },
     insightSettings: { ...initialState.insightSettings, ...state.insightSettings },
+    adaptiveFenceSettings: { ...initialState.adaptiveFenceSettings, ...state.adaptiveFenceSettings },
+    fenceLearningEvents: state.fenceLearningEvents ?? [],
     onboardingProfile: {
       ...initialState.onboardingProfile,
       ...state.onboardingProfile,
@@ -387,6 +415,19 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     merchantCategoryRules: normalized.merchantCategoryRules.map((rule) => ({ ...rule, userId })),
     categoryCorrections: normalized.categoryCorrections.map((correction) => ({ ...correction, userId })),
     notifications: normalized.notifications.map((notification) => ({ ...notification, userId }))
+  };
+}
+
+function buildFenceLearningEvent(suggestion: AdaptiveFenceSuggestion, decision: FenceLearningEvent["decision"]): FenceLearningEvent {
+  return {
+    id: makeId("fence-learning"),
+    suggestionId: suggestion.id,
+    categoryId: suggestion.categoryId,
+    suggestionType: suggestion.type,
+    decision,
+    previousLimit: suggestion.currentLimit,
+    suggestedLimit: suggestion.suggestedLimit,
+    createdAt: new Date().toISOString()
   };
 }
 

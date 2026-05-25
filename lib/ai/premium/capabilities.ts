@@ -25,6 +25,18 @@ export const premiumAiCapabilities: PremiumAiCapability[] = [
     status: "planned"
   },
   {
+    id: "predictive-fence-sizing",
+    title: "Predictive fence sizing",
+    description: "Suggest future fence sizes using multi-cycle forecasting and category volatility.",
+    status: "planned"
+  },
+  {
+    id: "advanced-pacing-intelligence",
+    title: "Advanced pacing intelligence",
+    description: "Surface proactive risk alerts and timing patterns before a fence feels tight.",
+    status: "planned"
+  },
+  {
     id: "advanced-recurring-detection",
     title: "Advanced recurring detection",
     description: "Find subscriptions, bills, anomalies, and outliers with deeper automation.",

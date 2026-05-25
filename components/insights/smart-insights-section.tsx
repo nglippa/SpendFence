@@ -30,7 +30,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
             insight={insight}
             dismissible={false}
             compact
-            className="min-h-[9rem] min-w-[18rem] snap-start bg-white/82 shadow-none sm:min-w-0"
+            className="min-h-[9rem] min-w-[18rem] snap-start shadow-none sm:min-w-0"
           />
         ))}
       </div>

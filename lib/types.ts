@@ -98,6 +98,45 @@ export type Notification = {
 
 export type SuggestionConfidence = "high" | "medium" | "low";
 
+export type AdaptiveSuggestionFrequency = "minimal" | "balanced" | "active";
+
+export type AdaptiveAutomationLevel = "suggestions-only" | "require-confirmation" | "auto-apply-low-risk";
+
+export type AdaptiveLearningSensitivity = "conservative" | "moderate" | "adaptive";
+
+export type AdaptiveFenceSettings = {
+  enabled: boolean;
+  frequency: AdaptiveSuggestionFrequency;
+  automationLevel: AdaptiveAutomationLevel;
+  learningSensitivity: AdaptiveLearningSensitivity;
+};
+
+export type AdaptiveFenceSuggestion = {
+  id: string;
+  categoryId: string;
+  type: "overrun" | "underspend" | "pacing" | "volatility" | "recurring";
+  title: string;
+  explanation: string;
+  suggestedAction: string;
+  confidence: SuggestionConfidence;
+  currentLimit: number;
+  suggestedLimit?: number;
+  estimatedMonthlyImpact?: number;
+  metric?: string;
+  source: "local_rules" | "groq";
+};
+
+export type FenceLearningEvent = {
+  id: string;
+  suggestionId: string;
+  categoryId?: string;
+  suggestionType: AdaptiveFenceSuggestion["type"];
+  decision: "accepted" | "dismissed" | "marked-useful";
+  previousLimit?: number;
+  suggestedLimit?: number;
+  createdAt: string;
+};
+
 export type CategorySuggestion = {
   suggestedCategoryId: string;
   confidence: number;
@@ -192,6 +231,8 @@ export type SpendFenceState = {
   prompts: Prompt[];
   notificationSettings: NotificationSettings;
   insightSettings: InsightSettings;
+  adaptiveFenceSettings: AdaptiveFenceSettings;
+  fenceLearningEvents: FenceLearningEvent[];
   onboardingProfile: OnboardingProfile;
   notifications: Notification[];
   aiCategorizationEnabled: boolean;
