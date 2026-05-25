@@ -5,6 +5,7 @@ import type { ReactNode, Ref } from "react";
 import type { LucideIcon } from "lucide-react";
 import { CalendarClock, CheckCircle2, ChevronRight, Edit3, FileText, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload, X } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
+import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { formatMoney } from "@/lib/budget";
@@ -48,6 +49,7 @@ type AddFlow = "manual" | "receipt" | "recurring";
 
 export default function AddPurchasePage() {
   const state = useSpendFence();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [expanded, setExpanded] = useState<AddFlow | null>(null);
   const [lastCompleted, setLastCompleted] = useState<AddFlow | null>(null);
   const [editing, setEditing] = useState<Purchase | null>(null);
@@ -70,13 +72,13 @@ export default function AddPurchasePage() {
 
   function openFlow(flow: AddFlow) {
     setExpanded(flow);
-    window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
       const section = flow === "manual" ? manualSectionRef.current : flow === "receipt" ? receiptSectionRef.current : recurringSectionRef.current;
-      section?.scrollIntoView({ behavior: "auto", block: "start" });
-      if (flow === "manual") amountInputRef.current?.focus();
-      if (flow === "receipt") receiptTextRef.current?.focus();
-      if (flow === "recurring") recurringNameRef.current?.focus();
-    });
+      scrollIntoViewIfNeeded(section);
+      if (flow === "manual") amountInputRef.current?.focus({ preventScroll: true });
+      if (flow === "receipt") receiptTextRef.current?.focus({ preventScroll: true });
+      if (flow === "recurring") recurringNameRef.current?.focus({ preventScroll: true });
+    }, stableLayoutDelay(prefersReducedMotion));
   }
 
   function editPurchase(purchase: Purchase) {
@@ -97,9 +99,11 @@ export default function AddPurchasePage() {
   }
 
   function resetManualFlow() {
-    setEditing(null);
-    setManualFormKey((current) => current + 1);
     setExpanded(null);
+    window.setTimeout(() => {
+      setEditing(null);
+      setManualFormKey((current) => current + 1);
+    }, stableLayoutDelay(prefersReducedMotion));
   }
 
   function resetReceiptFlow() {
@@ -240,7 +244,7 @@ export default function AddPurchasePage() {
                 if (editing) state.updatePurchase(editing.id, input);
                 else state.addPurchase(input);
                 completeFlow("manual", input.recurring?.enabled ? "Purchase and recurring rule saved." : editing ? "Purchase saved." : "Purchase added.");
-                setEditing(null);
+                window.setTimeout(() => setEditing(null), stableLayoutDelay(prefersReducedMotion));
               }}
             />
             <Button type="button" variant="secondary" className="w-full" onClick={resetManualFlow}>
@@ -464,7 +468,9 @@ function AddActionCard({
         </div>
       </div>
 
-      {expanded ? <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div> : null}
+      <StableCollapsible open={expanded}>
+        <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div>
+      </StableCollapsible>
     </div>
   );
 }

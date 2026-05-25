@@ -7,6 +7,7 @@ import { createDemoState, initialState } from "@/lib/mock-data";
 import { nextRecurringDate } from "@/lib/recurring";
 import type {
   BudgetMonth,
+  AdaptiveFenceSuggestionCache,
   AdaptiveFenceSettings,
   AdaptiveFenceSuggestion,
   CategoryInput,
@@ -18,6 +19,7 @@ import type {
   Notification,
   NotificationSettings,
   OnboardingCompleteInput,
+  PersistedAdaptiveFenceSuggestion,
   PurchaseInput,
   RecurringItemInput,
   Receipt,
@@ -47,7 +49,9 @@ type SpendFenceContextValue = SpendFenceState & {
   updateNotificationSettings: (settings: NotificationSettings) => void;
   updateInsightSettings: (settings: InsightSettings) => void;
   updateAdaptiveFenceSettings: (settings: AdaptiveFenceSettings) => void;
-  acceptAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion) => void;
+  setAdaptiveFenceSuggestions: (input: { fingerprint: string; suggestions: AdaptiveFenceSuggestion[]; aiUsed: boolean; generatedAt?: string }) => void;
+  rememberAdaptiveFenceSuggestionsView: (input: { activeIndex?: number; expandedId?: string | null }) => void;
+  acceptAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion, options?: { applyLimit?: boolean; nextFingerprint?: string }) => void;
   dismissAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion) => void;
   updateAiCategorization: (enabled: boolean) => void;
   addImportedTransactions: (transactions: ImportedTransactionInput[]) => void;
@@ -244,23 +248,45 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
       updateNotificationSettings: (settings) => setActiveState((current) => ({ ...current, notificationSettings: settings })),
       updateInsightSettings: (settings) => setActiveState((current) => ({ ...current, insightSettings: settings })),
       updateAdaptiveFenceSettings: (settings) => setActiveState((current) => ({ ...current, adaptiveFenceSettings: settings })),
-      acceptAdaptiveFenceSuggestion: (suggestion) =>
+      setAdaptiveFenceSuggestions: ({ fingerprint, suggestions, aiUsed, generatedAt }) =>
+        setActiveState((current) => ({
+          ...current,
+          adaptiveSuggestions: buildAdaptiveSuggestionCache(fingerprint, suggestions, aiUsed, generatedAt)
+        })),
+      rememberAdaptiveFenceSuggestionsView: ({ activeIndex, expandedId }) =>
+        setActiveState((current) => ({
+          ...current,
+          adaptiveSuggestions: {
+            ...current.adaptiveSuggestions,
+            activeIndex: typeof activeIndex === "number" ? activeIndex : current.adaptiveSuggestions.activeIndex,
+            expandedId: expandedId !== undefined ? expandedId : current.adaptiveSuggestions.expandedId
+          }
+        })),
+      acceptAdaptiveFenceSuggestion: (suggestion, options) =>
         setActiveState((current) => {
           const category = current.categories.find((item) => item.id === suggestion.categoryId);
-          if (!category) return current;
+          if (!category) {
+            return {
+              ...current,
+              adaptiveSuggestions: markAdaptiveSuggestion(current.adaptiveSuggestions, suggestion.id, "accepted", options?.nextFingerprint),
+              fenceLearningEvents: [buildFenceLearningEvent(suggestion, "accepted"), ...current.fenceLearningEvents].slice(0, 300)
+            };
+          }
           const nextCategories =
-            suggestion.suggestedLimit && suggestion.suggestedLimit > 0
+            options?.applyLimit && suggestion.suggestedLimit && suggestion.suggestedLimit > 0
               ? current.categories.map((item) => (item.id === category.id ? { ...item, limit: suggestion.suggestedLimit ?? item.limit } : item))
               : current.categories;
           return {
             ...current,
             categories: nextCategories,
+            adaptiveSuggestions: markAdaptiveSuggestion(current.adaptiveSuggestions, suggestion.id, "accepted", options?.nextFingerprint),
             fenceLearningEvents: [buildFenceLearningEvent(suggestion, "accepted"), ...current.fenceLearningEvents].slice(0, 300)
           };
         }),
       dismissAdaptiveFenceSuggestion: (suggestion) =>
         setActiveState((current) => ({
           ...current,
+          adaptiveSuggestions: markAdaptiveSuggestion(current.adaptiveSuggestions, suggestion.id, "dismissed"),
           fenceLearningEvents: [buildFenceLearningEvent(suggestion, "dismissed"), ...current.fenceLearningEvents].slice(0, 300)
         })),
       updateAiCategorization: (enabled) => setActiveState((current) => ({ ...current, aiCategorizationEnabled: enabled })),
@@ -389,6 +415,7 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     notificationSettings: { ...initialState.notificationSettings, ...state.notificationSettings },
     insightSettings: { ...initialState.insightSettings, ...state.insightSettings },
     adaptiveFenceSettings: { ...initialState.adaptiveFenceSettings, ...state.adaptiveFenceSettings },
+    adaptiveSuggestions: normalizeAdaptiveSuggestionCache(state.adaptiveSuggestions),
     fenceLearningEvents: state.fenceLearningEvents ?? [],
     onboardingProfile: {
       ...initialState.onboardingProfile,
@@ -428,6 +455,84 @@ function buildFenceLearningEvent(suggestion: AdaptiveFenceSuggestion, decision: 
     previousLimit: suggestion.currentLimit,
     suggestedLimit: suggestion.suggestedLimit,
     createdAt: new Date().toISOString()
+  };
+}
+
+function buildAdaptiveSuggestionCache(
+  fingerprint: string,
+  suggestions: AdaptiveFenceSuggestion[],
+  aiUsed: boolean,
+  generatedAt = new Date().toISOString()
+): AdaptiveFenceSuggestionCache {
+  return {
+    fingerprint,
+    generatedAt,
+    aiUsed,
+    activeIndex: 0,
+    expandedId: null,
+    items: suggestions.map((suggestion) => ({
+      ...suggestion,
+      message: suggestion.explanation,
+      relatedCategoryId: suggestion.categoryId,
+      status: "active",
+      fingerprint,
+      createdAt: generatedAt
+    }))
+  };
+}
+
+function markAdaptiveSuggestion(
+  cache: AdaptiveFenceSuggestionCache,
+  suggestionId: string,
+  status: PersistedAdaptiveFenceSuggestion["status"],
+  nextFingerprint?: string
+): AdaptiveFenceSuggestionCache {
+  const updatedAt = new Date().toISOString();
+  const nextItems = cache.items.map((item) => (item.id === suggestionId ? { ...item, status, updatedAt } : item));
+  const activeCount = nextItems.filter((item) => item.status === "active").length;
+  return {
+    ...cache,
+    fingerprint: nextFingerprint ?? cache.fingerprint,
+    items: nextItems,
+    activeIndex: Math.min(cache.activeIndex, Math.max(0, activeCount - 1)),
+    expandedId: cache.expandedId === suggestionId ? null : cache.expandedId
+  };
+}
+
+function normalizeAdaptiveSuggestionCache(cache: unknown): AdaptiveFenceSuggestionCache {
+  if (!cache || typeof cache !== "object") return initialState.adaptiveSuggestions;
+
+  const candidate = cache as Partial<AdaptiveFenceSuggestionCache>;
+  const fingerprint = typeof candidate.fingerprint === "string" ? candidate.fingerprint : "";
+  const generatedAt = typeof candidate.generatedAt === "string" ? candidate.generatedAt : "";
+  const items = Array.isArray(candidate.items)
+    ? (candidate.items.map((item) => normalizePersistedAdaptiveSuggestion(item, fingerprint)).filter(Boolean) as PersistedAdaptiveFenceSuggestion[])
+    : [];
+  const activeCount = items.filter((item) => item.status === "active").length;
+
+  return {
+    fingerprint,
+    generatedAt,
+    aiUsed: Boolean(candidate.aiUsed),
+    items,
+    activeIndex: typeof candidate.activeIndex === "number" ? Math.min(Math.max(0, Math.round(candidate.activeIndex)), Math.max(0, activeCount - 1)) : 0,
+    expandedId: typeof candidate.expandedId === "string" ? candidate.expandedId : null
+  };
+}
+
+function normalizePersistedAdaptiveSuggestion(item: unknown, fallbackFingerprint: string): PersistedAdaptiveFenceSuggestion | null {
+  if (!item || typeof item !== "object") return null;
+  const raw = item as Partial<PersistedAdaptiveFenceSuggestion>;
+  if (!raw.id || !raw.categoryId || !raw.type || !raw.title || !raw.explanation || !raw.suggestedAction || !raw.confidence || !raw.source) return null;
+  const status = raw.status === "accepted" || raw.status === "dismissed" ? raw.status : "active";
+  return {
+    ...(raw as AdaptiveFenceSuggestion),
+    message: raw.message ?? raw.explanation,
+    relatedCategoryId: raw.relatedCategoryId ?? raw.categoryId,
+    status,
+    fingerprint: raw.fingerprint ?? fallbackFingerprint,
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updatedAt
   };
 }
 

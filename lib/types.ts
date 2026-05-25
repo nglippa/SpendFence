@@ -127,6 +127,26 @@ export type AdaptiveFenceSuggestion = {
   source: "local_rules" | "groq";
 };
 
+export type AdaptiveSuggestionStatus = "active" | "accepted" | "dismissed";
+
+export type PersistedAdaptiveFenceSuggestion = AdaptiveFenceSuggestion & {
+  message: string;
+  relatedCategoryId?: string;
+  status: AdaptiveSuggestionStatus;
+  fingerprint: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type AdaptiveFenceSuggestionCache = {
+  fingerprint: string;
+  generatedAt: string;
+  aiUsed: boolean;
+  items: PersistedAdaptiveFenceSuggestion[];
+  activeIndex: number;
+  expandedId?: string | null;
+};
+
 export type FenceLearningEvent = {
   id: string;
   suggestionId: string;
@@ -233,6 +253,7 @@ export type SpendFenceState = {
   notificationSettings: NotificationSettings;
   insightSettings: InsightSettings;
   adaptiveFenceSettings: AdaptiveFenceSettings;
+  adaptiveSuggestions: AdaptiveFenceSuggestionCache;
   fenceLearningEvents: FenceLearningEvent[];
   onboardingProfile: OnboardingProfile;
   notifications: Notification[];

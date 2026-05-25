@@ -7,6 +7,7 @@ import { ArrowLeft, PenLine, ReceiptText, Trash2 } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icons";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { PurchaseForm } from "@/components/purchase-form";
+import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
@@ -19,8 +20,10 @@ export default function CategoryDetailPage() {
   const params = useParams<{ categoryId: string }>();
   const categoryId = Array.isArray(params.categoryId) ? params.categoryId[0] : params.categoryId;
   const state = useSpendFence();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const category = state.categories.find((item) => item.id === categoryId);
   const [editing, setEditing] = useState<Purchase | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState<Purchase | null>(null);
   const [feedback, setFeedback] = useState("");
   const editFormRef = useRef<HTMLDivElement>(null);
@@ -34,10 +37,12 @@ export default function CategoryDetailPage() {
   }, [category, state.budgetMonth, state.purchases]);
 
   useEffect(() => {
-    if (!editing) return;
-    editFormRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
-    window.setTimeout(() => firstInputRef.current?.focus(), 0);
-  }, [editing]);
+    if (!editing || !editOpen) return;
+    window.setTimeout(() => {
+      scrollIntoViewIfNeeded(editFormRef.current);
+      firstInputRef.current?.focus({ preventScroll: true });
+    }, stableLayoutDelay(prefersReducedMotion));
+  }, [editOpen, editing, prefersReducedMotion]);
 
   if (!category) {
     return (
@@ -64,8 +69,18 @@ export default function CategoryDetailPage() {
   function updatePurchase(input: PurchaseInput) {
     if (!editing) return;
     state.updatePurchase(editing.id, input);
-    setEditing(null);
+    closeEditForm();
     showFeedback("Purchase saved.");
+  }
+
+  function startEditing(purchase: Purchase) {
+    setEditing(purchase);
+    setEditOpen(true);
+  }
+
+  function closeEditForm() {
+    setEditOpen(false);
+    window.setTimeout(() => setEditing(null), stableLayoutDelay(prefersReducedMotion));
   }
 
   function showFeedback(message: string) {
@@ -133,30 +148,32 @@ export default function CategoryDetailPage() {
             </div>
           </Card>
 
-          {editing ? (
-            <Card>
-              <div ref={editFormRef} className="scroll-mt-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Editing purchase</p>
-                    <h2 className="text-lg font-black sm:text-xl">{editing.merchant}</h2>
+          <StableCollapsible open={editOpen && Boolean(editing)}>
+            {editing ? (
+              <Card>
+                <div ref={editFormRef} className="scroll-mt-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Editing purchase</p>
+                      <h2 className="text-lg font-black sm:text-xl">{editing.merchant}</h2>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={closeEditForm}>
+                      Cancel
+                    </Button>
                   </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(null)}>
-                    Cancel
-                  </Button>
+                  <PurchaseForm
+                    key={editing.id}
+                    categories={state.categories}
+                    initial={editing}
+                    firstInputRef={firstInputRef}
+                    showReceiptUpload={false}
+                    submitLabel="Save changes"
+                    onSubmit={updatePurchase}
+                  />
                 </div>
-                <PurchaseForm
-                  key={editing.id}
-                  categories={state.categories}
-                  initial={editing}
-                  firstInputRef={firstInputRef}
-                  showReceiptUpload={false}
-                  submitLabel="Save changes"
-                  onSubmit={updatePurchase}
-                />
-              </div>
-            </Card>
-          ) : null}
+              </Card>
+            ) : null}
+          </StableCollapsible>
         </section>
 
         <Card>
@@ -193,7 +210,7 @@ export default function CategoryDetailPage() {
                         ))}
                       </Select>
                     </label>
-                    <Button type="button" variant="secondary" size="sm" onClick={() => setEditing(purchase)}>
+                    <Button type="button" variant="secondary" size="sm" onClick={() => startEditing(purchase)}>
                       <PenLine size={15} /> Edit
                     </Button>
                     <Button type="button" variant="danger" size="sm" onClick={() => setDeleting(purchase)}>
@@ -223,7 +240,7 @@ export default function CategoryDetailPage() {
         onConfirm={() => {
           if (deleting) {
             state.deletePurchase(deleting.id);
-            if (editing?.id === deleting.id) setEditing(null);
+            if (editing?.id === deleting.id) closeEditForm();
           }
           setDeleting(null);
           showFeedback("Purchase deleted.");

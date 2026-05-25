@@ -51,6 +51,14 @@ export function createCleanState(): SpendFenceState {
       automationLevel: "require-confirmation",
       learningSensitivity: "moderate"
     },
+    adaptiveSuggestions: {
+      fingerprint: "",
+      generatedAt: "",
+      aiUsed: false,
+      items: [],
+      activeIndex: 0,
+      expandedId: null
+    },
     fenceLearningEvents: [],
     onboardingProfile: {
       completed: false,

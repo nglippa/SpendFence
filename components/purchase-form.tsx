@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import type { Ref } from "react";
 import { Repeat2, Save, Upload } from "lucide-react";
+import { StableCollapsible } from "@/components/stable-layout";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 import type { Category, Purchase, PurchaseInput, RecurringFrequency, RecurringItem } from "@/lib/types";
 import { fromDateInput, toDateInput } from "@/lib/utils";
@@ -119,7 +120,7 @@ export function PurchaseForm({
             <Repeat2 size={17} /> Recurring purchase
           </span>
         </label>
-        {recurring.enabled ? (
+        <StableCollapsible open={recurring.enabled}>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Recurring type">
               <Select value={recurring.kind} onChange={(event) => setRecurring({ ...recurring, kind: event.target.value as "subscription" | "bill" })}>
@@ -137,7 +138,7 @@ export function PurchaseForm({
               </Select>
             </Field>
           </div>
-        ) : null}
+        </StableCollapsible>
       </div>
       {showReceiptUpload ? (
         <>

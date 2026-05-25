@@ -5,6 +5,7 @@ import { Edit3, Plus, Trash2, WalletCards } from "lucide-react";
 import { AdaptiveFenceSuggestions } from "@/components/adaptive-fence-suggestions";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
+import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, Card, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { useSpendFence } from "@/lib/store";
@@ -29,6 +30,7 @@ function emptyForm(): CategoryFormState {
 
 export default function CategoriesPage() {
   const state = useSpendFence();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [editing, setEditing] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
   const [feedback, setFeedback] = useState("");
@@ -37,6 +39,13 @@ export default function CategoriesPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<CategoryFormState>(() => emptyForm());
   const formVisible = formOpen || Boolean(editing);
+
+  function focusFenceForm() {
+    window.setTimeout(() => {
+      scrollIntoViewIfNeeded(formRef.current);
+      nameInputRef.current?.focus({ preventScroll: true });
+    }, stableLayoutDelay(prefersReducedMotion));
+  }
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -63,17 +72,14 @@ export default function CategoriesPage() {
       color: category.color,
       icon: category.icon
     });
-    window.setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
-      nameInputRef.current?.focus();
-    }, 0);
+    focusFenceForm();
   }
 
   function openNewFence() {
     setEditing(null);
     setForm(emptyForm());
     setFormOpen(true);
-    window.setTimeout(() => nameInputRef.current?.focus(), 0);
+    focusFenceForm();
   }
 
   function closeForm() {
@@ -92,7 +98,7 @@ export default function CategoriesPage() {
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.82fr_1.18fr]">
         <Card>
           <section ref={formRef} className="scroll-mt-24">
-            {!formVisible ? (
+            <StableCollapsible open={!formVisible}>
               <button
                 type="button"
                 onClick={openNewFence}
@@ -110,10 +116,10 @@ export default function CategoriesPage() {
                 </span>
                 <span className="hidden rounded-full bg-[var(--app-card)] px-3 py-1 text-xs font-black text-[var(--brand-primary)] sm:inline-flex">Add</span>
               </button>
-            ) : null}
+            </StableCollapsible>
 
-            {formVisible ? (
-              <div className="grid transition-opacity duration-300 ease-out">
+            <StableCollapsible open={formVisible}>
+              <div className="grid pt-3 transition-opacity duration-300 ease-out first:pt-0">
                 <div>
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
                     <h2 className="text-lg font-black text-[var(--app-text)] sm:text-xl">{editing ? `Editing Fence: ${editing.name}` : "New Fence"}</h2>
@@ -188,7 +194,7 @@ export default function CategoriesPage() {
                   </form>
                 </div>
               </div>
-            ) : null}
+            </StableCollapsible>
           </section>
         </Card>
 

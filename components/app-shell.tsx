@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
@@ -70,8 +70,11 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
   }, []);
 
-  useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
 
   useEffect(() => {
