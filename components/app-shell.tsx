@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
@@ -38,6 +38,16 @@ const pageVariants = {
   initial: { opacity: 0, y: 8, scale: 0.996, filter: "blur(2px)" },
   animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
   exit: { opacity: 0, y: -6, scale: 0.998, filter: "blur(1px)" }
+};
+const SWIPE_THRESHOLD = 62;
+const SWIPE_VERTICAL_RATIO = 1.25;
+const SWIPE_LOCK_MS = 360;
+
+type SwipeState = {
+  active: boolean;
+  startX: number;
+  startY: number;
+  startedAt: number;
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -75,6 +85,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const router = useRouter();
   const { notifications, onboardingProfile, ready } = useSpendFence();
+  const swipe = useRef<SwipeState>({ active: false, startX: 0, startY: 0, startedAt: 0 });
+  const swipeLockedUntil = useRef(0);
   const unread = notifications.filter((item) => !item.read).length;
   const isOnboarding = pathname.startsWith("/onboarding");
 
@@ -86,6 +98,45 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
   if (isOnboarding) {
     return <div className="min-h-screen">{children}</div>;
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" || isSwipeNavigationIgnored(event.target) || window.innerWidth >= 1024) {
+      swipe.current.active = false;
+      return;
+    }
+
+    swipe.current = {
+      active: true,
+      startX: event.clientX,
+      startY: event.clientY,
+      startedAt: performance.now()
+    };
+  }
+
+  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const state = swipe.current;
+    swipe.current.active = false;
+    if (!state.active || performance.now() < swipeLockedUntil.current || isSwipeNavigationIgnored(event.target)) return;
+
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    const elapsed = Math.max(1, performance.now() - state.startedAt);
+    const velocity = absX / elapsed;
+    const intentional = absX >= SWIPE_THRESHOLD || (absX >= 44 && velocity >= 0.5);
+    if (!intentional || absX < absY * SWIPE_VERTICAL_RATIO) return;
+
+    const currentIndex = mobileNav.findIndex((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
+    if (currentIndex < 0) return;
+
+    const direction = dx < 0 ? 1 : -1;
+    const targetIndex = Math.min(mobileNav.length - 1, Math.max(0, currentIndex + direction));
+    if (targetIndex === currentIndex) return;
+
+    swipeLockedUntil.current = performance.now() + SWIPE_LOCK_MS;
+    router.push(mobileNav[targetIndex].href);
   }
 
   return (
@@ -123,6 +174,11 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
               transition={pageTransition}
               className="w-full will-change-transform"
               style={{ transformOrigin: "50% 0%" }}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={() => {
+                swipe.current.active = false;
+              }}
             >
             {children}
             </motion.div>
@@ -138,6 +194,27 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </nav>
     </div>
+  );
+}
+
+function isSwipeNavigationIgnored(target: EventTarget | null) {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest(
+      [
+        "input",
+        "textarea",
+        "select",
+        "button",
+        "a",
+        "canvas",
+        "video",
+        "audio",
+        "[role='dialog']",
+        "[data-swipe-nav-ignore='true']",
+        "[data-carousel='true']"
+      ].join(",")
+    )
   );
 }
 

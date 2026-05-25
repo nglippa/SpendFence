@@ -37,6 +37,8 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
       </div>
 
       <div
+        data-carousel="true"
+        data-swipe-nav-ignore="true"
         onScroll={(event) => syncActiveIndex(event.currentTarget)}
         className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-5"
       >
