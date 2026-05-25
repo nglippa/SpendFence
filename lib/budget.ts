@@ -9,7 +9,12 @@ export function normalizeCycleStartDay(day?: number) {
   return Math.min(31, Math.max(1, Math.round(Number(day))));
 }
 
-export function currentCycleWindow(budgetMonth: Pick<BudgetMonth, "budgetCycleStartDay">, now = new Date()) {
+type CycleSource = Pick<BudgetMonth, "budgetCycleStartDay" | "budgetCycleStartDate">;
+
+export function currentCycleWindow(budgetMonth: CycleSource, now = new Date()) {
+  const anchored = budgetMonth.budgetCycleStartDate ? anchoredCycleWindow(budgetMonth.budgetCycleStartDate, now) : null;
+  if (anchored) return anchored;
+
   const day = normalizeCycleStartDay(budgetMonth.budgetCycleStartDay);
   let start = cycleDate(now.getFullYear(), now.getMonth(), day);
   if (now < start) start = cycleDate(now.getFullYear(), now.getMonth() - 1, day);
@@ -19,13 +24,13 @@ export function currentCycleWindow(budgetMonth: Pick<BudgetMonth, "budgetCycleSt
   return { start, end, nextStart };
 }
 
-export function currentCycleLabel(budgetMonth: Pick<BudgetMonth, "budgetCycleStartDay">, now = new Date()) {
+export function currentCycleLabel(budgetMonth: CycleSource, now = new Date()) {
   const { start, end } = currentCycleWindow(budgetMonth, now);
   const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   return `Current cycle: ${formatter.format(start)} – ${formatter.format(end)}`;
 }
 
-export function purchasesForCycle(purchases: Purchase[], budgetMonth?: Pick<BudgetMonth, "budgetCycleStartDay">, now = new Date()) {
+export function purchasesForCycle(purchases: Purchase[], budgetMonth?: CycleSource, now = new Date()) {
   if (!budgetMonth) return purchases;
   const { start, nextStart } = currentCycleWindow(budgetMonth, now);
   return purchases.filter((purchase) => {
@@ -34,17 +39,17 @@ export function purchasesForCycle(purchases: Purchase[], budgetMonth?: Pick<Budg
   });
 }
 
-export function cycleDayNumber(budgetMonth: Pick<BudgetMonth, "budgetCycleStartDay">, now = new Date()) {
+export function cycleDayNumber(budgetMonth: CycleSource, now = new Date()) {
   const { start } = currentCycleWindow(budgetMonth, now);
   const elapsed = now.getTime() - start.getTime();
   return Math.max(1, Math.floor(elapsed / 86_400_000) + 1);
 }
 
-export function categorySpent(categoryId: string, purchases: Purchase[], budgetMonth?: Pick<BudgetMonth, "budgetCycleStartDay">) {
+export function categorySpent(categoryId: string, purchases: Purchase[], budgetMonth?: CycleSource) {
   return purchasesForCycle(purchases, budgetMonth).filter((purchase) => purchase.categoryId === categoryId).reduce((sum, purchase) => sum + purchase.amount, 0);
 }
 
-export function categoryProgress(category: Category, purchases: Purchase[], budgetMonth?: Pick<BudgetMonth, "budgetCycleStartDay">) {
+export function categoryProgress(category: Category, purchases: Purchase[], budgetMonth?: CycleSource) {
   const spent = categorySpent(category.id, purchases, budgetMonth);
   const percent = category.limit > 0 ? (spent / category.limit) * 100 : 0;
   const remaining = category.limit - spent;
@@ -52,7 +57,7 @@ export function categoryProgress(category: Category, purchases: Purchase[], budg
   return { spent, percent, remaining, status };
 }
 
-export function totalSpent(purchases: Purchase[], budgetMonth?: Pick<BudgetMonth, "budgetCycleStartDay">) {
+export function totalSpent(purchases: Purchase[], budgetMonth?: CycleSource) {
   return purchasesForCycle(purchases, budgetMonth).reduce((sum, purchase) => sum + purchase.amount, 0);
 }
 
@@ -64,7 +69,7 @@ export function remainingBudget(state: SpendFenceState) {
   return availableBudget(state) - totalSpent(state.purchases, state.budgetMonth);
 }
 
-export function warningMessage(category: Category, purchases: Purchase[], budgetMonth?: Pick<BudgetMonth, "budgetCycleStartDay">) {
+export function warningMessage(category: Category, purchases: Purchase[], budgetMonth?: CycleSource) {
   const progress = categoryProgress(category, purchases, budgetMonth);
   if (progress.status === "locked") {
     return `Limit reached — avoid more spending in ${category.name} this cycle.`;
@@ -149,4 +154,32 @@ export function monthTrend(purchases: Purchase[]) {
 function cycleDate(year: number, monthIndex: number, requestedDay: number) {
   const lastDay = new Date(year, monthIndex + 1, 0).getDate();
   return new Date(year, monthIndex, Math.min(requestedDay, lastDay));
+}
+
+function anchoredCycleWindow(value: string, now: Date) {
+  const anchor = parseLocalDateParts(value);
+  if (!anchor) return null;
+
+  let offset = 0;
+  let start = cycleDate(anchor.year, anchor.monthIndex, anchor.day);
+  while (now < start) {
+    offset -= 1;
+    start = cycleDate(anchor.year, anchor.monthIndex + offset, anchor.day);
+  }
+  let nextStart = cycleDate(anchor.year, anchor.monthIndex + offset + 1, anchor.day);
+  while (now >= nextStart) {
+    offset += 1;
+    start = nextStart;
+    nextStart = cycleDate(anchor.year, anchor.monthIndex + offset + 1, anchor.day);
+  }
+
+  const end = new Date(nextStart);
+  end.setDate(end.getDate() - 1);
+  return { start, end, nextStart };
+}
+
+function parseLocalDateParts(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return { year, monthIndex: month - 1, day };
 }

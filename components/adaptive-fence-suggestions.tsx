@@ -19,7 +19,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
   const [suggestions, setSuggestions] = useState<AdaptiveFenceSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [aiUsed, setAiUsed] = useState(false);
-  const [selectedSuggestion, setSelectedSuggestion] = useState<AdaptiveFenceSuggestion | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const requestBody = useMemo(
     () => ({
@@ -71,14 +71,14 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     const canApplyLimit = state.adaptiveFenceSettings.automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
     state.acceptAdaptiveFenceSuggestion(canApplyLimit ? suggestion : { ...suggestion, suggestedLimit: undefined });
     setSuggestions((current) => current.filter((item) => item.id !== suggestion.id));
-    setSelectedSuggestion(null);
+    setExpandedId(null);
     onFeedback?.(canApplyLimit ? `${suggestion.title} applied.` : "Suggestion marked useful.");
   }
 
   function dismiss(suggestion: AdaptiveFenceSuggestion) {
     state.dismissAdaptiveFenceSuggestion(suggestion);
     setSuggestions((current) => current.filter((item) => item.id !== suggestion.id));
-    setSelectedSuggestion(null);
+    setExpandedId(null);
     onFeedback?.("Suggestion dismissed.");
   }
 
@@ -103,7 +103,8 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
               key={suggestion.id}
               suggestion={suggestion}
               automationLevel={state.adaptiveFenceSettings.automationLevel}
-              onOpen={() => setSelectedSuggestion(suggestion)}
+              expanded={expandedId === suggestion.id}
+              onToggle={() => setExpandedId((current) => (current === suggestion.id ? null : suggestion.id))}
               onAccept={() => accept(suggestion)}
               onDismiss={() => dismiss(suggestion)}
             />
@@ -119,13 +120,6 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           </div>
         </div>
       )}
-      <SuggestionDetailSheet
-        suggestion={selectedSuggestion}
-        automationLevel={state.adaptiveFenceSettings.automationLevel}
-        onClose={() => setSelectedSuggestion(null)}
-        onAccept={accept}
-        onDismiss={dismiss}
-      />
     </Card>
   );
 }
@@ -152,21 +146,23 @@ function SectionHeader({ loading, aiUsed }: { loading: boolean; aiUsed: boolean 
 function SuggestionCard({
   suggestion,
   automationLevel,
-  onOpen,
+  expanded,
+  onToggle,
   onAccept,
   onDismiss
 }: {
   suggestion: AdaptiveFenceSuggestion;
   automationLevel: AdaptiveAutomationLevel;
-  onOpen: () => void;
+  expanded: boolean;
+  onToggle: () => void;
   onAccept: () => void;
   onDismiss: () => void;
 }) {
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article className="min-w-[min(82vw,18rem)] max-w-[min(82vw,18rem)] snap-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 sm:min-w-[20rem] sm:max-w-[20rem] sm:p-3">
-      <button type="button" onClick={onOpen} className="block w-full text-left" aria-label={`Read full suggestion: ${suggestion.title}`}>
+    <article className="min-w-[min(82vw,18rem)] max-w-[min(82vw,18rem)] snap-start self-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[min-height,box-shadow] duration-300 ease-out sm:min-w-[20rem] sm:max-w-[20rem] sm:p-3">
+      <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">
             <Gauge size={16} />
@@ -174,8 +170,17 @@ function SuggestionCard({
           <Pill className={cn("px-1.5 py-0 text-[0.64rem] sm:px-2 sm:text-xs", confidenceClass(suggestion.confidence))}>{suggestion.confidence}</Pill>
         </div>
         <h3 className="text-[0.92rem] font-black leading-5 text-[var(--app-text)] sm:text-base">{suggestion.title}</h3>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-5 text-[var(--app-text-secondary)] sm:line-clamp-3 sm:min-h-[3.75rem] sm:text-sm">{suggestion.explanation}</p>
-        <span className="mt-2 inline-flex text-xs font-black text-[var(--brand-primary)]">Read more</span>
+        <div className="grid transition-[grid-template-rows] duration-300 ease-out">
+          <p
+            className={cn(
+              "mt-1.5 text-xs font-semibold leading-5 text-[var(--app-text-secondary)] transition-all duration-300 sm:text-sm",
+              expanded ? "line-clamp-none" : "line-clamp-2 min-h-[2.5rem] sm:line-clamp-3 sm:min-h-[3.75rem]"
+            )}
+          >
+            {suggestion.explanation}
+          </p>
+        </div>
+        <span className="mt-2 inline-flex text-xs font-black text-[var(--brand-primary)]">{expanded ? "Show less" : "Read more"}</span>
       </button>
       <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-[var(--app-card)] px-2.5 py-1.5 sm:mt-3 sm:px-3 sm:py-2">
         <span className="min-w-0 truncate text-xs font-black text-[var(--app-text)] sm:text-sm">{suggestion.suggestedAction}</span>
@@ -200,66 +205,6 @@ function SuggestionCard({
         </button>
       </div>
     </article>
-  );
-}
-
-function SuggestionDetailSheet({
-  suggestion,
-  automationLevel,
-  onClose,
-  onAccept,
-  onDismiss
-}: {
-  suggestion: AdaptiveFenceSuggestion | null;
-  automationLevel: AdaptiveAutomationLevel;
-  onClose: () => void;
-  onAccept: (suggestion: AdaptiveFenceSuggestion) => void;
-  onDismiss: (suggestion: AdaptiveFenceSuggestion) => void;
-}) {
-  if (!suggestion) return null;
-  const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
-
-  return (
-    <div className="fixed inset-0 z-[90] grid place-items-end bg-[#0B1114]/55 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-sm sm:place-items-center sm:p-4">
-      <section className="max-h-[min(82dvh,42rem)] w-full max-w-md overflow-hidden rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] shadow-float">
-        <div className="flex items-start justify-between gap-3 border-b border-[var(--app-border)] px-4 py-3">
-          <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.14em] text-[var(--brand-primary)]">
-              <Sparkles size={13} /> Fence Insight
-            </p>
-            <h2 className="mt-1 text-lg font-black leading-6 text-[var(--app-text)]">{suggestion.title}</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close suggestion detail" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--app-secondary)] text-[var(--app-text-muted)]">
-            <X size={17} />
-          </button>
-        </div>
-        <div className="max-h-[calc(min(82dvh,42rem)-9.5rem)] overflow-y-auto px-4 py-4">
-          <div className="mb-4 flex flex-wrap gap-2">
-            <Pill className={confidenceClass(suggestion.confidence)}>Confidence: {suggestion.confidence}</Pill>
-            {suggestion.metric ? <Pill className="border-[var(--app-border)] bg-[var(--app-secondary)] text-[var(--app-text-secondary)]">{suggestion.metric}</Pill> : null}
-            <Pill className="border-[rgb(46_211_183_/_0.25)] bg-[rgb(46_211_183_/_0.1)] text-[var(--brand-primary)]">{suggestion.source === "groq" ? "AI refined" : "Local pattern"}</Pill>
-          </div>
-          <p className="text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{suggestion.explanation}</p>
-          <div className="mt-4 rounded-2xl bg-[var(--app-secondary)] p-3">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Suggested action</p>
-            <p className="mt-1 text-base font-black text-[var(--app-text)]">{suggestion.suggestedAction}</p>
-            {suggestion.suggestedLimit ? (
-              <p className="mt-1 text-sm font-semibold text-[var(--app-text-secondary)]">
-                Current fence {formatMoney(suggestion.currentLimit)} → {formatMoney(suggestion.suggestedLimit)}
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2 border-t border-[var(--app-border)] bg-[var(--app-card)] px-4 py-3">
-          <Button type="button" size="md" onClick={() => onAccept(suggestion)} className="min-h-11">
-            <Check size={16} /> {appliesLimit ? "Accept" : "Useful"}
-          </Button>
-          <Button type="button" variant="secondary" size="md" onClick={() => onDismiss(suggestion)} className="min-h-11 px-3">
-            Dismiss
-          </Button>
-        </div>
-      </section>
-    </div>
   );
 }
 
