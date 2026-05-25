@@ -107,7 +107,11 @@ export function SettingsSwitchRow({
 export function SettingsFeedback({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-2xl bg-emerald-50 px-3 py-2.5 text-sm font-black text-[var(--app-success)] shadow-soft dark:bg-[rgb(31_209_165_/_0.12)]">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed left-1/2 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[90] flex w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 items-center gap-2 rounded-2xl border border-[rgb(31_209_165_/_0.2)] bg-[color:rgb(255_255_255_/_0.96)] px-3 py-2.5 text-sm font-black text-[var(--app-success)] shadow-float backdrop-blur-xl dark:bg-[color:rgb(18_26_31_/_0.96)]"
+    >
       <CheckCircle2 size={17} /> {message}
     </div>
   );

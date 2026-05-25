@@ -16,23 +16,25 @@ const iconByType = {
 };
 
 const stylesBySeverity = {
-  calm: "border-slate-200/80 bg-white/88 text-slate-700",
-  positive: "border-emerald-100 bg-emerald-50/80 text-emerald-800",
-  watch: "border-amber-100 bg-amber-50/80 text-amber-900",
-  limit: "border-rose-100 bg-rose-50/80 text-rose-800"
+  calm: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
+  positive: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
+  watch: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
+  limit: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]"
 };
 
 const iconStylesBySeverity = {
-  calm: "bg-slate-100 text-slate-600",
-  positive: "bg-white/80 text-emerald-700",
-  watch: "bg-white/80 text-amber-800",
-  limit: "bg-white/80 text-rose-700"
+  calm: "bg-slate-100 text-slate-600 dark:bg-[#1D2A32] dark:text-[#A7B3BC]",
+  positive: "bg-emerald-50 text-emerald-700 dark:bg-[#1D2A32] dark:text-[#1FD1A5] dark:ring-1 dark:ring-[rgb(31_209_165_/_0.18)]",
+  watch: "bg-amber-50 text-amber-800 dark:bg-[#1D2A32] dark:text-[#F5B942] dark:ring-1 dark:ring-[rgb(245_185_66_/_0.18)]",
+  limit: "bg-rose-50 text-rose-700 dark:bg-[#1D2A32] dark:text-[#FF6B6B] dark:ring-1 dark:ring-[rgb(255_107_107_/_0.18)]"
 };
 
-const roomLeftCard =
-  "border-[rgb(24_184_137_/_0.24)] bg-[linear-gradient(135deg,#182229_0%,#1D2E2A_100%)] text-[#F4F7F6] shadow-[0_18px_40px_rgb(0_0_0_/_0.22)]";
-const roomLeftIcon = "bg-[#243038] text-[#7EF2D4] shadow-[0_0_24px_rgb(24_184_137_/_0.22)] ring-1 ring-[rgb(126_242_212_/_0.18)]";
-const roomLeftDismiss = "text-[#6F7D87] hover:bg-[#243038] hover:text-[#F4F7F6]";
+const accentBySeverity = {
+  calm: "bg-[#A7B3BC]",
+  positive: "bg-[#1FD1A5]",
+  watch: "bg-[#F5B942]",
+  limit: "bg-[#FF6B6B]"
+};
 
 export function SpendInsightCard({
   insight,
@@ -55,7 +57,6 @@ export function SpendInsightCard({
   if (!insight || dismissed) return null;
 
   const Icon = iconByType[insight.type];
-  const isRoomLeft = insight.id === "dashboard-most-under-limit";
 
   function dismiss() {
     if (!insight) return;
@@ -67,29 +68,30 @@ export function SpendInsightCard({
     <article
       {...articleProps}
       className={cn(
-        "rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:shadow-float sm:px-4",
-        isRoomLeft ? roomLeftCard : stylesBySeverity[insight.severity],
+        "relative overflow-hidden rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:shadow-float sm:px-4",
+        stylesBySeverity[insight.severity],
         className
       )}
     >
+      <span className={cn("absolute inset-y-0 left-0 w-1", accentBySeverity[insight.severity])} aria-hidden="true" />
       <div className="flex items-start gap-3">
-        <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", isRoomLeft ? roomLeftIcon : iconStylesBySeverity[insight.severity])}>
+        <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", iconStylesBySeverity[insight.severity])}>
           <Icon size={17} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            <h2 className={cn("min-w-0 truncate text-sm font-black sm:text-base", isRoomLeft ? "text-[#F4F7F6]" : "text-[#10201c]")}>{insight.title}</h2>
-            {insight.categoryLabel ? <InsightChip roomLeft={isRoomLeft}>{insight.categoryLabel}</InsightChip> : null}
-            {insight.supportingMetric ? <InsightChip roomLeft={isRoomLeft}>{insight.supportingMetric}</InsightChip> : null}
+            <h2 className="min-w-0 truncate text-sm font-black text-[#10201c] dark:text-[#F4F7F6] sm:text-base">{insight.title}</h2>
+            {insight.categoryLabel ? <InsightChip>{insight.categoryLabel}</InsightChip> : null}
+            {insight.supportingMetric ? <InsightChip>{insight.supportingMetric}</InsightChip> : null}
           </div>
-          <p className={cn("mt-1 text-sm font-semibold leading-5", isRoomLeft ? "text-[#A7B3BC]" : "text-slate-600", compact && "line-clamp-3")}>{insight.message}</p>
+          <p className={cn("mt-1 text-sm font-semibold leading-5 text-slate-600 dark:text-[#A7B3BC]", compact && "line-clamp-3")}>{insight.message}</p>
         </div>
         {dismissible ? (
           <button
             type="button"
             onClick={dismiss}
             aria-label="Dismiss insight"
-            className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl transition", isRoomLeft ? roomLeftDismiss : "text-slate-400 hover:bg-white/70 hover:text-slate-600")}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-white/70 hover:text-slate-600 dark:text-[#6F7D87] dark:hover:bg-[#1D2A32] dark:hover:text-[#F4F7F6]"
           >
             <X size={15} />
           </button>
@@ -103,14 +105,9 @@ function storageKey(id: string) {
   return `spendfence-dismissed-insight:${id}`;
 }
 
-function InsightChip({ children, roomLeft = false }: { children: React.ReactNode; roomLeft?: boolean }) {
+function InsightChip({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className={cn(
-        "shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-black leading-5",
-        roomLeft ? "border-[rgb(24_184_137_/_0.25)] bg-[#243038] text-[#E8F5F1] shadow-[0_0_18px_rgb(24_184_137_/_0.1)]" : "border-white/70 bg-white/70 text-slate-600"
-      )}
-    >
+    <span className="shrink-0 rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[0.68rem] font-black leading-5 text-slate-600 dark:border-[rgb(31_209_165_/_0.2)] dark:bg-[#1D2A32] dark:text-[#A7B3BC]">
       {children}
     </span>
   );

@@ -48,6 +48,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
 
   const activeSuggestions = useMemo(() => cache.items.filter((suggestion) => suggestion.status === "active"), [cache.items]);
   const expandedId = activeSuggestions.some((suggestion) => suggestion.id === cache.expandedId) ? cache.expandedId : null;
+  const hasVisibleSuggestions = activeSuggestions.length > 0;
   const rememberView = state.rememberAdaptiveFenceSuggestionsView;
   const handleActiveIndexChange = useCallback((index: number) => rememberView({ activeIndex: index }), [rememberView]);
   const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(activeSuggestions.length, {
@@ -62,7 +63,8 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       if (generatingFingerprintRef.current === fingerprint) return;
 
       generatingFingerprintRef.current = fingerprint;
-      setLoading(true);
+      const shouldShowLoading = manual || !cache.generatedAt || !hasVisibleSuggestions;
+      if (shouldShowLoading) setLoading(true);
 
       try {
         const response = await fetch("/api/ai/fence-suggestions", {
@@ -84,10 +86,10 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         });
       } finally {
         generatingFingerprintRef.current = null;
-        setLoading(false);
+        if (shouldShowLoading) setLoading(false);
       }
     },
-    [cache.fingerprint, cache.generatedAt, fingerprint, requestBody, state]
+    [cache.fingerprint, cache.generatedAt, fingerprint, hasVisibleSuggestions, requestBody, state]
   );
 
   useEffect(() => {
@@ -137,7 +139,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
   return (
     <Card className="overflow-hidden p-0">
       <SectionHeader loading={loading} aiUsed={cache.aiUsed} onRefresh={() => generateSuggestions(true)} refreshDisabled={loading} />
-      {activeSuggestions.length ? (
+      {hasVisibleSuggestions ? (
         <>
           <div
             ref={carouselRef}
@@ -160,7 +162,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           <CarouselDots count={activeSuggestions.length} activeIndex={activeIndex} className="pb-3 sm:pb-4" />
         </>
       ) : (
-        <div className="px-4 pb-4 sm:px-5">
+        <div className="grid min-h-[17.875rem] content-start px-4 pb-4 sm:px-5">
           <div className="rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3">
             <p className="text-sm font-black text-[var(--app-text)]">{loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}</p>
             <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-muted)]">

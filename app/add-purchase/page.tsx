@@ -71,6 +71,7 @@ export default function AddPurchasePage() {
   const allocationTotal = useMemo(() => analysis?.allocations.reduce((sum, allocation) => sum + parseDecimal(allocation.amount), 0) ?? 0, [analysis]);
 
   function openFlow(flow: AddFlow) {
+    setLastCompleted(null);
     setExpanded(flow);
     window.setTimeout(() => {
       const section = flow === "manual" ? manualSectionRef.current : flow === "receipt" ? receiptSectionRef.current : recurringSectionRef.current;
@@ -95,15 +96,12 @@ export default function AddPurchasePage() {
     setLastCompleted(flow);
     setExpanded(null);
     showFeedback(message);
-    window.setTimeout(() => setLastCompleted((current) => (current === flow ? null : current)), 2400);
   }
 
   function resetManualFlow() {
+    setEditing(null);
+    setManualFormKey((current) => current + 1);
     setExpanded(null);
-    window.setTimeout(() => {
-      setEditing(null);
-      setManualFormKey((current) => current + 1);
-    }, stableLayoutDelay(prefersReducedMotion));
   }
 
   function resetReceiptFlow() {
@@ -243,8 +241,8 @@ export default function AddPurchasePage() {
               onSubmit={(input) => {
                 if (editing) state.updatePurchase(editing.id, input);
                 else state.addPurchase(input);
+                setEditing(null);
                 completeFlow("manual", input.recurring?.enabled ? "Purchase and recurring rule saved." : editing ? "Purchase saved." : "Purchase added.");
-                window.setTimeout(() => setEditing(null), stableLayoutDelay(prefersReducedMotion));
               }}
             />
             <Button type="button" variant="secondary" className="w-full" onClick={resetManualFlow}>

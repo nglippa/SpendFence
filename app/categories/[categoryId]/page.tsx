@@ -80,7 +80,6 @@ export default function CategoryDetailPage() {
 
   function closeEditForm() {
     setEditOpen(false);
-    window.setTimeout(() => setEditing(null), stableLayoutDelay(prefersReducedMotion));
   }
 
   function showFeedback(message: string) {
