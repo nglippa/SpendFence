@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Brain, Check, ChevronRight, Gauge, Sparkles, X } from "lucide-react";
 import { Button, Card, Pill } from "@/components/ui";
 import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
@@ -20,6 +20,8 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
   const [loading, setLoading] = useState(false);
   const [aiUsed, setAiUsed] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const requestBody = useMemo(
     () => ({
@@ -51,10 +53,12 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         const data = (await response.json()) as SuggestionResponse;
         if (cancelled) return;
         setSuggestions(data.suggestions ?? []);
+        setActiveIndex(0);
         setAiUsed(Boolean(data.aiUsed));
       } catch {
         if (cancelled) return;
         setSuggestions(generateLocalFenceSuggestions(requestBody));
+        setActiveIndex(0);
         setAiUsed(false);
       } finally {
         if (!cancelled) setLoading(false);
@@ -82,6 +86,15 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     onFeedback?.("Suggestion dismissed.");
   }
 
+  function syncActiveIndex(element: HTMLDivElement | null) {
+    if (!element || suggestions.length < 2) return;
+    const first = element.children[0] as HTMLElement | undefined;
+    const second = element.children[1] as HTMLElement | undefined;
+    const step = second && first ? second.offsetLeft - first.offsetLeft : element.clientWidth;
+    const index = Math.min(suggestions.length - 1, Math.max(0, Math.round(element.scrollLeft / Math.max(step, 1))));
+    setActiveIndex(index);
+  }
+
   if (!state.adaptiveFenceSettings.enabled) {
     return (
       <Card className="overflow-hidden p-0">
@@ -97,19 +110,26 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     <Card className="overflow-hidden p-0">
       <SectionHeader loading={loading} aiUsed={aiUsed} />
       {suggestions.length ? (
-        <div className="flex snap-x gap-3 overflow-x-auto px-4 pb-4 [-webkit-overflow-scrolling:touch] sm:px-5">
-          {suggestions.map((suggestion) => (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              automationLevel={state.adaptiveFenceSettings.automationLevel}
-              expanded={expandedId === suggestion.id}
-              onToggle={() => setExpandedId((current) => (current === suggestion.id ? null : suggestion.id))}
-              onAccept={() => accept(suggestion)}
-              onDismiss={() => dismiss(suggestion)}
-            />
-          ))}
-        </div>
+        <>
+          <div
+            ref={carouselRef}
+            onScroll={(event) => syncActiveIndex(event.currentTarget)}
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 sm:pb-4"
+          >
+            {suggestions.map((suggestion) => (
+              <SuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                automationLevel={state.adaptiveFenceSettings.automationLevel}
+                expanded={expandedId === suggestion.id}
+                onToggle={() => setExpandedId((current) => (current === suggestion.id ? null : suggestion.id))}
+                onAccept={() => accept(suggestion)}
+                onDismiss={() => dismiss(suggestion)}
+              />
+            ))}
+          </div>
+          <CarouselDots count={suggestions.length} activeIndex={activeIndex} className="pb-3 sm:pb-4" />
+        </>
       ) : (
         <div className="px-4 pb-4 sm:px-5">
           <div className="rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3">
@@ -161,7 +181,7 @@ function SuggestionCard({
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article className="min-w-[min(82vw,18rem)] max-w-[min(82vw,18rem)] snap-start self-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[min-height,box-shadow] duration-300 ease-out sm:min-w-[20rem] sm:max-w-[20rem] sm:p-3">
+    <article className="basis-full snap-center snap-always self-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[min-height,box-shadow] duration-300 ease-out sm:p-3">
       <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">
@@ -205,6 +225,17 @@ function SuggestionCard({
         </button>
       </div>
     </article>
+  );
+}
+
+function CarouselDots({ count, activeIndex, className }: { count: number; activeIndex: number; className?: string }) {
+  if (count < 2) return null;
+  return (
+    <div className={cn("flex items-center justify-center gap-1.5", className)} aria-hidden="true">
+      {Array.from({ length: count }).map((_, index) => (
+        <span key={index} className={cn("h-1.5 rounded-full transition-all duration-200", index === activeIndex ? "w-5 bg-[var(--brand-primary)]" : "w-1.5 bg-[var(--app-border)]")} />
+      ))}
+    </div>
   );
 }
 
