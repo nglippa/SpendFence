@@ -1,24 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { Brain } from "lucide-react";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
+import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 import { cn } from "@/lib/utils";
 
 export function SmartInsightsSection({ insights }: { insights: BehavioralInsight[] }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(insights.length);
 
   if (!insights.length) return null;
-
-  function syncActiveIndex(element: HTMLDivElement) {
-    if (insights.length < 2) return;
-    const first = element.children[0] as HTMLElement | undefined;
-    const second = element.children[1] as HTMLElement | undefined;
-    const step = second && first ? second.offsetLeft - first.offsetLeft : element.clientWidth;
-    const index = Math.min(insights.length - 1, Math.max(0, Math.round(element.scrollLeft / Math.max(step, 1))));
-    setActiveIndex(index);
-  }
 
   return (
     <section className="mb-4 sm:mb-5">
@@ -37,17 +28,19 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
       </div>
 
       <div
+        ref={carouselRef}
         data-carousel="true"
-        onScroll={(event) => syncActiveIndex(event.currentTarget)}
-        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-5"
+        onScroll={handleScroll}
+        className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-5"
       >
         {insights.map((insight) => (
           <SpendInsightCard
             key={insight.id}
+            data-carousel-item="true"
             insight={insight}
             dismissible={false}
             compact
-            className="min-h-[9rem] basis-full snap-center snap-always shadow-none sm:min-w-0 sm:basis-auto"
+            className="min-h-[9rem] basis-full shrink-0 snap-center snap-always shadow-none sm:min-w-0 sm:basis-auto"
           />
         ))}
       </div>

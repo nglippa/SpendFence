@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Brain, Check, ChevronRight, Gauge, Sparkles, X } from "lucide-react";
 import { Button, Card, Pill } from "@/components/ui";
+import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
@@ -20,8 +21,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
   const [loading, setLoading] = useState(false);
   const [aiUsed, setAiUsed] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(suggestions.length);
 
   const requestBody = useMemo(
     () => ({
@@ -53,12 +53,10 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         const data = (await response.json()) as SuggestionResponse;
         if (cancelled) return;
         setSuggestions(data.suggestions ?? []);
-        setActiveIndex(0);
         setAiUsed(Boolean(data.aiUsed));
       } catch {
         if (cancelled) return;
         setSuggestions(generateLocalFenceSuggestions(requestBody));
-        setActiveIndex(0);
         setAiUsed(false);
       } finally {
         if (!cancelled) setLoading(false);
@@ -86,15 +84,6 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     onFeedback?.("Suggestion dismissed.");
   }
 
-  function syncActiveIndex(element: HTMLDivElement | null) {
-    if (!element || suggestions.length < 2) return;
-    const first = element.children[0] as HTMLElement | undefined;
-    const second = element.children[1] as HTMLElement | undefined;
-    const step = second && first ? second.offsetLeft - first.offsetLeft : element.clientWidth;
-    const index = Math.min(suggestions.length - 1, Math.max(0, Math.round(element.scrollLeft / Math.max(step, 1))));
-    setActiveIndex(index);
-  }
-
   if (!state.adaptiveFenceSettings.enabled) {
     return (
       <Card className="overflow-hidden p-0">
@@ -114,8 +103,8 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           <div
             ref={carouselRef}
             data-carousel="true"
-            onScroll={(event) => syncActiveIndex(event.currentTarget)}
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 sm:pb-4"
+            onScroll={handleScroll}
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:pb-4"
           >
             {suggestions.map((suggestion) => (
               <SuggestionCard
@@ -182,7 +171,7 @@ function SuggestionCard({
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article className="basis-full snap-center snap-always self-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[min-height,box-shadow] duration-300 ease-out sm:p-3">
+    <article data-carousel-item="true" className="basis-full shrink-0 snap-center snap-always self-start rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[min-height,box-shadow] duration-300 ease-out sm:p-3">
       <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">

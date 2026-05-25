@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import { Activity, AlertCircle, CheckCircle2, LineChart, ShieldCheck, X } from "lucide-react";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 import { cn } from "@/lib/utils";
@@ -37,13 +38,14 @@ export function SpendInsightCard({
   insight,
   dismissible = true,
   className,
-  compact = false
+  compact = false,
+  ...articleProps
 }: {
   insight?: BehavioralInsight;
   dismissible?: boolean;
   className?: string;
   compact?: boolean;
-}) {
+} & ComponentPropsWithoutRef<"article">) {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export function SpendInsightCard({
 
   return (
     <article
+      {...articleProps}
       className={cn(
         "rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:shadow-float sm:px-4",
         isRoomLeft ? roomLeftCard : stylesBySeverity[insight.severity],
