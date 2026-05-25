@@ -1,55 +1,93 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, DollarSign, PiggyBank, Save } from "lucide-react";
 import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow } from "@/components/settings-ui";
-import { Field, Input } from "@/components/ui";
-import { currentCycleLabel, currentCycleWindow, formatMoney, totalSpent } from "@/lib/budget";
+import { Button, Input } from "@/components/ui";
+import { currentCycleLabel, formatMoney, totalSpent } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { BudgetMonth } from "@/lib/types";
 
 export default function BudgetCycleSettingsPage() {
   const state = useSpendFence();
+  const [monthDraft, setMonthDraft] = useState(state.budgetMonth.month);
+  const [dayDraft, setDayDraft] = useState(String(state.budgetMonth.budgetCycleStartDay));
   const [incomeDraft, setIncomeDraft] = useState(String(state.budgetMonth.income));
   const [savingsDraft, setSavingsDraft] = useState(String(state.budgetMonth.savingsTarget));
-  const [cycleStartDraft, setCycleStartDraft] = useState(() => toDateValue(currentCycleWindow(state.budgetMonth).start));
   const [feedback, setFeedback] = useState("");
+  const [error, setError] = useState("");
   const [pendingBudgetMonth, setPendingBudgetMonth] = useState<BudgetMonth | null>(null);
   const [pendingChange, setPendingChange] = useState(0);
 
   useEffect(() => {
+    setMonthDraft(state.budgetMonth.month);
+    setDayDraft(String(state.budgetMonth.budgetCycleStartDay));
     setIncomeDraft(String(state.budgetMonth.income));
     setSavingsDraft(String(state.budgetMonth.savingsTarget));
-  }, [state.budgetMonth.income, state.budgetMonth.savingsTarget]);
+  }, [state.budgetMonth.budgetCycleStartDay, state.budgetMonth.income, state.budgetMonth.month, state.budgetMonth.savingsTarget]);
 
-  useEffect(() => {
-    setCycleStartDraft(toDateValue(currentCycleWindow(state.budgetMonth).start));
-  }, [state.budgetMonth.budgetCycleStartDay]);
+  const previewBudgetMonth = useMemo(
+    () => ({
+      ...state.budgetMonth,
+      month: monthDraft.trim() || state.budgetMonth.month,
+      budgetCycleStartDay: parseValidDay(dayDraft) ?? state.budgetMonth.budgetCycleStartDay,
+      income: parseDecimal(incomeDraft),
+      savingsTarget: parseDecimal(savingsDraft)
+    }),
+    [dayDraft, incomeDraft, monthDraft, savingsDraft, state.budgetMonth]
+  );
+
+  const hasChanges =
+    monthDraft !== state.budgetMonth.month ||
+    dayDraft !== String(state.budgetMonth.budgetCycleStartDay) ||
+    parseDecimal(incomeDraft) !== state.budgetMonth.income ||
+    parseDecimal(savingsDraft) !== state.budgetMonth.savingsTarget;
 
   function showFeedback(message: string) {
     setFeedback(message);
     window.setTimeout(() => setFeedback(""), 2200);
   }
 
-  function updateBudgetMonth(next: BudgetMonth, message = "Budget cycle updated.") {
+  function saveBudgetMonth(next: BudgetMonth, message = "Budget cycle updated.") {
     state.updateBudgetMonth(next);
+    setError("");
     showFeedback(message);
   }
 
-  function commitCycleStart(value: string) {
-    const selected = fromDateValue(value);
-    if (!selected) return;
-    const nextDay = selected.getDate();
-    if (nextDay === state.budgetMonth.budgetCycleStartDay) return;
+  function saveChanges() {
+    const nextDay = parseValidDay(dayDraft);
+    if (!nextDay) {
+      setError("Choose a day between 1 and 31.");
+      setDayDraft(String(state.budgetMonth.budgetCycleStartDay));
+      return;
+    }
 
-    const nextBudgetMonth = { ...state.budgetMonth, budgetCycleStartDay: nextDay };
-    const change = Math.abs(totalSpent(state.purchases, state.budgetMonth) - totalSpent(state.purchases, nextBudgetMonth));
+    const nextBudgetMonth = {
+      ...state.budgetMonth,
+      month: monthDraft.trim() || state.budgetMonth.month,
+      budgetCycleStartDay: nextDay,
+      income: parseDecimal(incomeDraft),
+      savingsTarget: parseDecimal(savingsDraft)
+    };
+
+    const cycleDayChanged = nextBudgetMonth.budgetCycleStartDay !== state.budgetMonth.budgetCycleStartDay;
+    const change = cycleDayChanged ? Math.abs(totalSpent(state.purchases, state.budgetMonth) - totalSpent(state.purchases, nextBudgetMonth)) : 0;
     if (change >= 100) {
       setPendingBudgetMonth(nextBudgetMonth);
       setPendingChange(change);
       return;
     }
-    updateBudgetMonth(nextBudgetMonth);
+    saveBudgetMonth(nextBudgetMonth);
+  }
+
+  function restoreDayIfEmpty() {
+    if (!dayDraft.trim()) {
+      setDayDraft(String(state.budgetMonth.budgetCycleStartDay));
+      setError("");
+      return;
+    }
+    if (!parseValidDay(dayDraft)) setError("Choose a day between 1 and 31.");
+    else setError("");
   }
 
   return (
@@ -59,47 +97,57 @@ export default function BudgetCycleSettingsPage() {
 
       <div className="grid gap-4">
         <SettingsGroup title="Cycle">
-          <div className="grid gap-3 border-b border-slate-100 p-3">
-            <Field label="Budget month label">
-              <Input value={state.budgetMonth.month} onChange={(event) => updateBudgetMonth({ ...state.budgetMonth, month: event.target.value }, "Budget month label updated.")} />
-            </Field>
-            <Field label="Budget month start date">
+          <SettingsRow
+            icon={CalendarDays}
+            title="Budget month label"
+            subtitle="A short label for this budget period."
+            accessory={<Input value={monthDraft} onChange={(event) => setMonthDraft(event.target.value)} className="min-h-10 w-28 rounded-xl text-right text-sm sm:w-36" aria-label="Budget month label" />}
+          />
+          <SettingsRow
+            icon={CalendarDays}
+            title="Budget start day"
+            subtitle="Day of month, 1 through 31."
+            accessory={
               <Input
-                type="date"
-                value={cycleStartDraft}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={dayDraft}
                 onChange={(event) => {
-                  setCycleStartDraft(event.target.value);
-                  commitCycleStart(event.target.value);
+                  const next = event.target.value.replace(/\D/g, "").slice(0, 2);
+                  setDayDraft(next);
+                  if (error) setError("");
                 }}
+                onBlur={restoreDayIfEmpty}
+                placeholder="1"
+                className="min-h-10 w-16 rounded-xl text-center text-base"
+                aria-label="Budget start day"
               />
-            </Field>
-          </div>
-          <SettingsRow icon={CalendarDays} title={currentCycleLabel(state.budgetMonth)} subtitle="Choose the day your budget resets each month." />
+            }
+          />
+          <SettingsRow icon={CalendarDays} title="Current cycle preview" subtitle={readableCyclePreview(previewBudgetMonth)} />
         </SettingsGroup>
 
+        {error ? <p className="-mt-2 px-1 text-sm font-bold text-[var(--app-danger)]">{error}</p> : null}
+
         <SettingsGroup title="Budget numbers">
-          <div className="grid gap-3 border-b border-slate-100 p-3 sm:grid-cols-2">
-            <Field label="Monthly income">
-              <Input
-                inputMode="decimal"
-                value={incomeDraft}
-                onChange={(event) => setIncomeDraft(event.target.value)}
-                onBlur={() => updateBudgetMonth({ ...state.budgetMonth, income: parseDecimal(incomeDraft) }, "Income updated.")}
-              />
-            </Field>
-            <Field label="Savings target">
-              <Input
-                inputMode="decimal"
-                value={savingsDraft}
-                onChange={(event) => setSavingsDraft(event.target.value)}
-                onBlur={() => updateBudgetMonth({ ...state.budgetMonth, savingsTarget: parseDecimal(savingsDraft) }, "Savings target updated.")}
-              />
-            </Field>
-          </div>
-          <SettingsRow icon={DollarSign} title={formatMoney(state.budgetMonth.income)} subtitle="Monthly income" />
-          <SettingsRow icon={PiggyBank} title={formatMoney(state.budgetMonth.savingsTarget)} subtitle="Planned savings before spending" />
-          <SettingsRow icon={Save} title="Saved automatically" subtitle="Changes stay on this device for the MVP." />
+          <SettingsRow
+            icon={DollarSign}
+            title="Monthly income"
+            subtitle="Used for the dashboard budget calculation."
+            accessory={<Input inputMode="decimal" value={incomeDraft} onChange={(event) => setIncomeDraft(event.target.value)} className="min-h-10 w-28 rounded-xl text-right text-sm sm:w-36" aria-label="Monthly income" />}
+          />
+          <SettingsRow
+            icon={PiggyBank}
+            title="Savings target"
+            subtitle="Set aside before available spending."
+            accessory={<Input inputMode="decimal" value={savingsDraft} onChange={(event) => setSavingsDraft(event.target.value)} className="min-h-10 w-28 rounded-xl text-right text-sm sm:w-36" aria-label="Savings target" />}
+          />
+          <SettingsRow icon={Save} title="Preview" subtitle={`${formatMoney(parseDecimal(incomeDraft))} income / ${formatMoney(parseDecimal(savingsDraft))} savings`} />
         </SettingsGroup>
+
+        <Button type="button" size="lg" onClick={saveChanges} disabled={!hasChanges}>
+          <Save size={18} /> Save Budget Cycle
+        </Button>
       </div>
 
       <ConfirmSheet
@@ -110,10 +158,10 @@ export default function BudgetCycleSettingsPage() {
         onCancel={() => {
           setPendingBudgetMonth(null);
           setPendingChange(0);
-          setCycleStartDraft(toDateValue(currentCycleWindow(state.budgetMonth).start));
+          setDayDraft(String(state.budgetMonth.budgetCycleStartDay));
         }}
         onConfirm={() => {
-          if (pendingBudgetMonth) updateBudgetMonth(pendingBudgetMonth);
+          if (pendingBudgetMonth) saveBudgetMonth(pendingBudgetMonth);
           setPendingBudgetMonth(null);
           setPendingChange(0);
         }}
@@ -127,14 +175,13 @@ function parseDecimal(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function toDateValue(date: Date) {
-  const local = new Date(date);
-  local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
-  return local.toISOString().slice(0, 10);
+function parseValidDay(value: string) {
+  if (!value.trim()) return null;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 31) return null;
+  return parsed;
 }
 
-function fromDateValue(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  if (!year || !month || !day) return null;
-  return new Date(year, month - 1, day);
+function readableCyclePreview(budgetMonth: Pick<BudgetMonth, "budgetCycleStartDay">) {
+  return currentCycleLabel(budgetMonth).replace("Current cycle: ", "");
 }
