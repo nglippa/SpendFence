@@ -156,23 +156,12 @@ function cycleDate(year: number, monthIndex: number, requestedDay: number) {
   return new Date(year, monthIndex, Math.min(requestedDay, lastDay));
 }
 
-function anchoredCycleWindow(value: string, now: Date) {
+function anchoredCycleWindow(value: string, _now: Date) {
   const anchor = parseLocalDateParts(value);
   if (!anchor) return null;
 
-  let offset = 0;
-  let start = cycleDate(anchor.year, anchor.monthIndex, anchor.day);
-  while (now < start) {
-    offset -= 1;
-    start = cycleDate(anchor.year, anchor.monthIndex + offset, anchor.day);
-  }
-  let nextStart = cycleDate(anchor.year, anchor.monthIndex + offset + 1, anchor.day);
-  while (now >= nextStart) {
-    offset += 1;
-    start = nextStart;
-    nextStart = cycleDate(anchor.year, anchor.monthIndex + offset + 1, anchor.day);
-  }
-
+  const start = cycleDate(anchor.year, anchor.monthIndex, anchor.day);
+  const nextStart = cycleDate(anchor.year, anchor.monthIndex + 1, anchor.day);
   const end = new Date(nextStart);
   end.setDate(end.getDate() - 1);
   return { start, end, nextStart };
