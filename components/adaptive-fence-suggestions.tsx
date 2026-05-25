@@ -114,7 +114,6 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           <div
             ref={carouselRef}
             data-carousel="true"
-            data-swipe-nav-ignore="true"
             onScroll={(event) => syncActiveIndex(event.currentTarget)}
             className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 sm:pb-4"
           >

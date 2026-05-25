@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
@@ -38,24 +38,6 @@ const pageVariants = {
   initial: { opacity: 0, x: 10 },
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: -8 }
-};
-const SWIPE_THRESHOLD = 40;
-const SWIPE_AXIS_LOCK_THRESHOLD = 16;
-const SWIPE_VERTICAL_RATIO = 1.5;
-const SWIPE_LOCK_MS = 360;
-
-type SwipeState = {
-  active: boolean;
-  axis: "undecided" | "x" | "y";
-  startX: number;
-  startY: number;
-  lockY: number;
-};
-
-type ScrollLockSnapshot = {
-  bodyOverflow: string;
-  bodyTouchAction: string;
-  htmlOverscrollBehaviorY: string;
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -93,19 +75,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const router = useRouter();
   const { notifications, onboardingProfile, ready } = useSpendFence();
-  const swipe = useRef<SwipeState>({ active: false, axis: "undecided", startX: 0, startY: 0, lockY: 0 });
-  const swipeLockedUntil = useRef(0);
-  const scrollLock = useRef<ScrollLockSnapshot | null>(null);
-  const releaseScrollLockTimer = useRef<number | null>(null);
   const unread = notifications.filter((item) => !item.read).length;
   const isOnboarding = pathname.startsWith("/onboarding");
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
-  }, []);
-
-  useEffect(() => {
-    return () => releaseSwipeScrollLock(0);
   }, []);
 
   useEffect(() => {
@@ -124,163 +98,6 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
   if (isOnboarding) {
     return <div className="min-h-dvh">{children}</div>;
-  }
-
-  function beginSwipe(x: number, y: number, target: EventTarget | null) {
-    if (isSwipeNavigationIgnored(target) || window.innerWidth >= 1024 || performance.now() < swipeLockedUntil.current) {
-      resetSwipe();
-      return;
-    }
-
-    swipe.current = {
-      active: true,
-      axis: "undecided",
-      startX: x,
-      startY: y,
-      lockY: window.scrollY
-    };
-  }
-
-  function updateSwipe(x: number, y: number, preventDefault?: () => void) {
-    const state = swipe.current;
-    if (!state.active) return;
-
-    const dx = x - state.startX;
-    const dy = y - state.startY;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-
-    if (state.axis === "undecided") {
-      if (absX < SWIPE_AXIS_LOCK_THRESHOLD && absY < SWIPE_AXIS_LOCK_THRESHOLD) return;
-      if (absX > SWIPE_AXIS_LOCK_THRESHOLD && absX > absY * SWIPE_VERTICAL_RATIO) {
-        state.axis = "x";
-        lockSwipeScroll();
-      } else if (absY > absX) {
-        state.axis = "y";
-        state.active = false;
-        return;
-      }
-    }
-
-    if (state.axis === "x") {
-      preventDefault?.();
-      if (Math.abs(window.scrollY - state.lockY) > 1) {
-        window.scrollTo({ top: state.lockY, left: 0, behavior: "auto" });
-      }
-    }
-  }
-
-  function finishSwipe(x: number, y: number, target: EventTarget | null) {
-    const state = { ...swipe.current };
-    resetSwipe();
-    if (!state.active || state.axis !== "x" || performance.now() < swipeLockedUntil.current || isSwipeNavigationIgnored(target)) {
-      releaseSwipeScrollLock(0);
-      return;
-    }
-
-    const dx = x - state.startX;
-    const dy = y - state.startY;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-    if (absX <= SWIPE_THRESHOLD || absX <= absY * SWIPE_VERTICAL_RATIO) {
-      releaseSwipeScrollLock(0);
-      return;
-    }
-
-    const currentIndex = mobileNav.findIndex((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-    if (currentIndex < 0) {
-      releaseSwipeScrollLock(0);
-      return;
-    }
-
-    const direction = dx < 0 ? 1 : -1;
-    const targetIndex = Math.min(mobileNav.length - 1, Math.max(0, currentIndex + direction));
-    if (targetIndex === currentIndex) {
-      releaseSwipeScrollLock(0);
-      return;
-    }
-
-    swipeLockedUntil.current = performance.now() + SWIPE_LOCK_MS;
-    router.push(mobileNav[targetIndex].href);
-    releaseSwipeScrollLock(SWIPE_LOCK_MS);
-  }
-
-  function cancelSwipe() {
-    resetSwipe();
-    releaseSwipeScrollLock(0);
-  }
-
-  function resetSwipe() {
-    swipe.current = { active: false, axis: "undecided", startX: 0, startY: 0, lockY: 0 };
-  }
-
-  function lockSwipeScroll() {
-    if (scrollLock.current) return;
-    if (releaseScrollLockTimer.current) {
-      window.clearTimeout(releaseScrollLockTimer.current);
-      releaseScrollLockTimer.current = null;
-    }
-
-    scrollLock.current = {
-      bodyOverflow: document.body.style.overflow,
-      bodyTouchAction: document.body.style.touchAction,
-      htmlOverscrollBehaviorY: document.documentElement.style.overscrollBehaviorY
-    };
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    document.documentElement.style.overscrollBehaviorY = "none";
-  }
-
-  function releaseSwipeScrollLock(delay: number) {
-    if (releaseScrollLockTimer.current) {
-      window.clearTimeout(releaseScrollLockTimer.current);
-      releaseScrollLockTimer.current = null;
-    }
-
-    releaseScrollLockTimer.current = window.setTimeout(() => {
-      if (!scrollLock.current) return;
-      document.body.style.overflow = scrollLock.current.bodyOverflow;
-      document.body.style.touchAction = scrollLock.current.bodyTouchAction;
-      document.documentElement.style.overscrollBehaviorY = scrollLock.current.htmlOverscrollBehaviorY;
-      scrollLock.current = null;
-      releaseScrollLockTimer.current = null;
-    }, delay);
-  }
-
-  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "pen") return;
-    beginSwipe(event.clientX, event.clientY, event.target);
-  }
-
-  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "pen") return;
-    updateSwipe(event.clientX, event.clientY, () => event.preventDefault());
-  }
-
-  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "pen") return;
-    finishSwipe(event.clientX, event.clientY, event.target);
-  }
-
-  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    if (!touch) return;
-    beginSwipe(touch.clientX, touch.clientY, event.target);
-  }
-
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    if (!touch) return;
-    updateSwipe(touch.clientX, touch.clientY, () => event.preventDefault());
-  }
-
-  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.changedTouches[0];
-    if (!touch) {
-      cancelSwipe();
-      return;
-    }
-    finishSwipe(touch.clientX, touch.clientY, event.target);
   }
 
   return (
@@ -318,16 +135,8 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
               transition={pageTransition}
               className="w-full will-change-transform"
               style={{ transformOrigin: "50% 0%" }}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={cancelSwipe}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={cancelSwipe}
             >
-            {children}
+              {children}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -341,27 +150,6 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </nav>
     </div>
-  );
-}
-
-function isSwipeNavigationIgnored(target: EventTarget | null) {
-  if (!(target instanceof Element)) return false;
-  return Boolean(
-    target.closest(
-      [
-        "input",
-        "textarea",
-        "select",
-        "button",
-        "a",
-        "canvas",
-        "video",
-        "audio",
-        "[role='dialog']",
-        "[data-swipe-nav-ignore='true']",
-        "[data-carousel='true']"
-      ].join(",")
-    )
   );
 }
 
