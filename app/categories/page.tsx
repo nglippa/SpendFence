@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
-import { Edit3, Plus, Trash2, WalletCards } from "lucide-react";
+import { Edit3, MoreVertical, Plus, Trash2, WalletCards } from "lucide-react";
 import { AdaptiveFenceSuggestions } from "@/components/adaptive-fence-suggestions";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
@@ -33,6 +33,7 @@ export default function CategoriesPage() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [editing, setEditing] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
+  const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const formRef = useRef<HTMLElement>(null);
@@ -62,6 +63,7 @@ export default function CategoriesPage() {
   }
 
   function edit(category: Category) {
+    setOpenActionMenu(null);
     setEditing(category);
     setFormOpen(true);
     setForm({
@@ -76,6 +78,7 @@ export default function CategoriesPage() {
   }
 
   function openNewFence() {
+    setOpenActionMenu(null);
     setEditing(null);
     setForm(emptyForm());
     setFormOpen(true);
@@ -201,17 +204,25 @@ export default function CategoriesPage() {
         <section className="grid gap-4 content-start">
           {state.categories.length ? (
             state.categories.map((category) => (
-              <div key={category.id} className="grid gap-2">
-                <CategoryCard category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} />
-                <div className="flex justify-end gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => edit(category)}>
-                    <Edit3 size={16} /> Edit
-                  </Button>
-                  <Button variant="danger" size="sm" onClick={() => setDeleting(category)}>
-                    <Trash2 size={16} /> Delete
-                  </Button>
-                </div>
-              </div>
+              <CategoryCard
+                key={category.id}
+                category={category}
+                purchases={state.purchases}
+                budgetMonth={state.budgetMonth}
+                actions={
+                  <CategoryActionMenu
+                    categoryName={category.name}
+                    open={openActionMenu === category.id}
+                    onToggle={() => setOpenActionMenu((current) => (current === category.id ? null : category.id))}
+                    onClose={() => setOpenActionMenu(null)}
+                    onEdit={() => edit(category)}
+                    onDelete={() => {
+                      setOpenActionMenu(null);
+                      setDeleting(category);
+                    }}
+                  />
+                }
+              />
             ))
           ) : (
             <Card>
@@ -232,12 +243,72 @@ export default function CategoriesPage() {
         confirmLabel="Delete"
         onCancel={() => setDeleting(null)}
         onConfirm={() => {
-          if (deleting) state.deleteCategory(deleting.id);
+          if (deleting) {
+            state.deleteCategory(deleting.id);
+            if (editing?.id === deleting.id) closeForm();
+          }
           setDeleting(null);
-          showFeedback("Category deleted.");
+          showFeedback("Fence deleted.");
         }}
       />
     </>
+  );
+}
+
+function CategoryActionMenu({
+  categoryName,
+  open,
+  onToggle,
+  onClose,
+  onEdit,
+  onDelete
+}: {
+  categoryName: string;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div
+      className="relative"
+      onBlur={(event) => {
+        const nextFocus = event.relatedTarget;
+        if (!(nextFocus instanceof Node) || !event.currentTarget.contains(nextFocus)) onClose();
+      }}
+    >
+      <button
+        type="button"
+        aria-label={`Actions for ${categoryName}`}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={onToggle}
+        className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)] shadow-soft transition hover:text-[var(--brand-primary)] active:scale-[0.98]"
+      >
+        <MoreVertical size={17} />
+      </button>
+      {open ? (
+        <div role="menu" className="absolute right-0 top-full z-30 mt-1.5 w-44 overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-1.5 shadow-float">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={onEdit}
+            className="flex min-h-10 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-black text-[var(--app-text)] transition hover:bg-[var(--app-secondary)]"
+          >
+            <Edit3 size={15} /> Edit fence
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={onDelete}
+            className="flex min-h-10 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-black text-[var(--app-danger)] transition hover:bg-[rgb(255_107_107_/_0.1)]"
+          >
+            <Trash2 size={15} /> Delete fence
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

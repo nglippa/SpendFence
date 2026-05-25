@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Brain, Check, ChevronRight, Gauge, RefreshCw, Sparkles, X } from "lucide-react";
-import { Button, Card, Pill } from "@/components/ui";
+import { Check, ChevronRight, Gauge, X } from "lucide-react";
+import { IntelligenceCarouselDots, IntelligenceEmptyState, IntelligenceSection, intelligenceCardSurfaceClass } from "@/components/insights/intelligence-section";
+import { Button, Pill } from "@/components/ui";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { buildAdaptiveSuggestionFingerprint } from "@/lib/adaptive-suggestions-engine";
 import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
@@ -127,89 +128,49 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
 
   if (!state.adaptiveFenceSettings.enabled) {
     return (
-      <Card className="overflow-hidden p-0">
-        <SectionHeader loading={false} aiUsed={false} onRefresh={() => generateSuggestions(true)} refreshDisabled />
-        <p className="px-4 pb-4 text-sm font-semibold text-[var(--app-text-muted)] sm:px-5">
-          Adaptive Suggestions are off. You can turn them back on in AI settings.
-        </p>
-      </Card>
+      <IntelligenceSection title="Adaptive Fences" tierLabel="Advanced Intelligence" sourceLabel="Local" onRefresh={() => generateSuggestions(true)} refreshDisabled>
+        <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
+      </IntelligenceSection>
     );
   }
 
   return (
-    <Card className="overflow-hidden p-0">
-      <SectionHeader loading={loading} aiUsed={cache.aiUsed} onRefresh={() => generateSuggestions(true)} refreshDisabled={loading} />
+    <IntelligenceSection
+      title="Adaptive Fences"
+      tierLabel={adaptiveTierLabel(state.adaptiveFenceSettings.automationLevel)}
+      sourceLabel={cache.aiUsed ? "AI" : "Local"}
+      premiumLabel={state.adaptiveFenceSettings.automationLevel === "auto-apply-low-risk" ? "Premium" : undefined}
+      loading={loading}
+      onRefresh={() => generateSuggestions(true)}
+      refreshDisabled={loading}
+      dots={<IntelligenceCarouselDots count={activeSuggestions.length} activeIndex={activeIndex} />}
+    >
       {hasVisibleSuggestions ? (
-        <>
-          <div
-            ref={carouselRef}
-            data-carousel="true"
-            onScroll={handleScroll}
-            className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:pb-4"
-          >
-            {activeSuggestions.map((suggestion) => (
-              <SuggestionCard
-                key={suggestion.id}
-                suggestion={suggestion}
-                automationLevel={state.adaptiveFenceSettings.automationLevel}
-                expanded={expandedId === suggestion.id}
-                onToggle={() => state.rememberAdaptiveFenceSuggestionsView({ expandedId: expandedId === suggestion.id ? null : suggestion.id })}
-                onAccept={() => accept(suggestion)}
-                onDismiss={() => dismiss(suggestion)}
-              />
-            ))}
-          </div>
-          <CarouselDots count={activeSuggestions.length} activeIndex={activeIndex} className="pb-3 sm:pb-4" />
-        </>
-      ) : (
-        <div className="px-3 pb-3 sm:px-5 sm:pb-4">
-          <div className="rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 sm:p-3.5">
-            <p className="text-sm font-black text-[var(--app-text)]">{loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}</p>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-muted)]">
-              {loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface small adjustments as patterns become steadier."}
-            </p>
-          </div>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function SectionHeader({
-  loading,
-  aiUsed,
-  onRefresh,
-  refreshDisabled
-}: {
-  loading: boolean;
-  aiUsed: boolean;
-  onRefresh: () => void;
-  refreshDisabled?: boolean;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-2 px-3 pb-2.5 pt-3 sm:gap-3 sm:px-5 sm:pb-3 sm:pt-5">
-      <div className="min-w-0">
-        <p className="flex items-center gap-1 text-[0.68rem] font-black uppercase tracking-[0.13em] text-[var(--brand-primary)] sm:gap-1.5 sm:text-xs sm:tracking-[0.16em]">
-          <Sparkles size={12} className="sm:h-3.5 sm:w-3.5" /> Fence Insights
-        </p>
-        <h2 className="mt-0.5 truncate text-base font-black text-[var(--app-text)] sm:mt-1 sm:text-xl">Adaptive Suggestions</h2>
-      </div>
-      <div className="flex shrink-0 flex-wrap justify-end gap-1">
-        <Pill className="border-[rgb(46_211_183_/_0.25)] bg-[rgb(46_211_183_/_0.1)] px-1.5 py-0 text-[0.64rem] text-[var(--brand-primary)] sm:px-2 sm:text-xs">
-          <Brain size={10} className="mr-0.5 sm:mr-1 sm:h-3 sm:w-3" /> {aiUsed ? "AI" : "Local"}
-        </Pill>
-        {loading ? <Pill className="border-[var(--app-border)] bg-[var(--app-secondary)] px-1.5 py-0 text-[0.64rem] text-[var(--app-text-muted)] sm:px-2 sm:text-xs">Updating</Pill> : null}
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={refreshDisabled}
-          className="inline-flex h-6 items-center gap-1 rounded-full border border-[var(--app-border)] bg-[var(--app-card)] px-2 text-[0.64rem] font-black text-[var(--app-text-muted)] transition hover:text-[var(--brand-primary)] disabled:cursor-not-allowed disabled:opacity-50 sm:h-7 sm:text-xs"
+        <div
+          ref={carouselRef}
+          data-carousel="true"
+          onScroll={handleScroll}
+          className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-4"
         >
-          <RefreshCw size={10} className={cn("sm:h-3 sm:w-3", loading && "animate-spin")} />
-          Refresh
-        </button>
-      </div>
-    </div>
+          {activeSuggestions.map((suggestion) => (
+            <SuggestionCard
+              key={suggestion.id}
+              suggestion={suggestion}
+              automationLevel={state.adaptiveFenceSettings.automationLevel}
+              expanded={expandedId === suggestion.id}
+              onToggle={() => state.rememberAdaptiveFenceSuggestionsView({ expandedId: expandedId === suggestion.id ? null : suggestion.id })}
+              onAccept={() => accept(suggestion)}
+              onDismiss={() => dismiss(suggestion)}
+            />
+          ))}
+        </div>
+      ) : (
+        <IntelligenceEmptyState
+          title={loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}
+          body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface small adjustments as patterns become steadier."}
+        />
+      )}
+    </IntelligenceSection>
   );
 }
 
@@ -231,7 +192,7 @@ function SuggestionCard({
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article data-carousel-item="true" className="flex h-[15rem] basis-full shrink-0 snap-center snap-always flex-col self-stretch rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-2.5 transition-[box-shadow,opacity] duration-200 ease-out sm:h-[15.5rem] sm:p-3">
+    <article data-carousel-item="true" className={cn(intelligenceCardSurfaceClass, "flex min-h-[15rem] basis-full shrink-0 snap-center snap-always flex-col self-stretch sm:min-h-[15.5rem]")}>
       <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">
@@ -278,17 +239,6 @@ function SuggestionCard({
   );
 }
 
-function CarouselDots({ count, activeIndex, className }: { count: number; activeIndex: number; className?: string }) {
-  if (count < 2) return null;
-  return (
-    <div className={cn("flex items-center justify-center gap-1.5", className)} aria-hidden="true">
-      {Array.from({ length: count }).map((_, index) => (
-        <span key={index} className={cn("h-1.5 rounded-full transition-all duration-200", index === activeIndex ? "w-5 bg-[var(--brand-primary)]" : "w-1.5 bg-[var(--app-border)]")} />
-      ))}
-    </div>
-  );
-}
-
 function confidenceClass(confidence: AdaptiveFenceSuggestion["confidence"]) {
   return cn(
     "capitalize",
@@ -296,6 +246,12 @@ function confidenceClass(confidence: AdaptiveFenceSuggestion["confidence"]) {
     confidence === "medium" && "border-[rgb(245_185_66_/_0.25)] bg-[rgb(245_185_66_/_0.13)] text-[var(--app-warning)]",
     confidence === "low" && "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)]"
   );
+}
+
+function adaptiveTierLabel(automationLevel: AdaptiveAutomationLevel) {
+  if (automationLevel === "auto-apply-low-risk") return "Premium Intelligence";
+  if (automationLevel === "require-confirmation") return "Advanced Intelligence";
+  return "Basic Intelligence";
 }
 
 function categoryName(categories: Category[], categoryId: string) {

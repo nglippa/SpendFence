@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ComponentPropsWithoutRef } from "react";
 import { Activity, AlertCircle, CheckCircle2, LineChart, ShieldCheck, X } from "lucide-react";
+import { intelligenceCardSurfaceClass } from "@/components/insights/intelligence-section";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 import { cn } from "@/lib/utils";
 
@@ -13,13 +14,6 @@ const iconByType = {
   gentle_caution: AlertCircle,
   trend: LineChart,
   empty: Activity
-};
-
-const stylesBySeverity = {
-  calm: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
-  positive: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
-  watch: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]",
-  limit: "border-slate-200/80 bg-white/88 text-slate-700 dark:border-[#26343D] dark:bg-[#121A1F] dark:text-[#F4F7F6]"
 };
 
 const iconStylesBySeverity = {
@@ -68,8 +62,8 @@ export function SpendInsightCard({
     <article
       {...articleProps}
       className={cn(
-        "relative overflow-hidden rounded-2xl border px-3 py-3 shadow-soft backdrop-blur transition duration-200 hover:shadow-float sm:px-4",
-        stylesBySeverity[insight.severity],
+        intelligenceCardSurfaceClass,
+        "backdrop-blur hover:shadow-float",
         className
       )}
     >
