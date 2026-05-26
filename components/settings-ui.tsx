@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.35rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] px-1 pb-4 pt-4 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.9)] sm:-top-5 sm:mb-6 sm:pt-5 lg:-top-8">
-      <Link href="/settings" className="mb-4 inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2.5 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)]">
+    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.35rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] pb-4 pt-4 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.9)] sm:-top-5 sm:mb-6 sm:pt-5 lg:-top-8">
+      <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)]">
         <ArrowLeft size={17} /> Settings
       </Link>
       <h1 className="text-[1.75rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-9">{title}</h1>
@@ -21,7 +21,7 @@ export function SettingsDetailHeader({ title, subtitle }: { title: string; subti
 export function SettingsGroup({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <section className="grid w-full min-w-0 gap-2.5">
-      {title ? <h2 className="px-2 text-[0.7rem] font-black uppercase leading-4 tracking-[0.18em] text-[var(--app-text-secondary)]">{title}</h2> : null}
+      {title ? <h2 className="px-1 text-[0.7rem] font-black uppercase leading-4 tracking-[0.18em] text-[var(--app-text-secondary)]">{title}</h2> : null}
       <div className="w-full min-w-0 overflow-hidden rounded-[1.35rem] border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur">{children}</div>
     </section>
   );

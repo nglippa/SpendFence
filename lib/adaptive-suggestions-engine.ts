@@ -16,6 +16,7 @@ export function buildAdaptiveSuggestionFingerprint(input: AdaptiveSuggestionFing
   const now = input.now ?? new Date();
   const { start } = currentCycleWindow(input.budgetMonth, now);
   const payload = {
+    engineVersion: 2,
     cycleStart: start.toISOString().slice(0, 10),
     budgetMonth: {
       month: input.budgetMonth.month,

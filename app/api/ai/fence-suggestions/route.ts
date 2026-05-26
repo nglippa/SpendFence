@@ -25,6 +25,11 @@ export async function POST(request: Request) {
           content: [
             "You refine adaptive budget fence suggestions for SpendFence.",
             "Preserve the same categoryId, type, currentLimit, suggestedLimit, and basic action intent.",
+            "Use only the provided localSuggestions and evidence. Never invent spending pressure, broad trends, or urgency.",
+            "Never say a fence is tight unless the provided evidence already supports current_tight or likely_over_limit.",
+            "Never make all-category or most-category claims unless the evidence explicitly covers at least 70% of categories.",
+            "If evidence is weak, keep the local suggestion unchanged rather than embellishing it.",
+            "Do not suggest increasing limits for low-usage categories unless the provided suggestion already includes that action.",
             "Keep suggestions optional, collaborative, calm, and brief.",
             "Do not provide financial advice or tell the user what they must do.",
             "Do not use guilt language, hype, or financial coach language.",
@@ -46,7 +51,8 @@ export async function POST(request: Request) {
               confidence: suggestion.confidence,
               currentLimit: suggestion.currentLimit,
               suggestedLimit: suggestion.suggestedLimit,
-              metric: suggestion.metric
+              metric: suggestion.metric,
+              evidence: suggestion.evidence
             })),
             categories: body.categories.map((category) => ({ id: category.id, name: category.name, limit: category.limit })),
             recentPurchases: body.purchases.slice(0, 60).map((purchase) => ({
@@ -75,4 +81,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ suggestions: [], aiUsed: false });
   }
 }
-

@@ -114,6 +114,15 @@ export type AdaptiveFenceSettings = {
   learningSensitivity: AdaptiveLearningSensitivity;
 };
 
+export type AdaptiveFenceSuggestionEvidence = {
+  categoryId: string;
+  usagePercent: number;
+  cycleProgressPercent: number;
+  projectedEndSpend: number;
+  limit: number;
+  reasonCode: string;
+};
+
 export type AdaptiveFenceSuggestion = {
   id: string;
   categoryId: string;
@@ -126,6 +135,7 @@ export type AdaptiveFenceSuggestion = {
   suggestedLimit?: number;
   estimatedMonthlyImpact?: number;
   metric?: string;
+  evidence?: AdaptiveFenceSuggestionEvidence;
   source: "local_rules" | "groq";
 };
 

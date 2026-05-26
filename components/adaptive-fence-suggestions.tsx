@@ -179,7 +179,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       ) : (
         <IntelligenceEmptyState
           title={loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}
-          body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface small adjustments as patterns become steadier."}
+          body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface adjustments when patterns become meaningful."}
         />
       )}
     </IntelligenceSection>

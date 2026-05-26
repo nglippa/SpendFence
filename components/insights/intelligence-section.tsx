@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 export const intelligenceCardSurfaceClass =
   "relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-secondary)] p-3 shadow-none transition-[box-shadow,opacity] duration-200 ease-out dark:border-[#26343D] dark:bg-[#182229] sm:p-3.5";
 
+const intelligenceTagClass =
+  "border-[rgb(31_209_165_/_0.3)] bg-[rgb(31_209_165_/_0.1)] text-[var(--brand-primary)] shadow-[0_6px_18px_rgb(31_209_165_/_0.1)]";
+
 export function IntelligenceSection({
   title,
   tierLabel,
@@ -36,16 +39,14 @@ export function IntelligenceSection({
   dots?: ReactNode;
   className?: string;
 }) {
-  const [refreshState, setRefreshState] = useState<"idle" | "processing" | "success">("idle");
+  const [refreshState, setRefreshState] = useState<"idle" | "processing">("idle");
   const refreshWasLoadingRef = useRef(false);
   const processingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const refreshIsActive = refreshState === "processing" || refreshState === "success" || loading;
+  const refreshIsProcessing = refreshState === "processing" || loading;
 
   useEffect(() => {
     if (loading) {
       if (processingTimerRef.current) clearTimeout(processingTimerRef.current);
-      if (successTimerRef.current) clearTimeout(successTimerRef.current);
       refreshWasLoadingRef.current = true;
       setRefreshState("processing");
       return;
@@ -53,31 +54,25 @@ export function IntelligenceSection({
 
     if (!refreshWasLoadingRef.current) return;
     refreshWasLoadingRef.current = false;
-    setRefreshState("success");
-    successTimerRef.current = setTimeout(() => setRefreshState("idle"), 1250);
+    setRefreshState("idle");
   }, [loading]);
 
   useEffect(() => {
     return () => {
       if (processingTimerRef.current) clearTimeout(processingTimerRef.current);
-      if (successTimerRef.current) clearTimeout(successTimerRef.current);
     };
   }, []);
 
   function handleRefresh() {
     if (!onRefresh || refreshDisabled) return;
     if (processingTimerRef.current) clearTimeout(processingTimerRef.current);
-    if (successTimerRef.current) clearTimeout(successTimerRef.current);
 
     refreshWasLoadingRef.current = loading;
     setRefreshState("processing");
     onRefresh();
 
     if (!loading) {
-      processingTimerRef.current = setTimeout(() => {
-        setRefreshState("success");
-        successTimerRef.current = setTimeout(() => setRefreshState("idle"), 1250);
-      }, 420);
+      processingTimerRef.current = setTimeout(() => setRefreshState("idle"), 900);
     }
   }
 
@@ -95,24 +90,29 @@ export function IntelligenceSection({
           {tierDescription ? <p className="mt-1.5 max-w-md text-xs font-semibold leading-5 text-white/72">{tierDescription}</p> : null}
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-          {sourceLabel ? <IntelligencePill>{sourceLabel}</IntelligencePill> : null}
-          {loading ? <IntelligencePill>Updating</IntelligencePill> : null}
+          {sourceLabel ? <IntelligencePill tone="accent">{sourceLabel}</IntelligencePill> : null}
           {onRefresh ? (
-            <button
-              type="button"
-              onClick={handleRefresh}
-              disabled={refreshDisabled}
-              className={cn(
-                "inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[0.68rem] font-black transition-[background,border-color,box-shadow,color,opacity,transform] duration-500 ease-out hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed sm:text-xs",
-                refreshIsActive
-                  ? "border-[rgb(31_209_165_/_0.42)] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.24),rgb(20_184_166_/_0.16))] text-[rgb(187_247_208)] shadow-[0_8px_22px_rgb(31_209_165_/_0.18)] hover:border-[rgb(31_209_165_/_0.56)] hover:text-white"
-                  : "border-[rgb(168_85_247_/_0.36)] bg-[linear-gradient(135deg,rgb(124_58_237_/_0.22),rgb(88_28_135_/_0.16))] text-[rgb(233_213_255)] shadow-[0_8px_22px_rgb(124_58_237_/_0.18)] hover:border-[rgb(196_181_253_/_0.56)] hover:text-white",
-                refreshDisabled && !refreshIsActive && "opacity-55 hover:translate-y-0"
-              )}
-            >
-              <RefreshCw size={11} className={cn(refreshState === "processing" || loading ? "animate-spin" : "transition-transform duration-500", refreshState === "success" && "rotate-180")} />
-              Refresh
-            </button>
+            <>
+              <span className="grid h-7 w-[4.75rem] place-items-end" aria-live="polite">
+                <span className={cn("origin-right transition-[opacity,transform] duration-200 ease-out", refreshIsProcessing ? "opacity-100 scale-100" : "pointer-events-none opacity-0 scale-95")} aria-hidden={!refreshIsProcessing}>
+                  <IntelligencePill tone="accent">Updating</IntelligencePill>
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={refreshDisabled}
+                className={cn(
+                  "inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[0.68rem] font-black transition-[background,border-color,box-shadow,color,opacity,transform] duration-500 ease-out hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed sm:text-xs",
+                  "border-[rgb(31_209_165_/_0.3)] bg-[rgb(31_209_165_/_0.1)] text-[var(--brand-primary)] shadow-[0_6px_18px_rgb(31_209_165_/_0.1)] hover:border-[rgb(31_209_165_/_0.48)] hover:bg-[rgb(31_209_165_/_0.14)] hover:text-[rgb(187_247_208)]",
+                  refreshIsProcessing && "border-[rgb(31_209_165_/_0.5)] bg-[rgb(31_209_165_/_0.16)] text-[rgb(187_247_208)] shadow-[0_8px_24px_rgb(31_209_165_/_0.18)]",
+                  refreshDisabled && !refreshIsProcessing && "opacity-55 hover:translate-y-0"
+                )}
+              >
+                <RefreshCw size={11} className={cn(refreshIsProcessing && "animate-spin")} />
+                Refresh
+              </button>
+            </>
           ) : null}
         </div>
       </div>
@@ -153,7 +153,7 @@ function IntelligencePill({ children, tone = "neutral" }: { children: ReactNode;
       className={cn(
         "inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[0.68rem] font-black leading-none sm:text-xs",
         tone === "neutral" && "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)] dark:bg-[#121A1F]",
-        tone === "accent" && "border-[rgb(31_209_165_/_0.25)] bg-[rgb(31_209_165_/_0.1)] text-[var(--brand-primary)]",
+        tone === "accent" && intelligenceTagClass,
         tone === "premium" && "border-[rgb(168_85_247_/_0.28)] bg-[rgb(124_58_237_/_0.12)] text-[rgb(233_213_255)] shadow-[0_6px_18px_rgb(124_58_237_/_0.12)]"
       )}
     >

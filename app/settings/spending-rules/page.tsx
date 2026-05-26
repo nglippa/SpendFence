@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell, Clock3, Edit3, ListChecks, Plus, Sparkles, Trash2, WalletCards } from "lucide-react";
 import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup } from "@/components/settings-ui";
@@ -27,7 +27,11 @@ export default function SpendingRulesSettingsPage() {
   const [builderOpen, setBuilderOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingRule, setDeletingRule] = useState<SpendingRule | null>(null);
+  const [builderFocusKey, setBuilderFocusKey] = useState(0);
   const [draft, setDraft] = useState<SpendingRuleInput>(() => defaultSpendingRuleInput(state.categories[0]?.id));
+  const builderContainerRef = useRef<HTMLDivElement | null>(null);
+  const focusTimerRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   const activeRules = state.spendingRules.filter((rule) => rule.source === "manual");
   const suggestions = useMemo(() => suggestedFutureRules(state.categories), [state.categories]);
@@ -39,16 +43,57 @@ export default function SpendingRulesSettingsPage() {
     window.setTimeout(() => setFeedback(""), 1800);
   }
 
+  function clearBuilderFocusWork() {
+    if (animationFrameRef.current !== null) {
+      window.cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (focusTimerRef.current) {
+      window.clearTimeout(focusTimerRef.current);
+      focusTimerRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    if (!builderOpen || builderFocusKey === 0) return;
+
+    clearBuilderFocusWork();
+    animationFrameRef.current = window.requestAnimationFrame(() => {
+      animationFrameRef.current = window.requestAnimationFrame(() => {
+        const formContainer = builderContainerRef.current;
+        if (!formContainer) return;
+
+        formContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+        focusTimerRef.current = window.setTimeout(() => {
+          const firstField = formContainer.querySelector<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>("select, input, textarea");
+          firstField?.focus({ preventScroll: true });
+        }, 450);
+      });
+    });
+
+    return clearBuilderFocusWork;
+  }, [builderFocusKey, builderOpen]);
+
+  useEffect(() => clearBuilderFocusWork, []);
+
   function openCreate() {
     setEditingId(null);
     setDraft(defaultSpendingRuleInput(state.categories[0]?.id));
     setBuilderOpen(true);
+    setBuilderFocusKey((current) => current + 1);
   }
 
   function openEdit(rule: SpendingRule) {
     setEditingId(rule.id);
     setDraft(rule);
     setBuilderOpen(true);
+    setBuilderFocusKey((current) => current + 1);
+  }
+
+  function closeBuilder() {
+    clearBuilderFocusWork();
+    setBuilderOpen(false);
+    setEditingId(null);
   }
 
   function saveRule(event: React.FormEvent<HTMLFormElement>) {
@@ -61,8 +106,7 @@ export default function SpendingRulesSettingsPage() {
       state.addSpendingRule(input);
       showFeedback("Spending rule created.");
     }
-    setBuilderOpen(false);
-    setEditingId(null);
+    closeBuilder();
   }
 
   function deleteRule() {
@@ -112,63 +156,65 @@ export default function SpendingRulesSettingsPage() {
         </SettingsGroup>
 
         {builderOpen ? (
-          <SettingsGroup title={editingId ? "Edit Rule" : "Create Rule"}>
-            <form className="grid gap-4 p-4 sm:p-5" onSubmit={saveRule}>
-              <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
-                <p className="text-sm font-black text-[var(--app-text)]">{preview.title}</p>
-                <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{preview.description}</p>
-              </div>
+          <div ref={builderContainerRef} style={{ scrollMarginTop: "calc(env(safe-area-inset-top) + 7rem)", scrollMarginBottom: "calc(env(safe-area-inset-bottom) + 7rem)" }}>
+            <SettingsGroup title={editingId ? "Edit Rule" : "Create Rule"}>
+              <form className="grid gap-4 p-4 sm:p-5" onSubmit={saveRule}>
+                <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
+                  <p className="text-sm font-black text-[var(--app-text)]">{preview.title}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{preview.description}</p>
+                </div>
 
-              <div className="grid gap-3">
-                <Field label="1. Choose category">
-                  <Select
-                    value={draft.categoryId ?? ""}
-                    onChange={(event) => setDraft((current) => ({ ...current, categoryId: event.target.value }))}
-                    required
-                  >
-                    {state.categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                <div className="grid gap-3">
+                  <Field label="1. Choose category">
+                    <Select
+                      value={draft.categoryId ?? ""}
+                      onChange={(event) => setDraft((current) => ({ ...current, categoryId: event.target.value }))}
+                      required
+                    >
+                      {state.categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
 
-                <Field label="2. Choose condition">
-                  <Select
-                    value={draft.condition}
-                    onChange={(event) => {
-                      const condition = conditions.find((item) => item.value === event.target.value) ?? conditions[0];
-                      setDraft((current) => ({ ...current, condition: condition.value, type: condition.type }));
-                    }}
-                  >
-                    {conditions.map((condition) => (
-                      <option key={condition.value} value={condition.value}>
-                        {condition.label}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                  <Field label="2. Choose condition">
+                    <Select
+                      value={draft.condition}
+                      onChange={(event) => {
+                        const condition = conditions.find((item) => item.value === event.target.value) ?? conditions[0];
+                        setDraft((current) => ({ ...current, condition: condition.value, type: condition.type }));
+                      }}
+                    >
+                      {conditions.map((condition) => (
+                        <option key={condition.value} value={condition.value}>
+                          {condition.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
 
-                <ThresholdFields draft={draft} setDraft={setDraft} condition={selectedCondition.value} />
+                  <ThresholdFields draft={draft} setDraft={setDraft} condition={selectedCondition.value} />
 
-                <Field label="4. Choose response">
-                  <Select value={draft.response} onChange={(event) => setDraft((current) => ({ ...current, response: event.target.value as SpendingRuleInput["response"] }))}>
-                    <option value="subtle_insight">{spendingRuleResponseLabels.subtle_insight}</option>
-                    <option value="warning">{spendingRuleResponseLabels.warning}</option>
-                    <option value="pacing_alert">{spendingRuleResponseLabels.pacing_alert}</option>
-                  </Select>
-                </Field>
-              </div>
+                  <Field label="4. Choose response">
+                    <Select value={draft.response} onChange={(event) => setDraft((current) => ({ ...current, response: event.target.value as SpendingRuleInput["response"] }))}>
+                      <option value="subtle_insight">{spendingRuleResponseLabels.subtle_insight}</option>
+                      <option value="warning">{spendingRuleResponseLabels.warning}</option>
+                      <option value="pacing_alert">{spendingRuleResponseLabels.pacing_alert}</option>
+                    </Select>
+                  </Field>
+                </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                <Button type="button" variant="secondary" onClick={() => setBuilderOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">{editingId ? "Save Rule" : "Add Rule"}</Button>
-              </div>
-            </form>
-          </SettingsGroup>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Button type="button" variant="secondary" onClick={closeBuilder}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">{editingId ? "Save Rule" : "Add Rule"}</Button>
+                </div>
+              </form>
+            </SettingsGroup>
+          </div>
         ) : null}
 
         <SettingsGroup title="Suggested Rules (Future AI)">

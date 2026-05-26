@@ -1,8 +1,8 @@
-import { categoryProgress, currentCycleWindow } from "@/lib/budget";
+import { currentCycleWindow } from "@/lib/budget";
 import { filterLearnedSuggestions, learningScoreForSuggestion } from "@/lib/ai/fence-learning";
 import { evaluateSpendingRules } from "@/lib/rules/rule-evaluator";
 import type { SpendingRule } from "@/lib/rules/rule-types";
-import type { AdaptiveFenceSettings, AdaptiveFenceSuggestion, BudgetMonth, Category, FenceLearningEvent, Purchase, RecurringItem } from "@/lib/types";
+import type { AdaptiveFenceSettings, AdaptiveFenceSuggestion, AdaptiveFenceSuggestionEvidence, BudgetMonth, Category, FenceLearningEvent, Purchase, RecurringItem } from "@/lib/types";
 
 export type AdaptiveFenceInput = {
   categories: Category[];
@@ -22,13 +22,26 @@ const DEFAULT_SETTINGS: AdaptiveFenceSettings = {
   learningSensitivity: "moderate"
 };
 
+const SAFE_USAGE_PERCENT = 40;
+const TIGHT_USAGE_PERCENT = 90;
+const TIGHT_LANGUAGE_FLOOR = 85;
+const MIN_PACING_ELAPSED_RATIO = 0.2;
+const MIN_PACING_USAGE_PERCENT = 50;
+const PROJECTED_OVERAGE_MULTIPLIER = 1.08;
+
+type EvidenceReasonCode = "likely_over_limit" | "current_tight" | "recent_overages" | "ahead_of_pace" | "consistent_underuse" | "recurring_base" | "weekend_cluster" | "personal_rule_pacing";
+
+type SuggestionCandidate = AdaptiveFenceSuggestion & {
+  priority: number;
+};
+
 export function generateLocalFenceSuggestions(input: AdaptiveFenceInput): AdaptiveFenceSuggestion[] {
   const settings = { ...DEFAULT_SETTINGS, ...input.settings };
   if (!settings.enabled || !input.categories.length) return [];
 
   const now = input.now ? new Date(input.now) : new Date();
   const learningEvents = input.learningEvents ?? [];
-  const suggestions = [
+  const suggestions: SuggestionCandidate[] = [
     ...input.categories.flatMap((category) => suggestionsForCategory(category, input, settings, now)),
     ...suggestionsFromSpendingRules(input, now)
   ];
@@ -36,10 +49,11 @@ export function generateLocalFenceSuggestions(input: AdaptiveFenceInput): Adapti
 
   return learned
     .sort((a, b) => suggestionRank(b, learningEvents) - suggestionRank(a, learningEvents))
-    .slice(0, suggestionLimit(settings.frequency));
+    .slice(0, suggestionLimit(settings.frequency))
+    .map(({ priority: _priority, ...suggestion }) => suggestion);
 }
 
-function suggestionsFromSpendingRules(input: AdaptiveFenceInput, now: Date): AdaptiveFenceSuggestion[] {
+function suggestionsFromSpendingRules(input: AdaptiveFenceInput, now: Date): SuggestionCandidate[] {
   if (!input.spendingRules?.length) return [];
 
   return evaluateSpendingRules({
@@ -52,20 +66,26 @@ function suggestionsFromSpendingRules(input: AdaptiveFenceInput, now: Date): Ada
     .map((match) => {
       const category = input.categories.find((item) => item.id === match.categoryId);
       if (!category) return null;
+      const current = categoryCycleProgress(category, input, now);
+      const cyclePace = currentCyclePacing(input.budgetMonth, now);
+      const evidence = buildEvidence(category, current, cyclePace, "personal_rule_pacing");
+      if (!isMeaningfulPacingEvidence(evidence)) return null;
       return {
         id: `adaptive-rule-${match.rule.id}`,
         categoryId: category.id,
         type: "pacing",
         title: `${category.name} personal rule matched`,
-        explanation: `Your personal rule "${match.rule.title}" matched current pacing. This may be a good moment to review the fence.`,
+        explanation: `${category.name} is at ${Math.round(evidence.usagePercent)}% while the cycle is ${Math.round(evidence.cycleProgressPercent)}% complete, matching your personal pacing rule.`,
         suggestedAction: "Review personal rule",
         confidence: "medium",
         currentLimit: category.limit,
         metric: match.supportingMetric,
+        evidence,
+        priority: 72,
         source: "local_rules"
-      } satisfies AdaptiveFenceSuggestion;
+      } satisfies SuggestionCandidate;
     })
-    .filter(Boolean) as AdaptiveFenceSuggestion[];
+    .filter(Boolean) as SuggestionCandidate[];
 }
 
 export function normalizeAdaptiveSuggestions(suggestions: Partial<AdaptiveFenceSuggestion>[], fallback: AdaptiveFenceSuggestion[], categories: Category[]) {
@@ -79,13 +99,15 @@ export function normalizeAdaptiveSuggestions(suggestions: Partial<AdaptiveFenceS
       const type = isSuggestionType(suggestion.type) ? suggestion.type : fallbackSuggestion?.type ?? "pacing";
       const confidence = suggestion.confidence === "high" || suggestion.confidence === "medium" || suggestion.confidence === "low" ? suggestion.confidence : fallbackSuggestion?.confidence ?? "medium";
       const suggestedLimit = validLimit(suggestion.suggestedLimit) ? roundToFive(Number(suggestion.suggestedLimit)) : fallbackSuggestion?.suggestedLimit;
+      const evidence = fallbackSuggestion?.evidence;
+      if (!evidence) return null;
 
       return {
         id: fallbackSuggestion?.id ?? stableId(categoryId, type),
         categoryId,
         type,
-        title: safeText(suggestion.title, fallbackSuggestion?.title ?? `${category.name} fence note`, 56),
-        explanation: safeText(suggestion.explanation, fallbackSuggestion?.explanation ?? "SpendFence found a small pattern worth reviewing.", 150),
+        title: safeGroundedText(suggestion.title, fallbackSuggestion?.title ?? `${category.name} fence note`, 56),
+        explanation: safeGroundedText(suggestion.explanation, fallbackSuggestion?.explanation ?? "SpendFence found a small pattern worth reviewing.", 150),
         suggestedAction: safeText(
           suggestion.suggestedAction,
           suggestedLimit ? `Adjust to ${formatMoney(suggestedLimit)}` : fallbackSuggestion?.suggestedAction ?? "Review fence",
@@ -96,6 +118,7 @@ export function normalizeAdaptiveSuggestions(suggestions: Partial<AdaptiveFenceS
         suggestedLimit,
         estimatedMonthlyImpact: validLimit(suggestion.estimatedMonthlyImpact) ? Number(suggestion.estimatedMonthlyImpact) : fallbackSuggestion?.estimatedMonthlyImpact,
         metric: safeOptionalText(suggestion.metric, fallbackSuggestion?.metric, 44),
+        evidence,
         source: suggestion.source === "groq" ? "groq" : fallbackSuggestion?.source ?? "local_rules"
       } satisfies AdaptiveFenceSuggestion;
     })
@@ -104,10 +127,10 @@ export function normalizeAdaptiveSuggestions(suggestions: Partial<AdaptiveFenceS
   return normalized.length ? normalized : fallback;
 }
 
-function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, settings: AdaptiveFenceSettings, now: Date) {
+function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, settings: AdaptiveFenceSettings, now: Date): SuggestionCandidate[] {
   if (category.limit <= 0) return [];
 
-  const current = categoryProgress(category, input.purchases, input.budgetMonth);
+  const current = categoryCycleProgress(category, input, now);
   const cycles = previousCycleTotals(category.id, input.purchases, input.budgetMonth, now, 4);
   const completedCycles = cycles.filter((cycle) => cycle.completed);
   const averageCompleted = average(completedCycles.map((cycle) => cycle.total));
@@ -117,30 +140,61 @@ function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, s
     .reduce((sum, item) => sum + normalizedMonthlyRecurringAmount(item), 0);
   const weekendShare = categoryWeekendShare(category.id, input.purchases);
   const cyclePace = currentCyclePacing(input.budgetMonth, now);
-  const results: AdaptiveFenceSuggestion[] = [];
+  const currentEvidence = buildEvidence(category, current, cyclePace, "current_tight");
+  const projectedOverLimit = isProjectedOverLimit(currentEvidence);
+  const tightByUsage = current.percent >= Math.max(TIGHT_LANGUAGE_FLOOR, category.warningThreshold, warningPoint(settings));
+  const lockedOrOver = current.percent >= Math.min(category.hardStopThreshold, 100);
+  const results: SuggestionCandidate[] = [];
 
-  if ((current.percent >= warningPoint(settings) && current.remaining < category.limit * 0.22) || averageCompleted > category.limit * 1.04) {
+  if (lockedOrOver || tightByUsage || projectedOverLimit) {
+    const reasonCode: EvidenceReasonCode = lockedOrOver || tightByUsage ? "current_tight" : "likely_over_limit";
+    const evidence = buildEvidence(category, current, cyclePace, reasonCode);
+    const suggestedLimit = averageCompleted > category.limit * 1.08 ? roundToFive(Math.max(category.limit + 20, averageCompleted * 1.08, evidence.projectedEndSpend * 0.95)) : undefined;
     results.push({
       id: stableId(category.id, "overrun"),
       categoryId: category.id,
       type: "overrun",
-      title: `${category.name} fence is running tight`,
-      explanation: averageCompleted > category.limit
-        ? `${category.name} has been landing above its fence across recent cycles. A slightly wider fence may fit your actual rhythm.`
-        : `${category.name} is pacing close to its fence this cycle. It may be worth reviewing before cycle end.`,
+      title: `${category.name} is at ${Math.round(evidence.usagePercent)}%`,
+      explanation: projectedOverLimit && !tightByUsage && !lockedOrOver
+        ? `${category.name} is at ${Math.round(evidence.usagePercent)}% while the cycle is ${Math.round(evidence.cycleProgressPercent)}% complete, pacing toward ${formatMoney(evidence.projectedEndSpend)}.`
+        : `${category.name} is near its fence this cycle at ${Math.round(evidence.usagePercent)}% used.`,
       suggestedAction: `Review ${category.name}`,
-      confidence: averageCompleted > category.limit * 1.08 ? "high" : "medium",
+      confidence: lockedOrOver || current.percent >= TIGHT_USAGE_PERCENT ? "high" : "medium",
       currentLimit: category.limit,
-      suggestedLimit: averageCompleted > category.limit * 1.04 ? roundToFive(Math.max(category.limit + 20, averageCompleted * 1.08)) : undefined,
-      estimatedMonthlyImpact: averageCompleted > category.limit * 1.04 ? roundMoney(roundToFive(Math.max(category.limit + 20, averageCompleted * 1.08)) - category.limit) : undefined,
+      suggestedLimit,
+      estimatedMonthlyImpact: suggestedLimit ? roundMoney(suggestedLimit - category.limit) : undefined,
       metric: `${Math.round(current.percent)}% used`,
+      evidence,
+      priority: lockedOrOver ? 100 : projectedOverLimit ? 92 : 88,
       source: "local_rules"
     });
   }
 
-  if (completedCycles.length >= 2 && averageCompleted > 0 && averageCompleted < category.limit * underspendPoint(settings) && volatility < category.limit * 0.18) {
+  if (!results.some((suggestion) => suggestion.type === "overrun") && completedCycles.length >= 2 && averageCompleted > category.limit * 1.08 && current.percent >= SAFE_USAGE_PERCENT) {
+    const evidence = buildEvidence(category, current, cyclePace, "recent_overages");
+    const suggestedLimit = roundToFive(Math.max(category.limit + 20, averageCompleted * 1.08));
+    results.push({
+      id: stableId(category.id, "overrun"),
+      categoryId: category.id,
+      type: "overrun",
+      title: `${category.name} has run over recently`,
+      explanation: `${category.name} averaged ${formatMoney(averageCompleted)} across completed cycles, above the current ${formatMoney(category.limit)} fence.`,
+      suggestedAction: `Review ${category.name}`,
+      confidence: averageCompleted > category.limit * 1.16 ? "high" : "medium",
+      currentLimit: category.limit,
+      suggestedLimit,
+      estimatedMonthlyImpact: roundMoney(suggestedLimit - category.limit),
+      metric: `${formatMoney(averageCompleted)} recent average`,
+      evidence,
+      priority: 78,
+      source: "local_rules"
+    });
+  }
+
+  if (completedCycles.length >= 3 && averageCompleted > 0 && current.percent < SAFE_USAGE_PERCENT && averageCompleted < category.limit * underspendPoint(settings) && volatility < category.limit * 0.18) {
     const suggestedLimit = roundToFive(Math.max(25, averageCompleted * 1.15));
     if (category.limit - suggestedLimit >= 20) {
+      const evidence = buildEvidence(category, current, cyclePace, "consistent_underuse");
       results.push({
         id: stableId(category.id, "underspend"),
         categoryId: category.id,
@@ -153,27 +207,33 @@ function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, s
         suggestedLimit,
         estimatedMonthlyImpact: roundMoney(suggestedLimit - category.limit),
         metric: `${formatMoney(averageCompleted)} recent average`,
+        evidence,
+        priority: 54,
         source: "local_rules"
       });
     }
   }
 
-  if (cyclePace.elapsedRatio > 0.18 && current.percent / 100 > cyclePace.elapsedRatio + 0.18 && current.percent < category.hardStopThreshold) {
+  const pacingEvidence = buildEvidence(category, current, cyclePace, "ahead_of_pace");
+  if (!results.some((suggestion) => suggestion.type === "overrun") && isMeaningfulPacingEvidence(pacingEvidence) && current.percent < category.hardStopThreshold) {
     results.push({
       id: stableId(category.id, "pacing"),
       categoryId: category.id,
       type: "pacing",
       title: `${category.name} pace is ahead`,
-      explanation: `${category.name} is moving faster than the cycle pace. A small check-in may keep the fence realistic.`,
+      explanation: `${category.name} is at ${Math.round(pacingEvidence.usagePercent)}% while the cycle is ${Math.round(pacingEvidence.cycleProgressPercent)}% complete.`,
       suggestedAction: "Check pacing",
       confidence: "medium",
       currentLimit: category.limit,
       metric: `${Math.round(current.percent)}% used`,
+      evidence: pacingEvidence,
+      priority: 68,
       source: "local_rules"
     });
   }
 
-  if (weekendShare >= 0.48 && purchaseCount(category.id, input.purchases) >= 4) {
+  if (weekendShare >= 0.6 && purchaseCount(category.id, input.purchases) >= 6 && current.percent >= SAFE_USAGE_PERCENT) {
+    const evidence = buildEvidence(category, current, cyclePace, "weekend_cluster");
     results.push({
       id: stableId(category.id, "volatility"),
       categoryId: category.id,
@@ -184,11 +244,14 @@ function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, s
       confidence: weekendShare > 0.62 ? "high" : "medium",
       currentLimit: category.limit,
       metric: `${Math.round(weekendShare * 100)}% weekend share`,
+      evidence,
+      priority: 48,
       source: "local_rules"
     });
   }
 
-  if (recurringTotal > 0 && recurringTotal > category.limit * 0.55) {
+  if (recurringTotal >= 20 && recurringTotal > category.limit * 0.65) {
+    const evidence = buildEvidence(category, current, cyclePace, "recurring_base");
     results.push({
       id: stableId(category.id, "recurring"),
       categoryId: category.id,
@@ -199,6 +262,8 @@ function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, s
       confidence: recurringTotal > category.limit * 0.75 ? "high" : "medium",
       currentLimit: category.limit,
       metric: `${formatMoney(recurringTotal)} recurring`,
+      evidence,
+      priority: 42,
       source: "local_rules"
     });
   }
@@ -206,10 +271,60 @@ function suggestionsForCategory(category: Category, input: AdaptiveFenceInput, s
   return results;
 }
 
-function suggestionRank(suggestion: AdaptiveFenceSuggestion, events: FenceLearningEvent[]) {
+function categoryCycleProgress(category: Category, input: AdaptiveFenceInput, now: Date) {
+  const { start, nextStart } = currentCycleWindow(input.budgetMonth, now);
+  const spent = input.purchases
+    .filter((purchase) => purchase.categoryId === category.id)
+    .filter((purchase) => {
+      const date = new Date(purchase.date);
+      return date >= start && date < nextStart;
+    })
+    .reduce((sum, purchase) => sum + Math.abs(Number(purchase.amount) || 0), 0);
+
+  const percent = category.limit > 0 ? (spent / category.limit) * 100 : 0;
+  return { spent, percent, remaining: category.limit - spent };
+}
+
+function buildEvidence(
+  category: Category,
+  current: ReturnType<typeof categoryCycleProgress>,
+  cyclePace: ReturnType<typeof currentCyclePacing>,
+  reasonCode: EvidenceReasonCode
+): AdaptiveFenceSuggestionEvidence {
+  const projectedEndSpend = current.spent <= 0 ? 0 : current.spent / Math.max(cyclePace.elapsedRatio, 0.08);
+
+  return {
+    categoryId: category.id,
+    usagePercent: roundMoney(current.percent),
+    cycleProgressPercent: roundMoney(cyclePace.elapsedRatio * 100),
+    projectedEndSpend: roundMoney(projectedEndSpend),
+    limit: category.limit,
+    reasonCode
+  };
+}
+
+function isProjectedOverLimit(evidence: AdaptiveFenceSuggestionEvidence) {
+  return (
+    evidence.cycleProgressPercent >= MIN_PACING_ELAPSED_RATIO * 100 &&
+    evidence.usagePercent >= MIN_PACING_USAGE_PERCENT &&
+    evidence.projectedEndSpend >= evidence.limit * PROJECTED_OVERAGE_MULTIPLIER
+  );
+}
+
+function isMeaningfulPacingEvidence(evidence: AdaptiveFenceSuggestionEvidence) {
+  const paceDelta = evidence.usagePercent - evidence.cycleProgressPercent;
+  return (
+    evidence.cycleProgressPercent >= MIN_PACING_ELAPSED_RATIO * 100 &&
+    evidence.usagePercent >= MIN_PACING_USAGE_PERCENT &&
+    paceDelta >= 18 &&
+    evidence.projectedEndSpend >= evidence.limit * 0.95
+  );
+}
+
+function suggestionRank(suggestion: SuggestionCandidate, events: FenceLearningEvent[]) {
   const confidenceScore = suggestion.confidence === "high" ? 3 : suggestion.confidence === "medium" ? 2 : 1;
   const impactScore = Math.min(Math.abs(suggestion.estimatedMonthlyImpact ?? 0) / 40, 2);
-  return confidenceScore + impactScore + learningScoreForSuggestion(suggestion, events);
+  return suggestion.priority + confidenceScore + impactScore + learningScoreForSuggestion(suggestion, events);
 }
 
 function previousCycleTotals(categoryId: string, purchases: Purchase[], budgetMonth: BudgetMonth, now: Date, count: number) {
@@ -270,9 +385,9 @@ function underspendPoint(settings: AdaptiveFenceSettings) {
 }
 
 function suggestionLimit(frequency: AdaptiveFenceSettings["frequency"]) {
-  if (frequency === "minimal") return 2;
-  if (frequency === "active") return 6;
-  return 4;
+  if (frequency === "minimal") return 1;
+  if (frequency === "active") return 3;
+  return 2;
 }
 
 function stableId(categoryId: string, type: AdaptiveFenceSuggestion["type"]) {
@@ -311,6 +426,22 @@ function formatMoney(value: number) {
 
 function safeText(value: unknown, fallback: string, maxLength: number) {
   return typeof value === "string" && value.trim() ? value.trim().slice(0, maxLength) : fallback;
+}
+
+function safeGroundedText(value: unknown, fallback: string, maxLength: number) {
+  if (typeof value !== "string" || !value.trim()) return fallback;
+  const text = value.trim();
+  const lower = text.toLowerCase();
+  const unsupportedBroadClaim =
+    lower.includes("all fences") ||
+    lower.includes("all categories") ||
+    lower.includes("everything") ||
+    lower.includes("every fence") ||
+    lower.includes("most fences") ||
+    lower.includes("spending pressure is high") ||
+    lower.includes("increase everything");
+
+  return unsupportedBroadClaim ? fallback : text.slice(0, maxLength);
 }
 
 function safeOptionalText(value: unknown, fallback: string | undefined, maxLength: number) {
