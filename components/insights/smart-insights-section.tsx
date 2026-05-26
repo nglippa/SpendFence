@@ -5,18 +5,25 @@ import { Brain } from "lucide-react";
 import { IntelligenceCarouselDots, IntelligenceEmptyState, IntelligenceSection } from "@/components/insights/intelligence-section";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
+import { useAuth } from "@/lib/auth";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 
 export function SmartInsightsSection({ insights }: { insights: BehavioralInsight[] }) {
+  const { isPro } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(insights.length);
 
   return (
     <IntelligenceSection
       title="Smart Insights"
-      tierLabel="Basic Intelligence"
+      tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
       tierIcon={Brain}
-      sourceLabel="Local"
+      premiumLabel={isPro ? "Pro" : undefined}
+      tierDescription={
+        isPro
+          ? "Advanced pattern recognition, deeper spending insights, multi-cycle analysis, and predictive fence suggestions are active."
+          : "Upgrade for advanced pattern recognition and deeper insights."
+      }
       onRefresh={() => setRefreshKey((current) => current + 1)}
       dots={<IntelligenceCarouselDots count={insights.length} activeIndex={activeIndex} />}
     >

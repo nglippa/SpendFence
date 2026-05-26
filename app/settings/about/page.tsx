@@ -7,11 +7,11 @@ import { Pill } from "@/components/ui";
 
 export default function AboutSettingsPage() {
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="About" subtitle="SpendFence MVP notes and product posture." />
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="App">
-          <div className="flex items-center gap-4 rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-4">
+          <div className="flex items-center gap-4 rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-5">
             <BrandLogo alt="SpendFence logo" className="h-20 w-auto" />
             <div>
               <p className="text-lg font-black text-[var(--app-text)]">SpendFence</p>

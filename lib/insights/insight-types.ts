@@ -5,6 +5,7 @@ export type BehavioralInsightType =
   | "recovery"
   | "stabilization"
   | "gentle_caution"
+  | "spending_rule"
   | "trend"
   | "empty";
 

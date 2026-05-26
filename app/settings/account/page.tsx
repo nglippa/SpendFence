@@ -22,20 +22,20 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Account" subtitle="Profile, plan, and session controls." />
       <SettingsFeedback message={feedback} />
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="Profile">
           <SettingsRow icon={UserRound} title={auth.user?.email ?? "Signed-in user"} subtitle="Current SpendFence account" />
-          <div className="flex flex-wrap gap-1.5 border-b border-slate-100 px-3 py-3 last:border-b-0">
+          <div className="flex flex-wrap gap-2 border-b border-slate-100 px-4 py-3.5 last:border-b-0 sm:px-5">
             <Pill className="border-slate-200 bg-white text-slate-600">Free plan</Pill>
             {auth.user?.isDemo ? <Pill className="border-amber-100 bg-amber-50 text-amber-800">Demo Mode</Pill> : null}
           </div>
         </SettingsGroup>
 
         <SettingsGroup>
-          <div className="p-3">
+          <div className="p-4 sm:p-5">
             <Button variant="secondary" className="w-full" onClick={logout} disabled={working}>
               <LogOut size={18} /> {working ? "Signing out..." : "Log out"}
             </Button>

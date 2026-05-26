@@ -14,6 +14,7 @@ export function IntelligenceSection({
   tierIcon: TierIcon = Brain,
   sourceLabel,
   premiumLabel,
+  tierDescription,
   loading = false,
   onRefresh,
   refreshDisabled = false,
@@ -26,6 +27,7 @@ export function IntelligenceSection({
   tierIcon?: LucideIcon;
   sourceLabel?: string;
   premiumLabel?: string;
+  tierDescription?: string;
   loading?: boolean;
   onRefresh?: () => void;
   refreshDisabled?: boolean;
@@ -44,6 +46,7 @@ export function IntelligenceSection({
             </IntelligencePill>
             {premiumLabel ? <IntelligencePill tone="premium">{premiumLabel}</IntelligencePill> : null}
           </div>
+          {tierDescription ? <p className="mt-1.5 max-w-md text-xs font-semibold leading-5 text-white/72">{tierDescription}</p> : null}
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
           {sourceLabel ? <IntelligencePill>{sourceLabel}</IntelligencePill> : null}

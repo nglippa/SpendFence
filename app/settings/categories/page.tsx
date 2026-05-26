@@ -12,15 +12,15 @@ export default function CategorySettingsPage() {
   const totalLimits = state.categories.reduce((sum, category) => sum + category.limit, 0);
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Categories" subtitle="Manage the budget fences that power dashboard cards and reports." />
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="Overview">
           <SettingsRow icon={WalletCards} title={`${state.categories.length} categories`} subtitle={`${formatMoney(totalLimits)} total planned category limits`} />
           <SettingsRow icon={ListChecks} title={`${state.purchases.length} purchases assigned`} subtitle="Category totals recalculate from purchases automatically." />
         </SettingsGroup>
         <SettingsGroup title="Manage">
-          <div className="grid gap-2 p-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
             <Button asChild>
               <Link href="/categories">
                 <WalletCards size={18} /> Manage categories

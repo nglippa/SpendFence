@@ -1,10 +1,12 @@
 import { currentCycleWindow } from "@/lib/budget";
+import type { SpendingRule } from "@/lib/rules/rule-types";
 import type { AdaptiveFenceSettings, BudgetMonth, Category, Purchase, RecurringItem } from "@/lib/types";
 
 export type AdaptiveSuggestionFingerprintInput = {
   categories: Category[];
   purchases: Purchase[];
   recurringItems?: RecurringItem[];
+  spendingRules?: SpendingRule[];
   budgetMonth: BudgetMonth;
   settings?: AdaptiveFenceSettings;
   now?: Date;
@@ -58,6 +60,19 @@ export function buildAdaptiveSuggestionFingerprint(input: AdaptiveSuggestionFing
         frequency: item.frequency,
         active: item.active,
         nextDate: item.nextDate
+      }))
+      .sort((a, b) => a.id.localeCompare(b.id)),
+    spendingRules: (input.spendingRules ?? [])
+      .map((rule) => ({
+        id: rule.id,
+        categoryId: rule.categoryId ?? null,
+        condition: rule.condition,
+        thresholdAmount: rule.thresholdAmount ?? null,
+        thresholdCount: rule.thresholdCount ?? null,
+        thresholdPercent: rule.thresholdPercent ?? null,
+        response: rule.response,
+        enabled: rule.enabled,
+        updatedAt: rule.updatedAt
       }))
       .sort((a, b) => a.id.localeCompare(b.id))
   };

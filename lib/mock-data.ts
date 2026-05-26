@@ -60,6 +60,7 @@ export function createCleanState(): SpendFenceState {
       expandedId: null
     },
     fenceLearningEvents: [],
+    spendingRules: [],
     onboardingProfile: {
       completed: false,
       skipped: false,
@@ -152,6 +153,41 @@ export function createDemoState(): SpendFenceState {
         detected: false,
         createdAt: daysAgo(10, 8, 0),
         updatedAt: daysAgo(10, 8, 0)
+      }
+    ],
+    spendingRules: [
+      {
+        id: "spending-rule-eating-out-single",
+        title: "Eating out over $60",
+        description: "Warn when a single eating out purchase exceeds $60.",
+        categoryId: "cat-eating",
+        type: "amount",
+        condition: "exceeds_amount",
+        thresholdAmount: 60,
+        thresholdCount: 3,
+        thresholdPercent: 18,
+        timeWindow: "week",
+        timeContext: "late_night",
+        response: "warning",
+        enabled: true,
+        source: "manual",
+        createdAt: daysAgo(6, 10, 0),
+        updatedAt: daysAgo(6, 10, 0)
+      },
+      {
+        id: "spending-rule-fun-pace",
+        title: "Fun money pace check",
+        description: "Surface a pacing alert when fun money starts moving faster than the cycle.",
+        categoryId: "cat-fun",
+        type: "category_pacing",
+        condition: "pace_accelerating",
+        thresholdPercent: 18,
+        timeWindow: "cycle",
+        response: "pacing_alert",
+        enabled: true,
+        source: "manual",
+        createdAt: daysAgo(5, 10, 0),
+        updatedAt: daysAgo(5, 10, 0)
       }
     ],
     merchantCategoryRules: [

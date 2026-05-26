@@ -1,11 +1,14 @@
 import { categoryProgress, currentCycleWindow } from "@/lib/budget";
 import { filterLearnedSuggestions, learningScoreForSuggestion } from "@/lib/ai/fence-learning";
+import { evaluateSpendingRules } from "@/lib/rules/rule-evaluator";
+import type { SpendingRule } from "@/lib/rules/rule-types";
 import type { AdaptiveFenceSettings, AdaptiveFenceSuggestion, BudgetMonth, Category, FenceLearningEvent, Purchase, RecurringItem } from "@/lib/types";
 
 export type AdaptiveFenceInput = {
   categories: Category[];
   purchases: Purchase[];
   recurringItems?: RecurringItem[];
+  spendingRules?: SpendingRule[];
   budgetMonth: BudgetMonth;
   settings?: AdaptiveFenceSettings;
   learningEvents?: FenceLearningEvent[];
@@ -25,12 +28,44 @@ export function generateLocalFenceSuggestions(input: AdaptiveFenceInput): Adapti
 
   const now = input.now ? new Date(input.now) : new Date();
   const learningEvents = input.learningEvents ?? [];
-  const suggestions = input.categories.flatMap((category) => suggestionsForCategory(category, input, settings, now));
+  const suggestions = [
+    ...input.categories.flatMap((category) => suggestionsForCategory(category, input, settings, now)),
+    ...suggestionsFromSpendingRules(input, now)
+  ];
   const learned = filterLearnedSuggestions(suggestions, learningEvents, now);
 
   return learned
     .sort((a, b) => suggestionRank(b, learningEvents) - suggestionRank(a, learningEvents))
     .slice(0, suggestionLimit(settings.frequency));
+}
+
+function suggestionsFromSpendingRules(input: AdaptiveFenceInput, now: Date): AdaptiveFenceSuggestion[] {
+  if (!input.spendingRules?.length) return [];
+
+  return evaluateSpendingRules({
+    rules: input.spendingRules.filter((rule) => rule.condition === "pace_accelerating" || rule.condition === "burns_too_quickly"),
+    categories: input.categories,
+    purchases: input.purchases,
+    budgetMonth: input.budgetMonth,
+    now
+  })
+    .map((match) => {
+      const category = input.categories.find((item) => item.id === match.categoryId);
+      if (!category) return null;
+      return {
+        id: `adaptive-rule-${match.rule.id}`,
+        categoryId: category.id,
+        type: "pacing",
+        title: `${category.name} personal rule matched`,
+        explanation: `Your personal rule "${match.rule.title}" matched current pacing. This may be a good moment to review the fence.`,
+        suggestedAction: "Review personal rule",
+        confidence: "medium",
+        currentLimit: category.limit,
+        metric: match.supportingMetric,
+        source: "local_rules"
+      } satisfies AdaptiveFenceSuggestion;
+    })
+    .filter(Boolean) as AdaptiveFenceSuggestion[];
 }
 
 export function normalizeAdaptiveSuggestions(suggestions: Partial<AdaptiveFenceSuggestion>[], fallback: AdaptiveFenceSuggestion[], categories: Category[]) {
@@ -289,4 +324,3 @@ function validLimit(value: unknown) {
 function isSuggestionType(value: unknown): value is AdaptiveFenceSuggestion["type"] {
   return value === "overrun" || value === "underspend" || value === "pacing" || value === "volatility" || value === "recurring";
 }
-

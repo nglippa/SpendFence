@@ -32,25 +32,25 @@ export default function BudgetCycleSettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Budget Cycle" subtitle="Choose the date your spending cycle starts. SpendFence calculates the end date automatically." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="Cycle">
-          <div className="border-b border-[var(--app-border)] bg-[var(--app-secondary)] px-4 py-4">
+          <div className="border-b border-[var(--app-border)] bg-[var(--app-secondary)] px-5 py-5">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--app-text-muted)]">Current cycle</p>
             <p className="mt-1 text-2xl font-black tracking-tight text-[var(--app-text)]">{formatCycleRange(cycle.start, cycle.end)}</p>
-            <p className="mt-1 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">Start date: {formatFullDate(cycle.start)}</p>
+            <p className="mt-1.5 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">Start date: {formatFullDate(cycle.start)}</p>
           </div>
 
-          <label className="relative flex min-h-16 cursor-pointer items-center gap-3 px-4 py-3 transition hover:bg-[var(--app-secondary)]">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114]">
+          <label className="relative flex min-h-[4.5rem] cursor-pointer items-center gap-3.5 px-4 py-3.5 transition hover:bg-[var(--app-secondary)] sm:px-5">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-brand-gradient text-white dark:text-[#0B1114]">
               <CalendarDays size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-black text-[var(--app-text)] sm:text-base">Edit Cycle Start Date</span>
-              <span className="mt-0.5 block text-xs font-semibold leading-4 text-[var(--app-text-muted)] sm:text-sm sm:leading-5">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
+              <span className="block text-sm font-black leading-5 text-[var(--app-text)] sm:text-base sm:leading-6">Edit Cycle Start Date</span>
+              <span className="mt-1 block text-xs font-semibold leading-5 text-[var(--app-text-muted)] sm:text-sm sm:leading-6">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
             </span>
             <span className="hidden shrink-0 rounded-full border border-[var(--app-border)] bg-[var(--app-secondary)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] sm:inline-flex">
               {formatShortDate(parseDateValue(startDateValue) ?? cycle.start)}

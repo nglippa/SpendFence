@@ -1,3 +1,5 @@
+import type { SpendingRule } from "@/lib/rules/rule-types";
+
 export type BudgetStatus = "safe" | "warning" | "locked";
 
 export type BudgetMonth = {
@@ -255,6 +257,7 @@ export type SpendFenceState = {
   adaptiveFenceSettings: AdaptiveFenceSettings;
   adaptiveSuggestions: AdaptiveFenceSuggestionCache;
   fenceLearningEvents: FenceLearningEvent[];
+  spendingRules: SpendingRule[];
   onboardingProfile: OnboardingProfile;
   notifications: Notification[];
   aiCategorizationEnabled: boolean;

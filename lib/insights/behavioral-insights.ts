@@ -10,6 +10,7 @@ import {
   detectTrendChanges,
   totalSpend
 } from "@/lib/reports/report-metrics";
+import { generateSpendingRuleInsights } from "@/lib/rules/rule-engine";
 
 const DAY_MS = 86_400_000;
 
@@ -25,6 +26,7 @@ export function generateBehavioralInsights(state: SpendFenceState, options: Insi
 
   insights.push(...emptyInsights(state, currentPurchases));
   insights.push(...gentleCautionInsights(state, currentPurchases));
+  insights.push(...generateSpendingRuleInsights(state, { ...options, now }));
   insights.push(...recoveryInsights(state, currentPurchases, previousComparablePurchases, tone));
   insights.push(...positiveControlInsights(state, currentPurchases));
   insights.push(...stabilizationInsights(currentPurchases, previousComparablePurchases));
@@ -682,11 +684,12 @@ function compareInsights(a: BehavioralInsight, b: BehavioralInsight) {
   const severityPriority = { limit: 0, watch: 1, positive: 2, calm: 3 };
   const typePriority = {
     gentle_caution: 0,
-    recovery: 1,
-    positive_control: 2,
-    stabilization: 3,
-    trend: 4,
-    empty: 5
+    spending_rule: 1,
+    recovery: 2,
+    positive_control: 3,
+    stabilization: 4,
+    trend: 5,
+    empty: 6
   };
   const confidencePriority = { high: 0, medium: 1, low: 2 };
   return (
@@ -711,6 +714,7 @@ function withInsightMetadata(insights: BehavioralInsight[], categories: Category
 function defaultPriorityScore(insight: BehavioralInsight) {
   const typeScore = {
     gentle_caution: 80,
+    spending_rule: 72,
     recovery: 70,
     stabilization: 62,
     positive_control: 58,

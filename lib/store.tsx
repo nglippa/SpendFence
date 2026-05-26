@@ -5,6 +5,7 @@ import { categoryProgress, formatMoney, warningMessage } from "@/lib/budget";
 import { categorizeTransaction, normalizeMerchant } from "@/lib/categorization";
 import { createDemoState, initialState } from "@/lib/mock-data";
 import { nextRecurringDate } from "@/lib/recurring";
+import type { SpendingRuleInput } from "@/lib/rules/rule-types";
 import type {
   BudgetMonth,
   AdaptiveFenceSuggestionCache,
@@ -49,6 +50,10 @@ type SpendFenceContextValue = SpendFenceState & {
   updateNotificationSettings: (settings: NotificationSettings) => void;
   updateInsightSettings: (settings: InsightSettings) => void;
   updateAdaptiveFenceSettings: (settings: AdaptiveFenceSettings) => void;
+  addSpendingRule: (input: SpendingRuleInput) => void;
+  updateSpendingRule: (id: string, input: SpendingRuleInput) => void;
+  toggleSpendingRule: (id: string, enabled: boolean) => void;
+  deleteSpendingRule: (id: string) => void;
   setAdaptiveFenceSuggestions: (input: { fingerprint: string; suggestions: AdaptiveFenceSuggestion[]; aiUsed: boolean; generatedAt?: string }) => void;
   rememberAdaptiveFenceSuggestionsView: (input: { activeIndex?: number; expandedId?: string | null }) => void;
   acceptAdaptiveFenceSuggestion: (suggestion: AdaptiveFenceSuggestion, options?: { applyLimit?: boolean; nextFingerprint?: string }) => void;
@@ -140,7 +145,8 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
         setActiveState((current) => ({
           ...current,
           categories: current.categories.filter((category) => category.id !== id),
-          purchases: current.purchases.filter((purchase) => purchase.categoryId !== id)
+          purchases: current.purchases.filter((purchase) => purchase.categoryId !== id),
+          spendingRules: current.spendingRules.filter((rule) => rule.categoryId !== id)
         })),
       addPurchase: (input) =>
         setActiveState((current) => {
@@ -248,6 +254,28 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
       updateNotificationSettings: (settings) => setActiveState((current) => ({ ...current, notificationSettings: settings })),
       updateInsightSettings: (settings) => setActiveState((current) => ({ ...current, insightSettings: settings })),
       updateAdaptiveFenceSettings: (settings) => setActiveState((current) => ({ ...current, adaptiveFenceSettings: settings })),
+      addSpendingRule: (input) =>
+        setActiveState((current) => ({
+          ...current,
+          spendingRules: [buildSpendingRule(input, makeId("spending-rule"), userId), ...current.spendingRules].slice(0, 50)
+        })),
+      updateSpendingRule: (id, input) =>
+        setActiveState((current) => ({
+          ...current,
+          spendingRules: current.spendingRules.map((rule) =>
+            rule.id === id ? buildSpendingRule(input, id, userId, rule.createdAt) : rule
+          )
+        })),
+      toggleSpendingRule: (id, enabled) =>
+        setActiveState((current) => ({
+          ...current,
+          spendingRules: current.spendingRules.map((rule) => (rule.id === id ? { ...rule, enabled, updatedAt: new Date().toISOString() } : rule))
+        })),
+      deleteSpendingRule: (id) =>
+        setActiveState((current) => ({
+          ...current,
+          spendingRules: current.spendingRules.filter((rule) => rule.id !== id)
+        })),
       setAdaptiveFenceSuggestions: ({ fingerprint, suggestions, aiUsed, generatedAt }) =>
         setActiveState((current) => ({
           ...current,
@@ -417,6 +445,7 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     adaptiveFenceSettings: { ...initialState.adaptiveFenceSettings, ...state.adaptiveFenceSettings },
     adaptiveSuggestions: normalizeAdaptiveSuggestionCache(state.adaptiveSuggestions),
     fenceLearningEvents: state.fenceLearningEvents ?? [],
+    spendingRules: state.spendingRules ?? [],
     onboardingProfile: {
       ...initialState.onboardingProfile,
       ...state.onboardingProfile,
@@ -441,7 +470,8 @@ function withUserId(state: SpendFenceState, userId: string): SpendFenceState {
     importedTransactions: normalized.importedTransactions.map((transaction) => ({ ...transaction, userId })),
     merchantCategoryRules: normalized.merchantCategoryRules.map((rule) => ({ ...rule, userId })),
     categoryCorrections: normalized.categoryCorrections.map((correction) => ({ ...correction, userId })),
-    notifications: normalized.notifications.map((notification) => ({ ...notification, userId }))
+    notifications: normalized.notifications.map((notification) => ({ ...notification, userId })),
+    spendingRules: normalized.spendingRules.map((rule) => ({ ...rule, userId }))
   };
 }
 
@@ -596,6 +626,19 @@ function buildRecurringItem(input: RecurringItemInput, id: string, userId: strin
     userId,
     active: input.active ?? true,
     detected: input.detected ?? false,
+    createdAt,
+    updatedAt: now
+  };
+}
+
+function buildSpendingRule(input: SpendingRuleInput, id: string, userId: string, createdAt = new Date().toISOString()) {
+  const now = new Date().toISOString();
+  return {
+    ...input,
+    id,
+    userId,
+    source: input.source ?? "manual",
+    enabled: input.enabled ?? true,
     createdAt,
     updatedAt: now
   };

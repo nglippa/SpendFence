@@ -5,7 +5,7 @@ import { SettingsDetailHeader } from "@/components/settings-ui";
 
 export default function BankSyncSettingsPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="settings-page-frame mx-auto w-full max-w-3xl">
       <SettingsDetailHeader title="Bank Sync" subtitle="A future Premium area for secure Plaid connections and reviewed imports." />
       <BankSyncCard />
     </div>

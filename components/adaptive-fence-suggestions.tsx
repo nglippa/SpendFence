@@ -7,6 +7,7 @@ import { Button, Pill } from "@/components/ui";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { buildAdaptiveSuggestionFingerprint } from "@/lib/adaptive-suggestions-engine";
 import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
+import { useAuth } from "@/lib/auth";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ type SuggestionResponse = {
 
 export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message: string) => void }) {
   const state = useSpendFence();
+  const { isPro } = useAuth();
   const [loading, setLoading] = useState(false);
   const generatingFingerprintRef = useRef<string | null>(null);
   const cache = state.adaptiveSuggestions;
@@ -30,9 +32,10 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       recurringItems: state.recurringItems,
       budgetMonth: state.budgetMonth,
       settings: state.adaptiveFenceSettings,
-      learningEvents: state.fenceLearningEvents
+      learningEvents: state.fenceLearningEvents,
+      spendingRules: state.spendingRules
     }),
-    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems]
+    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems, state.spendingRules]
   );
 
   const fingerprint = useMemo(
@@ -42,9 +45,10 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         purchases: state.purchases,
         recurringItems: state.recurringItems,
         budgetMonth: state.budgetMonth,
-        settings: state.adaptiveFenceSettings
+        settings: state.adaptiveFenceSettings,
+        spendingRules: state.spendingRules
       }),
-    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.purchases, state.recurringItems]
+    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.purchases, state.recurringItems, state.spendingRules]
   );
 
   const activeSuggestions = useMemo(() => cache.items.filter((suggestion) => suggestion.status === "active"), [cache.items]);
@@ -111,7 +115,8 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
             purchases: state.purchases,
             recurringItems: state.recurringItems,
             budgetMonth: state.budgetMonth,
-            settings: state.adaptiveFenceSettings
+            settings: state.adaptiveFenceSettings,
+            spendingRules: state.spendingRules
           })
         : undefined;
 
@@ -128,7 +133,14 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
 
   if (!state.adaptiveFenceSettings.enabled) {
     return (
-      <IntelligenceSection title="Adaptive Fences" tierLabel="Advanced Intelligence" sourceLabel="Local" onRefresh={() => generateSuggestions(true)} refreshDisabled>
+      <IntelligenceSection
+        title="Adaptive Fences"
+        tierLabel={intelligenceTierLabel(isPro)}
+        premiumLabel={isPro ? "Pro" : undefined}
+        tierDescription={intelligenceTierDescription(isPro)}
+        onRefresh={() => generateSuggestions(true)}
+        refreshDisabled
+      >
         <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
       </IntelligenceSection>
     );
@@ -137,9 +149,9 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
   return (
     <IntelligenceSection
       title="Adaptive Fences"
-      tierLabel={adaptiveTierLabel(state.adaptiveFenceSettings.automationLevel)}
-      sourceLabel={cache.aiUsed ? "AI" : "Local"}
-      premiumLabel={state.adaptiveFenceSettings.automationLevel === "auto-apply-low-risk" ? "Premium" : undefined}
+      tierLabel={intelligenceTierLabel(isPro)}
+      premiumLabel={isPro ? "Pro" : undefined}
+      tierDescription={intelligenceTierDescription(isPro)}
       loading={loading}
       onRefresh={() => generateSuggestions(true)}
       refreshDisabled={loading}
@@ -248,10 +260,14 @@ function confidenceClass(confidence: AdaptiveFenceSuggestion["confidence"]) {
   );
 }
 
-function adaptiveTierLabel(automationLevel: AdaptiveAutomationLevel) {
-  if (automationLevel === "auto-apply-low-risk") return "Premium Intelligence";
-  if (automationLevel === "require-confirmation") return "Advanced Intelligence";
-  return "Basic Intelligence";
+function intelligenceTierLabel(isPro: boolean) {
+  return isPro ? "Advanced Intelligence" : "Basic Intelligence";
+}
+
+function intelligenceTierDescription(isPro: boolean) {
+  return isPro
+    ? "Advanced pattern recognition, deeper spending insights, multi-cycle analysis, and predictive fence suggestions are active."
+    : "Upgrade for advanced pattern recognition and deeper insights.";
 }
 
 function categoryName(categories: Category[], categoryId: string) {

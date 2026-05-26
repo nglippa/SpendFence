@@ -9,6 +9,7 @@ import {
   Crown,
   Database,
   Info,
+  ListChecks,
   LockKeyhole,
   Palette,
   UserRound,
@@ -38,6 +39,12 @@ const settingsSections = [
       icon: WalletCards,
       title: "Categories",
       subtitle: "Manage budget fences and category tools"
+    },
+    {
+      href: "/settings/spending-rules",
+      icon: ListChecks,
+      title: "Spending Rules",
+      subtitle: "Personal guardrails for habits and thresholds"
     },
     {
       href: "/settings/notifications",
@@ -98,17 +105,17 @@ export default function SettingsPage() {
   const state = useSpendFence();
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="mb-4">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
+      <div className="mb-5 px-1 pt-1">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
-        <h1 className="mt-1.5 text-3xl font-black tracking-tight text-[#10201c]">SpendFence</h1>
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <h1 className="mt-2 text-3xl font-black leading-9 tracking-tight text-[#10201c]">SpendFence</h1>
+        <div className="mt-3 flex flex-wrap gap-1.5">
           <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Free plan</Pill>
           <Pill className="border-slate-200 bg-white text-slate-600">{currentCycleLabel(state.budgetMonth).replace("Current cycle: ", "")}</Pill>
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         {settingsSections.map((section, index) => (
           <SettingsGroup key={index}>
             {section.map((item) => (

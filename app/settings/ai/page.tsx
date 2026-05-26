@@ -24,10 +24,10 @@ export default function AiSettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="AI Features" subtitle="Control server-side assistance for categorization and receipt review." />
       <SettingsFeedback message={feedback} />
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="Categorization">
           <SettingsSwitchRow
             icon={Brain}

@@ -116,15 +116,28 @@ main {
   flex-basis: 100%;
 }
 
+.settings-page-frame {
+  width: calc(100% - 0.5rem);
+  margin-inline: auto;
+}
+
 @media (min-width: 640px) {
   :root {
     --app-page-gutter: 1.25rem;
+  }
+
+  .settings-page-frame {
+    width: calc(100% - 0.5rem);
   }
 }
 
 @media (min-width: 1024px) {
   :root {
     --app-page-gutter: 1.5rem;
+  }
+
+  .settings-page-frame {
+    width: 100%;
   }
 }
 

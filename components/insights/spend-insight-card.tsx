@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ComponentPropsWithoutRef } from "react";
-import { Activity, AlertCircle, CheckCircle2, LineChart, ShieldCheck, X } from "lucide-react";
+import { Activity, AlertCircle, CheckCircle2, LineChart, ListChecks, ShieldCheck, X } from "lucide-react";
 import { intelligenceCardSurfaceClass } from "@/components/insights/intelligence-section";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ const iconByType = {
   recovery: CheckCircle2,
   stabilization: Activity,
   gentle_caution: AlertCircle,
+  spending_rule: ListChecks,
   trend: LineChart,
   empty: Activity
 };

@@ -38,7 +38,7 @@ export default function NotificationSettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Notifications" subtitle="Tune local spending nudges without adding noise." />
       <SettingsFeedback message={feedback} />
       <SettingsGroup title="Spending insights">
@@ -56,13 +56,13 @@ export default function NotificationSettingsPage() {
           checked={state.insightSettings.showDashboardInsights}
           onChange={(checked) => updateInsight("showDashboardInsights", checked)}
         />
-        <div className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2.5 last:border-b-0">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#327d6d] text-white">
+        <div className="flex min-h-[4.5rem] items-center gap-3.5 border-b border-slate-100 px-4 py-3.5 last:border-b-0 sm:px-5">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-[#327d6d] text-white">
             <MessageCircle size={18} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-black text-[#10201c] sm:text-base">Encouragement tone</p>
-            <p className="mt-0.5 text-xs font-semibold leading-4 text-slate-500 sm:text-sm sm:leading-5">Choose how much supportive language SpendFence uses.</p>
+            <p className="text-sm font-black leading-5 text-[#10201c] sm:text-base sm:leading-6">Encouragement tone</p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-500 sm:text-sm sm:leading-6">Choose how much supportive language SpendFence uses.</p>
           </div>
           <div className="grid shrink-0 grid-cols-2 rounded-xl bg-slate-100 p-1 text-xs font-black">
             {(["minimal", "balanced"] as const).map((tone) => (
@@ -80,7 +80,7 @@ export default function NotificationSettingsPage() {
           </div>
         </div>
       </SettingsGroup>
-      <div className="mt-4">
+      <div className="mt-5">
         <SettingsGroup title="Privacy">
           <SettingsSwitchRow
             icon={CheckCircle2}
@@ -92,7 +92,7 @@ export default function NotificationSettingsPage() {
           />
         </SettingsGroup>
       </div>
-      <div className="mt-4">
+      <div className="mt-5">
         <SettingsGroup title="In-app nudges">
           {settings.map((item) => (
             <SettingsSwitchRow
@@ -106,7 +106,7 @@ export default function NotificationSettingsPage() {
           ))}
         </SettingsGroup>
       </div>
-      <div className="mt-4">
+      <div className="mt-5">
         <SettingsGroup title="Inbox">
           <SettingsSwitchRow
             icon={Bell}

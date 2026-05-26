@@ -74,11 +74,11 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl">
       <SettingsDetailHeader title="Data & Privacy" subtitle="Review local data and control reset/export actions." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <SettingsGroup title="Local data">
           <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases, ${state.recurringItems.length} recurring`} subtitle={`${state.demoDataEnabled ? "Demo mode is showing sample data." : "Personal data is active."} Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
           <SettingsRow icon={ShieldAlert} title="Frontend secrets stay out" subtitle="Provider tokens and AI keys belong server-side only." />
@@ -95,7 +95,7 @@ export default function PrivacySettingsPage() {
               else disableDemoData();
             }}
           />
-          <div className="grid gap-2 p-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
             <Button variant="secondary" onClick={enableDemoData} disabled={state.demoDataEnabled}>
               <TestTube2 size={18} /> Enable Demo Data
             </Button>
@@ -109,7 +109,7 @@ export default function PrivacySettingsPage() {
         </SettingsGroup>
 
         <SettingsGroup title="Actions">
-          <div className="grid gap-2 p-3">
+          <div className="grid gap-2.5 p-4 sm:p-5">
             <Button variant="secondary" onClick={exportData}>
               <Download size={18} /> Export data
             </Button>
