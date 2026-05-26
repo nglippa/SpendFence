@@ -7,8 +7,8 @@ import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
   applicationName: "SpendFence",
-  title: "SpendFence",
-  description: "A clean local-first budget control app.",
+  title: "SpendFence | Adaptive Budgeting",
+  description: "Budgeting that adapts to how you actually live.",
   manifest: "/manifest.json",
   icons: {
     icon: [

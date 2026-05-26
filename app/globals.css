@@ -121,6 +121,35 @@ main {
   margin-inline: auto;
 }
 
+.landing-bg {
+  background:
+    linear-gradient(120deg, rgb(31 209 165 / 0.16), transparent 28rem),
+    linear-gradient(245deg, rgb(94 161 255 / 0.12), transparent 30rem),
+    linear-gradient(180deg, #071012 0%, #0b1114 48%, #071012 100%);
+  background-size: 120% 120%, 110% 110%, 100% 100%;
+  animation: landingGlowShift 14s ease-in-out infinite alternate;
+}
+
+.landing-reveal {
+  animation: landingReveal 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.landing-card-rise {
+  animation: landingCardRise 680ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.landing-mockup {
+  animation-delay: 120ms;
+}
+
+.landing-float {
+  animation: landingFloat 7s ease-in-out infinite;
+}
+
+.landing-float-slow {
+  animation: landingFloatSlow 8.5s ease-in-out infinite;
+}
+
 @media (min-width: 640px) {
   :root {
     --app-page-gutter: 1.25rem;
@@ -138,6 +167,72 @@ main {
 
   .settings-page-frame {
     width: 100%;
+  }
+}
+
+@keyframes landingReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landingCardRise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes landingFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes landingFloatSlow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes landingGlowShift {
+  from {
+    background-position: 0% 0%, 100% 0%, 0 0;
+  }
+
+  to {
+    background-position: 18% 10%, 82% 16%, 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-bg,
+  .landing-reveal,
+  .landing-card-rise,
+  .landing-float,
+  .landing-float-slow {
+    animation: none;
   }
 }
 

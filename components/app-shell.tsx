@@ -27,7 +27,7 @@ const mobileNav = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/pricing"];
+const publicRoutes = ["/", "/philosophy", "/adaptive-ai", "/features", "/security", "/pricing", "/login", "/signup", "/forgot-password"];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
