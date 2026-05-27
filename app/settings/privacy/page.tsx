@@ -9,6 +9,7 @@ import { useSpendFence } from "@/lib/store";
 
 export default function PrivacySettingsPage() {
   const state = useSpendFence();
+  const demoLocked = state.demoModeLocked;
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [working, setWorking] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -56,6 +57,10 @@ export default function PrivacySettingsPage() {
   }
 
   function enableDemoData() {
+    if (demoLocked) {
+      showFeedback("Demo mode is locked for this preview.");
+      return;
+    }
     try {
       state.enableDemoData();
       showFeedback("Demo data enabled.");
@@ -65,6 +70,10 @@ export default function PrivacySettingsPage() {
   }
 
   function disableDemoData() {
+    if (demoLocked) {
+      showFeedback("Demo mode is locked for this preview.");
+      return;
+    }
     try {
       state.disableDemoData();
       showFeedback("Demo data disabled.");
@@ -80,31 +89,42 @@ export default function PrivacySettingsPage() {
 
       <div className="grid gap-5">
         <SettingsGroup title="Local data">
-          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases, ${state.recurringItems.length} recurring`} subtitle={`${state.demoDataEnabled ? "Demo mode is showing sample data." : "Personal data is active."} Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
+          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases, ${state.recurringItems.length} recurring`} subtitle={`${state.demoDataEnabled ? "Demo mode is showing isolated sample data." : "Personal data is active."} Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
           <SettingsRow icon={ShieldAlert} title="Frontend secrets stay out" subtitle="Provider tokens and AI keys belong server-side only." />
         </SettingsGroup>
 
         <SettingsGroup title="Demo Data">
           <SettingsSwitchRow
             icon={TestTube2}
-            title={state.demoDataEnabled ? "Disable Demo Data" : "Enable Demo Data"}
-            subtitle="Demo data lets testers explore SpendFence with sample categories and purchases."
+            title={demoLocked ? "Demo Mode Enabled" : state.demoDataEnabled ? "Disable Demo Data" : "Enable Demo Data"}
+            subtitle={
+              demoLocked
+                ? "Demo mode is locked for this preview. Create an account to use SpendFence with your own data."
+                : "Demo data lets testers explore SpendFence with sample categories and purchases."
+            }
             checked={state.demoDataEnabled}
+            disabled={demoLocked}
             onChange={(checked) => {
+              if (demoLocked) return;
               if (checked) enableDemoData();
               else disableDemoData();
             }}
           />
           <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
-            <Button variant="secondary" onClick={enableDemoData} disabled={state.demoDataEnabled}>
+            <Button variant="secondary" onClick={enableDemoData} disabled={demoLocked || state.demoDataEnabled}>
               <TestTube2 size={18} /> Enable Demo Data
             </Button>
-            <Button variant="secondary" onClick={disableDemoData} disabled={!state.demoDataEnabled}>
+            <Button variant="secondary" onClick={disableDemoData} disabled={demoLocked || !state.demoDataEnabled}>
               <ShieldAlert size={18} /> Disable Demo Data
             </Button>
             <Button variant="danger" className="sm:col-span-2" onClick={() => setConfirmResetOpen(true)}>
               <RefreshCw size={18} /> Reset Demo Data
             </Button>
+            {demoLocked ? (
+              <p className="rounded-2xl bg-[var(--app-secondary)] px-3 py-2 text-xs font-bold leading-5 text-[var(--app-text-muted)] sm:col-span-2">
+                Demo mode is locked for this preview. Create an account to use SpendFence with your own data.
+              </p>
+            ) : null}
           </div>
         </SettingsGroup>
 

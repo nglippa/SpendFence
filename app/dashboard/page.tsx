@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, TestTube2, WalletCards } from "lucide-react";
+import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
@@ -40,12 +40,6 @@ export default function DashboardPage() {
           </Button>
         }
       />
-
-      {state.demoDataEnabled ? (
-        <div className="mb-4 flex items-center gap-2 rounded-2xl border border-amber-100 bg-amber-50 px-3 py-2.5 text-sm font-black text-amber-800 shadow-soft sm:mb-5">
-          <TestTube2 size={17} /> Demo Mode
-        </div>
-      ) : null}
 
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
         <Card className="col-span-2 bg-brand-gradient text-white md:col-span-2">

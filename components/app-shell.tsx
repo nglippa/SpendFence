@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Bell, ChartPie, Home, ListChecks, PlusCircle, ScanLine, Settings, WalletCards } from "lucide-react";
+import { ArrowRight, Bell, ChartPie, Home, ListChecks, LogOut, PlusCircle, ScanLine, Settings, TestTube2, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
 import { SpendFenceProvider, useSpendFence } from "@/lib/store";
@@ -27,7 +27,7 @@ const mobileNav = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-const publicRoutes = ["/", "/philosophy", "/adaptive-ai", "/features", "/security", "/pricing", "/login", "/signup", "/forgot-password"];
+const publicRoutes = ["/", "/demo", "/philosophy", "/adaptive-ai", "/features", "/security", "/pricing", "/login", "/signup", "/forgot-password"];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -54,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SpendFenceProvider userId={user.id}>
+    <SpendFenceProvider userId={user.id} demoLocked={user.demoLocked ?? user.isDemo}>
       <InnerShell pathname={pathname}>{children}</InnerShell>
     </SpendFenceProvider>
   );
@@ -62,9 +62,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const router = useRouter();
-  const { notifications, onboardingProfile, ready } = useSpendFence();
+  const auth = useAuth();
+  const { demoDataEnabled, demoModeLocked, notifications, onboardingProfile, ready } = useSpendFence();
   const unread = notifications.filter((item) => !item.read).length;
   const isOnboarding = pathname.startsWith("/onboarding");
+
+  async function leaveDemo(nextPath: "/" | "/signup") {
+    await auth.signOut();
+    router.push(nextPath);
+  }
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
@@ -112,6 +118,37 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
       <main className="app-shell-frame overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
+          {demoDataEnabled ? (
+            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[color:rgb(24_184_137_/_0.20)] bg-[color:rgb(24_184_137_/_0.10)] px-3.5 py-3 shadow-soft sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.14)] text-[var(--brand-primary)]">
+                  <TestTube2 size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-[var(--app-text)]">Demo Mode</p>
+                  <p className="text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+                    Sample data only{demoModeLocked ? ". Create an account to use SpendFence with your own data." : "."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => leaveDemo("/signup")}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-[var(--brand-primary)] px-3 text-xs font-black text-white shadow-soft transition hover:-translate-y-0.5 dark:text-[#071012]"
+                >
+                  Create Account <ArrowRight size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => leaveDemo("/")}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] px-3 text-xs font-black text-[var(--app-text-secondary)] transition hover:bg-[var(--app-secondary)]"
+                >
+                  <LogOut size={14} /> Exit Demo
+                </button>
+              </div>
+            </div>
+          ) : null}
           <div className="w-full">{children}</div>
         </div>
       </main>

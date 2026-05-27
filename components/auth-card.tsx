@@ -182,7 +182,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   }
 
   function enterDemo() {
-    auth.enterDemoMode();
+    auth.enterDemoMode({ locked: true });
     router.replace("/dashboard");
   }
 

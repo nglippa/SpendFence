@@ -105,8 +105,8 @@ export default function SettingsPage() {
   const state = useSpendFence();
 
   return (
-    <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <div className="mb-5 px-1 pt-1">
+    <div className="settings-page-frame mx-auto w-full max-w-2xl px-5">
+      <div className="mb-5 pt-1">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
         <h1 className="mt-2 text-3xl font-black leading-9 tracking-tight text-[#10201c]">SpendFence</h1>
         <div className="mt-3 flex flex-wrap gap-1.5">

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronRight, Gauge, X } from "lucide-react";
-import { IntelligenceCarouselDots, IntelligenceEmptyState, IntelligenceSection, intelligenceCardSurfaceClass } from "@/components/insights/intelligence-section";
+import { Check, ChevronRight, Gauge, Sparkles, X } from "lucide-react";
+import { IntelligenceCarouselDots, IntelligenceSection } from "@/components/insights/intelligence-section";
 import { Button, Pill } from "@/components/ui";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { buildAdaptiveSuggestionFingerprint } from "@/lib/adaptive-suggestions-engine";
@@ -140,8 +140,9 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         tierDescription={intelligenceTierDescription(isPro)}
         onRefresh={() => generateSuggestions(true)}
         refreshDisabled
+        variant="flagship"
       >
-        <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
+        <AdaptiveEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." loading={false} />
       </IntelligenceSection>
     );
   }
@@ -156,13 +157,14 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       onRefresh={() => generateSuggestions(true)}
       refreshDisabled={loading}
       dots={<IntelligenceCarouselDots count={activeSuggestions.length} activeIndex={activeIndex} />}
+      variant="flagship"
     >
       {hasVisibleSuggestions ? (
         <div
           ref={carouselRef}
           data-carousel="true"
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-4"
+          className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3.5 py-3.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-5"
         >
           {activeSuggestions.map((suggestion) => (
             <SuggestionCard
@@ -177,9 +179,10 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           ))}
         </div>
       ) : (
-        <IntelligenceEmptyState
+        <AdaptiveEmptyState
           title={loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}
           body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface adjustments when patterns become meaningful."}
+          loading={loading}
         />
       )}
     </IntelligenceSection>
@@ -204,19 +207,24 @@ function SuggestionCard({
   const appliesLimit = automationLevel !== "suggestions-only" && Boolean(suggestion.suggestedLimit);
 
   return (
-    <article data-carousel-item="true" className={cn(intelligenceCardSurfaceClass, "app-carousel-card flex min-h-[15rem] shrink-0 snap-center snap-always flex-col self-stretch sm:min-h-[15.5rem]")}>
-      <button type="button" onClick={onToggle} className="block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
+    <article
+      data-carousel-item="true"
+      className="app-carousel-card group relative flex min-h-[15.5rem] shrink-0 snap-center snap-always flex-col self-stretch overflow-hidden rounded-[1.25rem] border border-white/75 bg-[radial-gradient(circle_at_12%_0%,rgb(126_242_212_/_0.22),transparent_12rem),linear-gradient(150deg,#FFFFFF_0%,#F8FFFC_48%,#EEF9F4_100%)] p-3.5 shadow-[0_14px_34px_rgb(11_17_20_/_0.09)] transition-[box-shadow,transform,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-[rgb(31_209_165_/_0.34)] hover:shadow-[0_20px_50px_rgb(11_17_20_/_0.13),0_8px_24px_rgb(24_184_137_/_0.13)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_12%_0%,rgb(31_209_165_/_0.16),transparent_13rem),linear-gradient(150deg,#182229_0%,#121A1F_58%,#10211D_100%)] dark:shadow-[0_14px_34px_rgb(0_0_0_/_0.25)] sm:min-h-[16rem] sm:p-4"
+    >
+      <div className="pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#7EF2D4] via-[#1FD1A5] to-[#18B889] shadow-[0_0_22px_rgb(31_209_165_/_0.38)]" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(31_209_165_/_0.16)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+      <button type="button" onClick={onToggle} className="relative block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-9 sm:w-9">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#10201C,#18B889)] text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.22)] ring-1 ring-white/70 dark:bg-brand-gradient dark:text-[#0B1114] dark:ring-white/10 sm:h-10 sm:w-10">
             <Gauge size={16} />
           </div>
-          <Pill className={cn("px-1.5 py-0 text-[0.64rem] sm:px-2 sm:text-xs", confidenceClass(suggestion.confidence))}>{suggestion.confidence}</Pill>
+          <Pill className={cn("px-2 py-0.5 text-[0.64rem] shadow-[0_8px_18px_rgb(11_17_20_/_0.06)] sm:text-xs", confidenceClass(suggestion.confidence))}>{suggestion.confidence}</Pill>
         </div>
-        <h3 className="text-[0.92rem] font-black leading-5 text-[var(--app-text)] sm:text-base">{suggestion.title}</h3>
+        <h3 className="text-[0.95rem] font-black leading-5 text-[#0B1114] dark:text-[var(--app-text)] sm:text-[1.05rem] sm:leading-6">{suggestion.title}</h3>
         <div>
           <p
             className={cn(
-              "mt-1.5 text-xs font-semibold leading-5 text-[var(--app-text-secondary)] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none sm:text-sm",
+              "mt-1.5 text-xs font-semibold leading-5 text-[#50645C] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none dark:text-[var(--app-text-secondary)] sm:text-sm",
               expanded ? "max-h-24 overflow-y-auto pr-1" : "line-clamp-2 min-h-[2.5rem] max-h-[2.5rem] overflow-hidden sm:line-clamp-3 sm:min-h-[3.75rem] sm:max-h-[3.75rem]"
             )}
           >
@@ -225,8 +233,8 @@ function SuggestionCard({
         </div>
         <span className="mt-2 inline-flex text-xs font-black text-[var(--brand-primary)]">{expanded ? "Show less" : "Read more"}</span>
       </button>
-      <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-[var(--app-card)] px-2.5 py-1.5 sm:mt-3 sm:px-3 sm:py-2">
-        <span className="min-w-0 text-xs font-black leading-4 text-[var(--app-text)] sm:text-sm sm:leading-5">{suggestion.suggestedAction}</span>
+      <div className="relative mt-3 flex items-center justify-between gap-2 rounded-2xl border border-[rgb(24_184_137_/_0.12)] bg-white/78 px-2.5 py-2 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.85)] dark:border-white/10 dark:bg-white/[0.055] sm:px-3 sm:py-2.5">
+        <span className="min-w-0 text-xs font-black leading-4 text-[#10201c] dark:text-[var(--app-text)] sm:text-sm sm:leading-5">{suggestion.suggestedAction}</span>
         {suggestion.metric ? <span className="shrink-0 text-[0.68rem] font-black text-[var(--app-text-muted)] sm:text-xs">{suggestion.metric}</span> : <ChevronRight size={15} className="shrink-0 text-[var(--app-text-muted)]" />}
       </div>
       {suggestion.suggestedLimit ? (
@@ -242,12 +250,31 @@ function SuggestionCard({
           type="button"
           onClick={onDismiss}
           aria-label="Dismiss suggestion"
-          className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--app-card)] text-[var(--app-text-muted)] transition hover:bg-[var(--app-border)] sm:h-10 sm:w-10"
+          className="grid h-9 w-9 place-items-center rounded-xl border border-white/80 bg-white/80 text-[var(--app-text-muted)] shadow-[0_8px_18px_rgb(11_17_20_/_0.06)] transition hover:bg-white hover:text-[var(--app-text)] dark:border-white/10 dark:bg-white/[0.06] sm:h-10 sm:w-10"
         >
           <X size={15} />
         </button>
       </div>
     </article>
+  );
+}
+
+function AdaptiveEmptyState({ title, body, loading }: { title: string; body: string; loading: boolean }) {
+  return (
+    <div className="p-3.5 sm:p-5">
+      <div className="relative overflow-hidden rounded-[1.25rem] border border-white/75 bg-[radial-gradient(circle_at_10%_0%,rgb(126_242_212_/_0.24),transparent_13rem),linear-gradient(145deg,#FFFFFF,#F5FFFA)] p-4 shadow-[0_14px_34px_rgb(11_17_20_/_0.08)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_10%_0%,rgb(31_209_165_/_0.16),transparent_13rem),linear-gradient(145deg,#182229,#111A1E)] sm:p-5">
+        <div className="pointer-events-none absolute -right-12 -top-16 h-32 w-32 rounded-full bg-[rgb(31_209_165_/_0.16)] blur-2xl" />
+        <div className="relative flex gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#10201C,#18B889)] text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.20)] dark:bg-brand-gradient dark:text-[#0B1114]">
+            <Sparkles size={18} className={cn(loading && "motion-safe:animate-pulse")} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-black text-[#0B1114] dark:text-[var(--app-text)]">{title}</p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-[#50645C] dark:text-[var(--app-text-muted)]">{body}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -72,6 +72,7 @@ type SpendFenceContextValue = SpendFenceState & {
   completeOnboarding: (input: OnboardingCompleteInput) => void;
   skipOnboarding: () => void;
   demoDataEnabled: boolean;
+  demoModeLocked: boolean;
   enableDemoData: () => void;
   disableDemoData: () => void;
   resetDemoData: () => void;
@@ -80,15 +81,23 @@ type SpendFenceContextValue = SpendFenceState & {
 const SpendFenceContext = createContext<SpendFenceContextValue | null>(null);
 const colors = ["#18B889", "#2ED3B7", "#4B8CFF", "#7EF2D4", "#F5B942", "#5EA1FF", "#8A98A5", "#1FD1A5"];
 
-export function SpendFenceProvider({ children, userId }: { children: React.ReactNode; userId: string }) {
+export function SpendFenceProvider({ children, userId, demoLocked = false }: { children: React.ReactNode; userId: string; demoLocked?: boolean }) {
   const storageKey = `${STORAGE_KEY}:${userId}`;
   const legacyStorageKey = `${LEGACY_STORAGE_KEY}:${userId}`;
   const [realState, setRealState] = useState<SpendFenceState>(() => withUserId(initialState, userId));
   const [demoState, setDemoState] = useState<SpendFenceState>(() => withUserId(createDemoState(), userId));
-  const [demoDataEnabled, setDemoDataEnabled] = useState(false);
+  const [demoDataEnabled, setDemoDataEnabled] = useState(demoLocked);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (demoLocked) {
+      setRealState(withUserId(initialState, userId));
+      setDemoState(withUserId(createDemoState(), userId));
+      setDemoDataEnabled(true);
+      setReady(true);
+      return;
+    }
+
     const saved =
       window.localStorage.getItem(storageKey) ??
       window.localStorage.getItem(legacyStorageKey) ??
@@ -106,10 +115,11 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
       }
     }
     setReady(true);
-  }, [legacyStorageKey, storageKey, userId]);
+  }, [demoLocked, legacyStorageKey, storageKey, userId]);
 
   useEffect(() => {
     if (!ready) return;
+    if (demoLocked) return;
     const stored: StoredSpendFenceData = {
       version: 2,
       demoDataEnabled,
@@ -117,16 +127,18 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
       demoState
     };
     window.localStorage.setItem(storageKey, JSON.stringify(stored));
-  }, [demoDataEnabled, demoState, ready, realState, storageKey]);
+  }, [demoDataEnabled, demoLocked, demoState, ready, realState, storageKey]);
 
-  const state = demoDataEnabled ? demoState : realState;
-  const setActiveState = demoDataEnabled ? setDemoState : setRealState;
+  const demoActive = demoLocked || demoDataEnabled;
+  const state = demoActive ? demoState : realState;
+  const setActiveState = demoActive ? setDemoState : setRealState;
 
   const value = useMemo<SpendFenceContextValue>(
     () => ({
       ...state,
       ready,
-      demoDataEnabled,
+      demoDataEnabled: demoActive,
+      demoModeLocked: demoLocked,
       updateBudgetMonth: (budgetMonth) => setActiveState((current) => ({ ...current, budgetMonth: { ...budgetMonth, userId } })),
       addCategory: (input) =>
         setActiveState((current) => ({
@@ -418,10 +430,12 @@ export function SpendFenceProvider({ children, userId }: { children: React.React
           }
         })),
       enableDemoData: () => setDemoDataEnabled(true),
-      disableDemoData: () => setDemoDataEnabled(false),
+      disableDemoData: () => {
+        if (!demoLocked) setDemoDataEnabled(false);
+      },
       resetDemoData: () => setDemoState(withUserId(createDemoState(), userId))
     }),
-    [demoDataEnabled, ready, setActiveState, state, userId]
+    [demoActive, demoLocked, ready, setActiveState, state, userId]
   );
 
   return <SpendFenceContext.Provider value={value}>{children}</SpendFenceContext.Provider>;

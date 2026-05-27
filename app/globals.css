@@ -226,6 +226,19 @@ main {
   }
 }
 
+@keyframes adaptive-glow {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: translate3d(-10px, 8px, 0) scale(1.06);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-bg,
   .landing-reveal,

@@ -6,6 +6,7 @@ import { featureFlags } from "@/lib/feature-flags";
 import { clearActiveAuthStorage, clearPersistentAuthStorage, getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
 
 const DEMO_SESSION_KEY = "spendfence-demo-session-v1";
+const DEMO_LOCKED_SESSION_KEY = "spendfence-demo-locked-session-v1";
 const DEMO_PRO_KEY = "spendfence-demo-pro-v1";
 const LEGACY_TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
 
@@ -38,6 +39,7 @@ type AuthUser = {
   id: string;
   email: string;
   isDemo: boolean;
+  demoLocked?: boolean;
 };
 
 type AuthContextValue = {
@@ -54,7 +56,7 @@ type AuthContextValue = {
   resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
   startMfaChallenge: (factor: MfaFactor) => Promise<{ error?: string; challenge?: MfaChallenge }>;
   verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
-  enterDemoMode: () => void;
+  enterDemoMode: (options?: { locked?: boolean }) => void;
   setDemoPro: (enabled: boolean) => void;
   startUpgrade: () => Promise<{ error?: string; message?: string }>;
   signOut: () => Promise<void>;
@@ -68,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const supabase = getSupabaseClient();
   const supabaseConfigError = getSupabaseConfigErrorMessage() ?? "Supabase auth is not configured for this environment.";
-  const demoModeAvailable = process.env.NODE_ENV === "development" && !hasSupabaseConfig;
+  const demoModeAvailable = true;
   const demoProAvailable = process.env.NODE_ENV === "development";
   const isPro = demoProEnabled;
 
@@ -76,9 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearPersistentAuthStorage();
     window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
     setDemoProEnabled(window.localStorage.getItem(DEMO_PRO_KEY) === "true");
+
+    const demoSession = getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY);
+    if (demoSession) {
+      const locked = (getSessionValue(DEMO_LOCKED_SESSION_KEY) ?? getCookieValue(DEMO_LOCKED_SESSION_KEY)) === "true";
+      setUser(toDemoUser(locked));
+      setLoading(false);
+      return;
+    }
+
     if (!supabase) {
-      const demoSession = window.sessionStorage.getItem(DEMO_SESSION_KEY);
-      setUser(demoSession ? { id: "demo-user", email: "demo@spendfence.local", isDemo: true } : null);
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -162,10 +172,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(toAuthUser(data.user));
         return {};
       },
-      enterDemoMode: () => {
-        if (!demoModeAvailable) return;
-        window.sessionStorage.setItem(DEMO_SESSION_KEY, "true");
-        setUser({ id: "demo-user", email: "demo@spendfence.local", isDemo: true });
+      enterDemoMode: (options) => {
+        const locked = Boolean(options?.locked);
+        setSessionValue(DEMO_SESSION_KEY, "true");
+        setCookieValue(DEMO_SESSION_KEY, "true");
+        if (locked) setSessionValue(DEMO_LOCKED_SESSION_KEY, "true");
+        if (locked) setCookieValue(DEMO_LOCKED_SESSION_KEY, "true");
+        else {
+          removeSessionValue(DEMO_LOCKED_SESSION_KEY);
+          removeCookieValue(DEMO_LOCKED_SESSION_KEY);
+        }
+        setUser(toDemoUser(locked));
       },
       setDemoPro: (enabled) => {
         if (!demoProAvailable) return;
@@ -180,10 +197,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { message: data.message ?? "Upgrade flow prepared." };
       },
       signOut: async () => {
-        window.sessionStorage.removeItem(DEMO_SESSION_KEY);
+        const isDemoSession = (getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY)) === "true";
+        removeSessionValue(DEMO_SESSION_KEY);
+        removeSessionValue(DEMO_LOCKED_SESSION_KEY);
+        removeCookieValue(DEMO_SESSION_KEY);
+        removeCookieValue(DEMO_LOCKED_SESSION_KEY);
         window.localStorage.removeItem(DEMO_PRO_KEY);
         window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
-        if (supabase) await supabase.auth.signOut();
+        if (supabase && !isDemoSession) await supabase.auth.signOut();
         clearActiveAuthStorage();
         setUser(null);
         setDemoProEnabled(false);
@@ -199,6 +220,66 @@ export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used inside AuthProvider");
   return context;
+}
+
+function getSessionValue(key: string) {
+  try {
+    return window.sessionStorage?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function setSessionValue(key: string, value: string) {
+  try {
+    window.sessionStorage?.setItem(key, value);
+  } catch {
+    // Demo mode still works in-memory if sessionStorage is unavailable.
+  }
+}
+
+function removeSessionValue(key: string) {
+  try {
+    window.sessionStorage?.removeItem(key);
+  } catch {
+    // Nothing to clear when storage is unavailable.
+  }
+}
+
+function getCookieValue(key: string) {
+  try {
+    const match = document.cookie
+      .split("; ")
+      .find((item) => item.startsWith(`${encodeURIComponent(key)}=`));
+    return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCookieValue(key: string, value: string) {
+  try {
+    document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; path=/; max-age=28800; samesite=lax`;
+  } catch {
+    // Demo mode still works in-memory if cookies are unavailable.
+  }
+}
+
+function removeCookieValue(key: string) {
+  try {
+    document.cookie = `${encodeURIComponent(key)}=; path=/; max-age=0; samesite=lax`;
+  } catch {
+    // Nothing to clear when cookies are unavailable.
+  }
+}
+
+function toDemoUser(locked = false): AuthUser {
+  return {
+    id: locked ? "demo-preview-user" : "demo-user",
+    email: "demo@spendfence.local",
+    isDemo: true,
+    demoLocked: locked
+  };
 }
 
 function toAuthUser(user: User): AuthUser {

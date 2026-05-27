@@ -317,7 +317,7 @@ function HeroSection() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
-            <SecondaryCta href="/login">View Demo</SecondaryCta>
+            <SecondaryCta href="/demo">View Demo</SecondaryCta>
           </div>
         </motion.div>
         <AnimatedDashboardMockup />
