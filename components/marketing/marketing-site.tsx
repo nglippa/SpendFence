@@ -70,6 +70,15 @@ const featureCards = [
   }
 ];
 
+const premiumFeatureHighlights = [
+  "Unlimited bank syncing",
+  "Advanced intelligence",
+  "Adaptive fence recommendations",
+  "Deeper spending insights",
+  "Enhanced pacing analysis",
+  "Future predictive budgeting tools"
+];
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 18 },
   show: { opacity: 1, y: 0, transition: { duration: 0.62, ease: [0.2, 0.8, 0.2, 1] } }
@@ -290,28 +299,44 @@ export function PricingMarketingPage() {
     <MarketingShell page="pricing">
       <PageHero
         eyebrow="Pricing"
-        title="Start with adaptive budgeting. Upgrade when deeper intelligence arrives."
-        body="SpendFence keeps the core workflow approachable while making room for advanced behavioral intelligence and future account-linked learning."
+        title="Premium intelligence for adaptive budgeting."
+        body="Start with core budgeting for free, or unlock unlimited syncing, deeper insights, and adaptive fence recommendations with Premium."
       />
       <SectionShell>
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-[0.8fr_1fr_1fr]">
           <PricingCard
             title="Free"
             price="$0"
+            cadence="/month"
             body="For manual budgeting with basic intelligence and adaptive guidance."
-            cta="Try SpendFence"
+            cta="Start Free"
             href="/signup"
             features={["Manual budgeting", "Basic intelligence", "Receipt scanning", "Adaptive suggestions", "Spending rules"]}
           />
           <PricingCard
-            title="Premium"
-            price="Planned"
-            body="For deeper pattern recognition and advanced adaptive onboarding."
-            cta="Try Demo"
-            href="/demo"
+            title="Premium Monthly"
+            price="$8"
+            cadence="/month"
+            body="For full SpendFence intelligence with unlimited account syncing and deeper cycle analysis."
+            cta="Start Premium"
+            href="/signup"
             highlighted
-            features={["Advanced intelligence", "Adaptive onboarding", "Advanced pattern recognition", "Predictive pacing", "Deeper behavioral insights", "Future account-linked AI learning"]}
+            features={premiumFeatureHighlights}
           />
+          <PricingCard
+            title="Premium Yearly"
+            price="$72"
+            cadence="/year"
+            badge="Save 25% annually"
+            body="The best value for users who want SpendFence to become a daily financial rhythm."
+            cta="Start Premium"
+            href="/signup"
+            highlighted
+            features={premiumFeatureHighlights}
+          />
+        </div>
+        <div className="mt-5 flex justify-center">
+          <SecondaryCta href="/demo">Try Demo</SecondaryCta>
         </div>
       </SectionShell>
     </MarketingShell>
@@ -332,7 +357,7 @@ function HeroSection() {
             SpendFence turns real behavior into calm spending fences, AI-assisted insights, and decisions you approve before anything changes.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-            <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
+            <PrimaryCta href="/signup">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
@@ -591,10 +616,10 @@ function FeatureCard({ icon: Icon, title, body }: { icon: LucideIcon; title: str
 
 function MockupStrip() {
   const screens = [
-    { title: "Dashboard", metric: "$3,820", label: "available", icon: BarChart3 },
-    { title: "Budgets", metric: "6 fences", label: "tracking", icon: WalletCards },
-    { title: "Reports", metric: "4 insights", label: "this cycle", icon: ReceiptText },
-    { title: "Pacing", metric: "18%", label: "ahead of rhythm", icon: TrendingUp }
+    { title: "Dashboard", icon: BarChart3, preview: <DashboardPreview /> },
+    { title: "Budgets", icon: WalletCards, preview: <BudgetsPreview /> },
+    { title: "Reports", icon: ReceiptText, preview: <ReportsPreview /> },
+    { title: "Pacing", icon: TrendingUp, preview: <PacingPreview /> }
   ];
 
   return (
@@ -602,21 +627,18 @@ function MockupStrip() {
       {screens.map((screen) => {
         const Icon = screen.icon;
         return (
-          <MotionCard key={screen.title} className="p-4">
-            <div className="rounded-[1.35rem] border border-[var(--marketing-border)] bg-[var(--marketing-device)] p-4">
-              <div className="mb-5 flex items-center justify-between">
-                <span className="h-2 w-16 rounded-full bg-[var(--marketing-border)]" />
+          <MotionCard key={screen.title} className="group relative overflow-hidden p-4 transition hover:border-[rgb(99_102_241_/_0.28)] hover:shadow-[0_26px_80px_rgb(79_70_229_/_0.14)]">
+            <div className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[rgb(99_102_241_/_0.14)] blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="relative rounded-[1.35rem] border border-[var(--marketing-border)] bg-[var(--marketing-device)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)]">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="rounded-full border border-[rgb(99_102_241_/_0.18)] bg-[rgb(99_102_241_/_0.10)] px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] text-[#8EA2FF]">
+                  Live view
+                </span>
                 <Icon size={18} className="text-[var(--marketing-accent)]" />
               </div>
-              <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">{screen.metric}</p>
-              <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">{screen.label}</p>
-              <div className="mt-5 grid gap-2">
-                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton-strong)]" />
-                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton)]" />
-                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton-soft)]" />
-              </div>
+              {screen.preview}
             </div>
-            <h3 className="mt-4 text-lg font-black text-[var(--marketing-text)]">{screen.title}</h3>
+            <h3 className="relative mt-4 text-lg font-black text-[var(--marketing-text)]">{screen.title}</h3>
           </MotionCard>
         );
       })}
@@ -624,25 +646,144 @@ function MockupStrip() {
   );
 }
 
-function PricingCard({ title, price, body, features, href, cta, highlighted = false }: { title: string; price: string; body: string; features: string[]; href: string; cta: string; highlighted?: boolean }) {
+function DashboardPreview() {
   return (
-    <MotionCard className={cn("p-6", highlighted && "border-[rgb(31_209_165_/_0.28)] bg-[rgb(31_209_165_/_0.055)]")}>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{title}</p>
-          <h2 className="mt-3 text-4xl font-black text-[var(--marketing-text)]">{price}</h2>
-        </div>
-        {highlighted ? <span className="rounded-full border border-[rgb(31_209_165_/_0.20)] bg-[rgb(31_209_165_/_0.10)] px-3 py-1 text-xs font-black text-[var(--marketing-accent)]">Future</span> : null}
+    <div>
+      <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">$3,820</p>
+      <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">available this cycle</p>
+      <div className="mt-4 grid gap-2.5">
+        <PreviewProgress label="Groceries" note="inside fence" value="$418 / $720" percent={58} color="#6366F1" />
+        <PreviewProgress label="Dining" note="pacing high" value="$302 / $360" percent={84} color="#F5B942" />
       </div>
-      <p className="mt-4 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
-      <div className="mt-6 grid gap-3">
+      <AiChip className="mt-3">AI: Dining is 18% faster than rhythm</AiChip>
+    </div>
+  );
+}
+
+function BudgetsPreview() {
+  return (
+    <div className="grid gap-2.5">
+      <PreviewCategory name="Groceries" meta="$412 left" status="Safe" percent={58} color="#6366F1" />
+      <PreviewCategory name="Dining" meta="78% used" status="Watch" percent={78} color="#F5B942" />
+      <PreviewCategory name="Fuel" meta="$96 left" status="Safe" percent={44} color="#5EA1FF" />
+    </div>
+  );
+}
+
+function ReportsPreview() {
+  return (
+    <div>
+      <AiChip>Smart insight ready</AiChip>
+      <p className="mt-3 text-sm font-black leading-5 text-[var(--marketing-text)]">Weekend dining is driving most variance.</p>
+      <MiniBars values={[34, 48, 42, 64, 58, 72, 61]} />
+      <p className="mt-3 rounded-2xl border border-[rgb(99_102_241_/_0.16)] bg-[rgb(99_102_241_/_0.08)] px-3 py-2 text-xs font-bold leading-5 text-[var(--marketing-muted)]">
+        Adaptive insight: keep Dining fence stable, watch Friday pacing.
+      </p>
+    </div>
+  );
+}
+
+function PacingPreview() {
+  return (
+    <div>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">18%</p>
+          <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">ahead of rhythm</p>
+        </div>
+        <span className="rounded-full border border-amber-200/50 bg-amber-400/10 px-2.5 py-1 text-[0.65rem] font-black text-amber-500">Watch</span>
+      </div>
+      <MiniLine />
+      <div className="mt-3 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
+        <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">Projected cycle spend</p>
+        <p className="mt-1 text-lg font-black text-[var(--marketing-text)]">$4,240</p>
+      </div>
+    </div>
+  );
+}
+
+function PreviewProgress({ label, note, value, percent, color }: { label: string; note: string; value: string; percent: number; color: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-xs font-black text-[var(--marketing-text)]">{label}</p>
+          <p className="text-[0.65rem] font-bold text-[var(--marketing-muted)]">{note}</p>
+        </div>
+        <span className="shrink-0 text-[0.65rem] font-black text-[var(--marketing-muted)]">{value}</span>
+      </div>
+      <ProgressBar percent={percent} color={color} compact />
+    </div>
+  );
+}
+
+function PreviewCategory({ name, meta, status, percent, color }: { name: string; meta: string; status: string; percent: number; color: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-black text-[var(--marketing-text)]">{name}</p>
+          <p className="text-[0.65rem] font-bold text-[var(--marketing-muted)]">{meta}</p>
+        </div>
+        <span className={cn("rounded-full px-2 py-0.5 text-[0.62rem] font-black", status === "Watch" ? "bg-amber-400/12 text-amber-500" : "bg-[rgb(99_102_241_/_0.10)] text-[#8EA2FF]")}>{status}</span>
+      </div>
+      <ProgressBar percent={percent} color={color} compact />
+    </div>
+  );
+}
+
+function AiChip({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-[rgb(99_102_241_/_0.20)] bg-[rgb(99_102_241_/_0.10)] px-2.5 py-1 text-[0.68rem] font-black text-[#A5B4FC]", className)}>
+      <Sparkles size={12} /> {children}
+    </span>
+  );
+}
+
+function MiniBars({ values }: { values: number[] }) {
+  return (
+    <div className="mt-4 flex h-16 items-end gap-1.5 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
+      {values.map((value, index) => (
+        <span key={`${value}-${index}`} className="flex-1 rounded-full bg-[linear-gradient(180deg,#A5B4FC,#6366F1)] opacity-90" style={{ height: `${value}%` }} />
+      ))}
+    </div>
+  );
+}
+
+function MiniLine() {
+  return (
+    <div className="mt-4 h-20 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-2">
+      <svg viewBox="0 0 180 64" className="h-full w-full overflow-visible" aria-hidden="true">
+        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(165 180 252 / 0.28)" strokeWidth="10" strokeLinecap="round" />
+        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(99 102 241)" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function PricingCard({ title, price, cadence, body, features, href, cta, badge, highlighted = false }: { title: string; price: string; cadence?: string; body: string; features: string[]; href: string; cta: string; badge?: string; highlighted?: boolean }) {
+  return (
+    <MotionCard className={cn("relative overflow-hidden p-6 transition hover:shadow-[0_28px_90px_rgb(79_70_229_/_0.14)]", highlighted && "border-[rgb(99_102_241_/_0.28)] bg-[radial-gradient(circle_at_12%_0%,rgb(99_102_241_/_0.13),transparent_16rem),var(--marketing-card)]")}>
+      {highlighted ? <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgb(99_102_241_/_0.16)] blur-3xl" /> : null}
+      <div className="flex items-start justify-between gap-4">
+        <div className="relative">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{title}</p>
+          <h2 className="mt-3 text-4xl font-black text-[var(--marketing-text)]">
+            {price}
+            {cadence ? <span className="ml-1 text-sm font-black text-[var(--marketing-muted)]">{cadence}</span> : null}
+          </h2>
+        </div>
+        {badge ? <span className="relative rounded-full border border-[rgb(99_102_241_/_0.22)] bg-[rgb(99_102_241_/_0.10)] px-3 py-1 text-xs font-black text-[#A5B4FC]">{badge}</span> : highlighted ? <span className="relative rounded-full border border-[rgb(99_102_241_/_0.22)] bg-[rgb(99_102_241_/_0.10)] px-3 py-1 text-xs font-black text-[#A5B4FC]">Premium</span> : null}
+      </div>
+      <p className="relative mt-4 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
+      <div className="relative mt-6 grid gap-3">
         {features.map((feature) => (
           <div key={feature} className="flex items-center gap-2 text-sm font-black text-[var(--marketing-text)]">
-            <CheckCircle2 size={17} className="text-[var(--marketing-accent)]" /> {feature}
+            <CheckCircle2 size={17} className={highlighted ? "text-[#A5B4FC]" : "text-[var(--marketing-accent)]"} /> {feature}
           </div>
         ))}
       </div>
-      <PrimaryCta href={href} className="mt-7 w-full">{cta}</PrimaryCta>
+      <PrimaryCta href={href} className={cn("relative mt-7 w-full", highlighted && "bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] shadow-[0_18px_44px_rgb(79_70_229_/_0.22)] text-white")}>{cta}</PrimaryCta>
     </MotionCard>
   );
 }
@@ -752,7 +893,7 @@ function FinalCta() {
             </p>
           </div>
           <div className="grid gap-3 sm:flex lg:shrink-0">
-            <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
+            <PrimaryCta href="/signup">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
         </div>

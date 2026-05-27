@@ -1,18 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
+import { AlertTriangle, Brain, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
+import { IntelligenceEmptyState, IntelligenceSection, intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
+import { useAuth } from "@/lib/auth";
 import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, getSmartPrompts, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
 import { selectDashboardInsight } from "@/lib/insights/behavioral-insights";
 import { monthlyRecurringAmount, recurringFrequencyLabel, recurringKindLabel, upcomingRecurringItems } from "@/lib/recurring";
 import { useSpendFence } from "@/lib/store";
-import { formatShortDate } from "@/lib/utils";
+import type { Prompt } from "@/lib/types";
+import { cn, formatShortDate } from "@/lib/utils";
 
 export default function DashboardPage() {
   const state = useSpendFence();
+  const { isPro } = useAuth();
   const cyclePurchases = purchasesForCycle(state.purchases, state.budgetMonth);
   const spent = totalSpent(state.purchases, state.budgetMonth);
   const available = availableBudget(state);
@@ -110,29 +114,7 @@ export default function DashboardPage() {
 
         <section className="grid content-start gap-4 sm:gap-5">
           <div className="grid items-stretch gap-3 md:grid-cols-2">
-            <Card className="h-full p-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <h2 className="text-sm font-black sm:text-base">Smart prompts</h2>
-                {prompts.length > 2 ? (
-                  <Link href="/reports" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
-                    View all <ChevronRight size={14} />
-                  </Link>
-                ) : null}
-              </div>
-              {prompts.length ? (
-                <div className="grid gap-2">
-                  {prompts.slice(0, 2).map((prompt) => (
-                    <div key={prompt.id} className="rounded-xl bg-[var(--app-secondary)] px-2.5 py-2 text-xs font-bold leading-5 text-[var(--app-text-secondary)]">
-                      {prompt.message}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
-                  SpendFence will surface short setup notes once categories and purchases exist.
-                </div>
-              )}
-            </Card>
+            <SmartPromptsPanel prompts={prompts} isPro={isPro} />
 
             <Card className="h-full p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
@@ -206,5 +188,64 @@ export default function DashboardPage() {
         </section>
       </div>
     </>
+  );
+}
+
+function SmartPromptsPanel({ prompts, isPro }: { prompts: Prompt[]; isPro: boolean }) {
+  return (
+    <IntelligenceSection
+      title="Smart Prompts"
+      tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
+      tierIcon={Brain}
+      premiumLabel={isPro ? undefined : "Premium"}
+      tierDescription={isPro ? "Advanced pattern recognition and deeper insights are active." : "Short adaptive nudges for this cycle. Advanced analytics and deeper insights included with Premium."}
+      sourceLabel={prompts.length > 2 ? "Reports ready" : undefined}
+      className="mb-0 h-full sm:mb-0"
+      variant="flagship"
+    >
+      {prompts.length ? (
+        <div className="grid gap-3 p-3.5 sm:p-4">
+          {prompts.slice(0, 2).map((prompt, index) => (
+            <PromptCard key={prompt.id} prompt={prompt} index={index} />
+          ))}
+          {prompts.length > 2 ? (
+            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-[rgb(99_102_241_/_0.16)] bg-white/72 px-3 text-xs font-black text-[#4F46E5] shadow-[0_10px_24px_rgb(99_102_241_/_0.08)] transition hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#C4B5FD]">
+              View all insights <ChevronRight size={14} />
+            </Link>
+          ) : null}
+        </div>
+      ) : (
+        <IntelligenceEmptyState title="No smart prompts yet." body="SpendFence will surface short setup notes once categories and purchases exist." />
+      )}
+    </IntelligenceSection>
+  );
+}
+
+function PromptCard({ prompt, index }: { prompt: Prompt; index: number }) {
+  return (
+    <article
+      className={cn(
+        intelligenceCardSurfaceClass,
+        "group min-h-[6.75rem] p-3.5 motion-safe:animate-[fade-up_420ms_ease-out_both]",
+        index === 1 && "motion-safe:[animation-delay:90ms]"
+      )}
+    >
+      <div className={intelligenceAccentRailClass} />
+      <div className="pointer-events-none absolute -right-14 -top-16 h-28 w-28 rounded-full bg-[rgb(99_102_241_/_0.13)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative flex items-start gap-3">
+        <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9 sm:h-9 sm:w-9")}>
+          <Sparkles size={15} className="motion-safe:animate-pulse" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 className="text-sm font-black leading-5 text-[#10201c] dark:text-[#F4F7F6]">Adaptive prompt</h3>
+            <Pill className="border-[rgb(99_102_241_/_0.16)] bg-white/70 px-2 py-0 text-[0.65rem] capitalize text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#A7B3BC]">
+              {prompt.type}
+            </Pill>
+          </div>
+          <p className="mt-1.5 text-xs font-semibold leading-5 text-[#536173] dark:text-[#A7B3BC] sm:text-sm">{prompt.message}</p>
+        </div>
+      </div>
+    </article>
   );
 }
