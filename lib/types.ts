@@ -181,6 +181,10 @@ export type CategorySuggestion = {
 export type ImportedTransaction = {
   id: string;
   userId?: string;
+  externalTransactionId?: string;
+  importSource?: "demo" | "plaid" | "teller";
+  tellerAccountId?: string;
+  tellerAccountName?: string;
   merchantName: string;
   description: string;
   amount: number;

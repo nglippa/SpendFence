@@ -6,7 +6,7 @@ import { SettingsDetailHeader } from "@/components/settings-ui";
 export default function BankSyncSettingsPage() {
   return (
     <div className="settings-page-frame mx-auto w-full max-w-3xl">
-      <SettingsDetailHeader title="Bank Sync" subtitle="A future Premium area for secure Plaid connections and reviewed imports." />
+      <SettingsDetailHeader title="Bank Sync" subtitle="Connect Teller sandbox accounts, review imports, and keep bank tokens server-side." />
       <BankSyncCard />
     </div>
   );

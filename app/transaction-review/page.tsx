@@ -139,7 +139,7 @@ export default function TransactionReviewPage() {
                       <ConfidencePill confidence={transaction.confidence} />
                     </div>
                     <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{transaction.description}</p>
-                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No Plaid hint"}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No bank category hint"}</p>
                     <p className="mt-2 text-xl font-black text-[#10201c] sm:mt-3 sm:text-2xl">{formatMoney(transaction.amount)}</p>
                   </div>
 

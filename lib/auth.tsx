@@ -57,6 +57,7 @@ type AuthContextValue = {
   startMfaChallenge: (factor: MfaFactor) => Promise<{ error?: string; challenge?: MfaChallenge }>;
   verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
   enterDemoMode: (options?: { locked?: boolean }) => void;
+  getAccessToken: () => Promise<string | null>;
   setDemoPro: (enabled: boolean) => void;
   startUpgrade: () => Promise<{ error?: string; message?: string }>;
   signOut: () => Promise<void>;
@@ -183,6 +184,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           removeCookieValue(DEMO_LOCKED_SESSION_KEY);
         }
         setUser(toDemoUser(locked));
+      },
+      getAccessToken: async () => {
+        if (!supabase || user?.isDemo) return null;
+        const { data } = await supabase.auth.getSession();
+        return data.session?.access_token ?? null;
       },
       setDemoPro: (enabled) => {
         if (!demoProAvailable) return;

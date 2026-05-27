@@ -334,7 +334,9 @@ export function SpendFenceProvider({ children, userId, demoLocked = false }: { c
         setActiveState((current) => ({
           ...current,
           importedTransactions: [
-            ...transactions.map((transaction) => buildImportedTransaction(transaction, current, userId)),
+            ...transactions
+              .filter((transaction) => !isDuplicateImport(transaction, current.importedTransactions))
+              .map((transaction) => buildImportedTransaction(transaction, current, userId)),
             ...current.importedTransactions
           ]
         })),
@@ -743,6 +745,24 @@ function buildImportedTransaction(input: ImportedTransactionInput, current: Spen
     suggestionSource: input.suggestionSource ?? localSuggestion.source,
     reviewStatus: input.reviewStatus ?? "pending"
   };
+}
+
+function isDuplicateImport(input: ImportedTransactionInput, existing: ImportedTransaction[]) {
+  if (input.externalTransactionId) {
+    return existing.some((transaction) => transaction.externalTransactionId === input.externalTransactionId);
+  }
+
+  const inputKey = importFallbackKey(input);
+  return existing.some((transaction) => importFallbackKey(transaction) === inputKey);
+}
+
+function importFallbackKey(transaction: Pick<ImportedTransaction, "merchantName" | "description" | "amount" | "date">) {
+  return [
+    normalizeMerchant(transaction.merchantName),
+    normalizeMerchant(transaction.description),
+    Math.abs(transaction.amount).toFixed(2),
+    new Date(transaction.date).toISOString().slice(0, 10)
+  ].join("|");
 }
 
 function acceptImported(current: SpendFenceState, id: string, categoryId: string | undefined, userId: string, changed: boolean): SpendFenceState {

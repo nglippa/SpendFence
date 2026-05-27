@@ -64,7 +64,7 @@ export function categorizeTransaction(
             suggestedCategoryId: category.id,
             confidence: rule.confidence,
             confidenceLabel: labelForConfidence(rule.confidence),
-            reason: `Mapped Plaid category hint “${transaction.plaidCategory}” to your budget.`,
+            reason: `Mapped bank category hint “${transaction.plaidCategory}” to your budget.`,
             source: "plaid_mapping"
           };
         }
