@@ -8,7 +8,7 @@ export type PremiumFeature = {
   title: string;
   description: string;
   icon: LucideIcon;
-  status: "planned";
+  status: "active" | "planned";
 };
 
 export const premiumFeatures = {
@@ -17,21 +17,21 @@ export const premiumFeatures = {
     title: "Bank sync",
     description: "Secure bank connections, transaction imports, and connected account management.",
     icon: Building2,
-    status: "planned"
+    status: "active"
   },
   "advanced-ai-intelligence": {
     id: "advanced-ai-intelligence",
     title: "Advanced AI intelligence",
     description: "Deeper behavioral insights, predictive trends, anomaly detection, and proactive recommendations.",
     icon: Bot,
-    status: "planned"
+    status: "active"
   },
   "advanced-analytics": {
     id: "advanced-analytics",
     title: "Advanced analytics",
     description: "Multi-cycle comparisons, long-term pattern recognition, and AI-generated monthly reports.",
     icon: BarChart3,
-    status: "planned"
+    status: "active"
   },
   automation: {
     id: "automation",

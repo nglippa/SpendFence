@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { AI_TONE_INSTRUCTIONS, callGroqJson } from "@/lib/ai/groq";
 import { generateLocalFenceSuggestions, normalizeAdaptiveSuggestions, type AdaptiveFenceInput } from "@/lib/ai/adaptive-fences";
+import { requireApiUser } from "@/lib/server-auth";
+import { getEffectiveTier } from "@/lib/tier";
 import type { AdaptiveFenceSuggestion } from "@/lib/types";
 
 type GroqFenceSuggestionResult = {
@@ -14,6 +16,11 @@ export async function POST(request: Request) {
 
     if (!fallback.length) {
       return NextResponse.json({ suggestions: [], aiUsed: false });
+    }
+
+    const auth = await requireApiUser(request);
+    if (!auth.user || getEffectiveTier(auth.user) !== "premium") {
+      return NextResponse.json({ suggestions: fallback, aiUsed: false });
     }
 
     const groq = await callGroqJson<GroqFenceSuggestionResult>({

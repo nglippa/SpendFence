@@ -66,7 +66,7 @@ const settingsSections = [
       href: "/settings/premium",
       icon: Crown,
       title: "Premium",
-      subtitle: "Future Premium areas"
+      subtitle: "Plan, billing, and entitlement"
     },
     {
       href: "/settings/bank-sync",

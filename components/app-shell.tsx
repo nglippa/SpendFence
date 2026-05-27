@@ -31,14 +31,21 @@ const publicRoutes = ["/", "/demo", "/philosophy", "/adaptive-ai", "/features", 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const isPublic = publicRoutes.includes(pathname);
+  const { user, loading, enterDemoMode } = useAuth();
+  const isPublic = publicRoutes.includes(pathname) || pathname.startsWith("/demo/");
 
   useEffect(() => {
     if (loading) return;
+    const isDemoQueryLaunch = pathname === "/dashboard" && hasDemoQuery();
+    const lockedDemoLaunch = isDemoQueryLaunch || hasLockedDemoCookie();
+    if (lockedDemoLaunch && (!user?.isDemo || !user.demoLocked)) {
+      enterDemoMode({ locked: true });
+      if (isDemoQueryLaunch) router.replace("/dashboard");
+      return;
+    }
     if (!user && !isPublic) router.replace("/login");
     if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) router.replace("/onboarding");
-  }, [isPublic, loading, pathname, router, user]);
+  }, [enterDemoMode, isPublic, loading, pathname, router, user]);
 
   if (isPublic) return <>{children}</>;
   if (loading || !user) {
@@ -58,6 +65,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <InnerShell pathname={pathname}>{children}</InnerShell>
     </SpendFenceProvider>
   );
+}
+
+function hasLockedDemoCookie() {
+  if (typeof document === "undefined") return false;
+  return document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .some((item) => item === "spendfence-demo-locked-session-v1=true" || item === "spendfence-demo-session-v1=true");
+}
+
+function hasDemoQuery() {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("demo") === "true";
 }
 
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {

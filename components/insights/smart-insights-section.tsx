@@ -13,7 +13,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
   const [refreshKey, setRefreshKey] = useState(0);
   const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(insights.length);
   const tierDescription = isPro
-    ? "Advanced pattern recognition, multi-cycle analysis, and predictive spending insights are active. Advanced analytics and deeper insights included with Premium."
+    ? "Advanced pattern recognition and deeper insights are active."
     : "Upgrade for advanced pattern recognition and deeper insight review. Advanced analytics and deeper insights included with Premium.";
 
   return (
@@ -21,7 +21,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
       title="Smart Insights"
       tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
       tierIcon={Brain}
-      premiumLabel="Premium"
+      premiumLabel={isPro ? undefined : "Premium"}
       tierDescription={tierDescription}
       onRefresh={() => setRefreshKey((current) => current + 1)}
       dots={<IntelligenceCarouselDots count={insights.length} activeIndex={activeIndex} />}

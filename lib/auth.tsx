@@ -44,6 +44,12 @@ type AuthUser = {
   realTier: AppTier;
 };
 
+type BillingSubscription = {
+  status: string;
+  price_id: string | null;
+  current_period_end: string | null;
+};
+
 type AuthContextValue = {
   user: AuthUser | null;
   loading: boolean;
@@ -52,6 +58,8 @@ type AuthContextValue = {
   planLabel: "Free" | "Premium";
   realTier: AppTier;
   effectiveTier: AppTier;
+  subscription: BillingSubscription | null;
+  subscriptionLoaded: boolean;
   isDeveloper: boolean;
   tierPreviewMode: DeveloperTierPreviewMode;
   demoModeAvailable: boolean;
@@ -63,7 +71,9 @@ type AuthContextValue = {
   enterDemoMode: (options?: { locked?: boolean }) => void;
   getAccessToken: () => Promise<string | null>;
   setTierPreviewMode: (mode: DeveloperTierPreviewMode) => void;
-  startUpgrade: () => Promise<{ error?: string; message?: string }>;
+  startUpgrade: (plan: "monthly" | "yearly") => Promise<{ error?: string; message?: string }>;
+  manageBilling: () => Promise<{ error?: string; message?: string }>;
+  refreshSubscription: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -73,6 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [serverDeveloperAllowed, setServerDeveloperAllowed] = useState(false);
   const [developerStatusLoaded, setDeveloperStatusLoaded] = useState(false);
+  const [subscription, setSubscription] = useState<BillingSubscription | null>(null);
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
   const [tierPreviewMode, setTierPreviewModeState] = useState<DeveloperTierPreviewMode>("free");
   const [loading, setLoading] = useState(true);
   const supabase = getSupabaseClient();
@@ -81,8 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const publicDeveloperEmail = process.env.NEXT_PUBLIC_DEVELOPER_EMAIL?.trim().toLowerCase() ?? "";
   const publicDeveloperAllowed = Boolean(user?.email && publicDeveloperEmail && user.email.toLowerCase() === publicDeveloperEmail);
   const isDeveloper = Boolean(user && (publicDeveloperAllowed || serverDeveloperAllowed));
-  const realTier = user?.realTier ?? "free";
-  const effectiveTier = getEffectiveTier({ isDeveloper, developerTierOverride: tierPreviewMode, realTier });
+  const stripeTier = subscription ? (subscription.status === "active" || subscription.status === "trialing" ? "premium" : "free") : null;
+  const realTier = stripeTier ?? user?.realTier ?? "free";
+  const effectiveTier = getEffectiveTier({ isDeveloper, developerTierOverride: tierPreviewMode, stripeSubscriptionStatus: subscription?.status, realTier });
   const isPro = effectiveTier === "premium";
 
   useEffect(() => {
@@ -165,6 +178,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTierPreviewModeState("free");
   }, [developerStatusLoaded, isDeveloper, user]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setSubscription(null);
+    setSubscriptionLoaded(false);
+
+    if (!user || user.isDemo) {
+      setSubscriptionLoaded(true);
+      return;
+    }
+
+    subscriptionHeaders(supabase, user, { isDeveloper, tierPreviewMode, realTier: user.realTier })
+      .then((headers) =>
+        fetch("/api/stripe/subscription", {
+          headers,
+          cache: "no-store"
+        })
+      )
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { subscription?: BillingSubscription | null } | null) => {
+        if (!cancelled) setSubscription(data?.subscription ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setSubscription(null);
+      })
+      .finally(() => {
+        if (!cancelled) setSubscriptionLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isDeveloper, supabase, tierPreviewMode, user]);
+
+  async function refreshSubscription() {
+    if (!user || user.isDemo) {
+      setSubscription(null);
+      setSubscriptionLoaded(true);
+      return;
+    }
+
+    const headers = await subscriptionHeaders(supabase, user, { isDeveloper, tierPreviewMode, realTier: user.realTier });
+    const response = await fetch("/api/stripe/subscription", { headers, cache: "no-store" });
+    if (!response.ok) return;
+    const data = (await response.json()) as { subscription?: BillingSubscription | null };
+    setSubscription(data.subscription ?? null);
+    setSubscriptionLoaded(true);
+  }
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -174,6 +235,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       planLabel: tierLabel(effectiveTier),
       realTier,
       effectiveTier,
+      subscription,
+      subscriptionLoaded,
       isDeveloper,
       tierPreviewMode,
       demoModeAvailable,
@@ -250,13 +313,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.localStorage.setItem(DEVELOPER_TIER_PREVIEW_KEY, mode);
         setTierPreviewModeState(mode);
       },
-      startUpgrade: async () => {
-        const response = await fetch("/api/stripe/create-checkout-session", { method: "POST" });
-        if (!response.ok) return { error: "Stripe checkout is not configured yet. Add Stripe keys to enable subscriptions." };
+      startUpgrade: async (plan) => {
+        const response = await fetch("/api/stripe/create-checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(await subscriptionHeaders(supabase, user, { isDeveloper, tierPreviewMode, realTier }))
+          },
+          body: JSON.stringify({ plan })
+        });
+        if (!response.ok) {
+          const data = (await response.json().catch(() => ({}))) as { message?: string };
+          return { error: data.message ?? "Stripe checkout is not configured yet. Add Stripe keys to enable subscriptions." };
+        }
         const data = (await response.json()) as { url?: string; message?: string };
         if (data.url) window.location.href = data.url;
         return { message: data.message ?? "Upgrade flow prepared." };
       },
+      manageBilling: async () => {
+        const response = await fetch("/api/stripe/create-portal-session", {
+          method: "POST",
+          headers: await subscriptionHeaders(supabase, user, { isDeveloper, tierPreviewMode, realTier })
+        });
+        if (!response.ok) {
+          const data = (await response.json().catch(() => ({}))) as { message?: string };
+          return { error: data.message ?? "Billing portal is not configured yet." };
+        }
+        const data = (await response.json()) as { url?: string; message?: string };
+        if (data.url) window.location.href = data.url;
+        return { message: data.message ?? "Billing portal prepared." };
+      },
+      refreshSubscription,
       signOut: async () => {
         const isDemoSession = (getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY)) === "true";
         removeSessionValue(DEMO_SESSION_KEY);
@@ -269,10 +356,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setServerDeveloperAllowed(false);
         setDeveloperStatusLoaded(false);
+        setSubscription(null);
+        setSubscriptionLoaded(false);
         setTierPreviewModeState("free");
       }
     }),
-    [demoModeAvailable, effectiveTier, isDeveloper, isPro, loading, realTier, supabase, supabaseConfigError, tierPreviewMode, user]
+    [demoModeAvailable, effectiveTier, isDeveloper, isPro, loading, realTier, subscription, subscriptionLoaded, supabase, supabaseConfigError, tierPreviewMode, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -375,6 +464,24 @@ async function developerStatusHeaders(supabase: SupabaseClient | null, user: Aut
 
   if (process.env.NODE_ENV === "development") return { "x-spendfence-dev-user": user.id };
   return {};
+}
+
+async function subscriptionHeaders(
+  supabase: SupabaseClient | null,
+  user: AuthUser | null,
+  options: { isDeveloper: boolean; tierPreviewMode: DeveloperTierPreviewMode; realTier: AppTier }
+): Promise<HeadersInit> {
+  const headers: Record<string, string> = {};
+  if (supabase && user && !user.isDemo) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) headers.Authorization = `Bearer ${data.session.access_token}`;
+  }
+
+  if (options.isDeveloper) headers["x-spendfence-dev-tier-preview"] = options.tierPreviewMode;
+  if (user?.email) headers["x-spendfence-dev-email"] = user.email;
+  headers["x-spendfence-real-tier"] = options.realTier;
+  if (process.env.NODE_ENV === "development" && user?.id) headers["x-spendfence-dev-user"] = user.id;
+  return headers;
 }
 
 function normalizeMfaFactors(data: { totp: unknown[]; phone: unknown[] }): MfaFactor[] {

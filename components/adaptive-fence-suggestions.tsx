@@ -30,7 +30,8 @@ const premiumIntelligenceSentence = "Advanced analytics and deeper insights incl
 
 export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message: string) => void }) {
   const state = useSpendFence();
-  const { isPro } = useAuth();
+  const auth = useAuth();
+  const { isPro } = auth;
   const [loading, setLoading] = useState(false);
   const generatingFingerprintRef = useRef<string | null>(null);
   const cache = state.adaptiveSuggestions;
@@ -82,9 +83,17 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       if (shouldShowLoading) setLoading(true);
 
       try {
+        const token = await auth.getAccessToken();
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        if (auth.isDeveloper) headers["x-spendfence-dev-tier-preview"] = auth.tierPreviewMode;
+        if (auth.user?.email) headers["x-spendfence-dev-email"] = auth.user.email;
+        headers["x-spendfence-real-tier"] = auth.realTier;
+        if (process.env.NODE_ENV === "development" && auth.user?.id) headers["x-spendfence-dev-user"] = auth.user.id;
+
         const response = await fetch("/api/ai/fence-suggestions", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(requestBody)
         });
         const data = (await response.json()) as SuggestionResponse;
@@ -104,7 +113,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
         if (shouldShowLoading) setLoading(false);
       }
     },
-    [cache.fingerprint, cache.generatedAt, fingerprint, hasVisibleSuggestions, requestBody, state]
+    [auth, cache.fingerprint, cache.generatedAt, fingerprint, hasVisibleSuggestions, requestBody, state]
   );
 
   useEffect(() => {
@@ -146,7 +155,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       <IntelligenceSection
         title="Adaptive Fences"
         tierLabel={intelligenceTierLabel(isPro)}
-        premiumLabel="Premium"
+        premiumLabel={isPro ? undefined : "Premium"}
         tierDescription={intelligenceTierDescription(isPro)}
         onRefresh={() => generateSuggestions(true)}
         refreshDisabled
@@ -161,7 +170,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     <IntelligenceSection
       title="Adaptive Fences"
       tierLabel={intelligenceTierLabel(isPro)}
-      premiumLabel="Premium"
+      premiumLabel={isPro ? undefined : "Premium"}
       tierDescription={intelligenceTierDescription(isPro)}
       loading={loading}
       onRefresh={() => generateSuggestions(true)}
@@ -288,7 +297,7 @@ function intelligenceTierLabel(isPro: boolean) {
 
 function intelligenceTierDescription(isPro: boolean) {
   return isPro
-    ? `Advanced pattern recognition, multi-cycle analysis, and predictive fence suggestions are active. ${premiumIntelligenceSentence}`
+    ? "Advanced pattern recognition and deeper insights are active."
     : `Upgrade for advanced pattern recognition and deeper insight review. ${premiumIntelligenceSentence}`;
 }
 

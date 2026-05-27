@@ -17,9 +17,9 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
     <div className="fixed inset-0 z-[80] grid place-items-center bg-[#0B1114]/55 px-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-[2rem] border border-[var(--app-border)] bg-[var(--app-card)] p-5 shadow-float">
         <PremiumBadge />
-        <h2 className="mt-4 text-2xl font-black text-[var(--app-text)]">Premium features are planned.</h2>
+        <h2 className="mt-4 text-2xl font-black text-[var(--app-text)]">Premium unlocks deeper SpendFence intelligence.</h2>
         <p className="mt-2 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
-          SpendFence is marking future Premium areas now, but subscriptions and payment checkout are not enabled yet.
+          Upgrade to unlock unlimited Teller account linking, advanced pattern recognition, and richer adaptive insights.
         </p>
         <Button className="mt-5 w-full" variant="secondary" onClick={onClose}>
           Got it

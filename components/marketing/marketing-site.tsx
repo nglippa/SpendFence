@@ -130,7 +130,7 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
             href="/demo"
             className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl border border-[rgb(31_209_165_/_0.26)] bg-[rgb(31_209_165_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(31_209_165_/_0.16)]"
           >
-            View Demo
+            Try Demo
           </Link>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 pb-3 text-sm font-black text-[var(--marketing-muted)] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
@@ -307,7 +307,7 @@ export function PricingMarketingPage() {
             title="Premium"
             price="Planned"
             body="For deeper pattern recognition and advanced adaptive onboarding."
-            cta="View Demo"
+            cta="Try Demo"
             href="/demo"
             highlighted
             features={["Advanced intelligence", "Adaptive onboarding", "Advanced pattern recognition", "Predictive pacing", "Deeper behavioral insights", "Future account-linked AI learning"]}
@@ -333,7 +333,7 @@ function HeroSection() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
-            <SecondaryCta href="/demo">View Demo</SecondaryCta>
+            <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
             {[
@@ -753,7 +753,7 @@ function FinalCta() {
           </div>
           <div className="grid gap-3 sm:flex lg:shrink-0">
             <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
-            <SecondaryCta href="/demo">View Demo</SecondaryCta>
+            <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
         </div>
       </motion.div>

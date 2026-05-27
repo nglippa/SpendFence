@@ -3,6 +3,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 import { hasSupabaseConfig } from "@/lib/supabase";
+import { activeSubscriptionTierForUser } from "@/lib/stripe/server";
 import { normalizeTier, type AppTier, type DeveloperTierPreviewMode } from "@/lib/tier";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -38,7 +39,7 @@ export async function requireApiUser(request: Request): Promise<{ user?: ApiUser
     const { data, error } = await supabase.auth.getUser(bearer);
     if (error || !data.user) return unauthorized("Sign in again to use bank sync.");
 
-    return { user: toApiUser(request, data.user, "supabase") };
+    return { user: await toApiUser(request, data.user, "supabase") };
   }
 
   if (process.env.NODE_ENV === "development") {
@@ -67,17 +68,25 @@ export function isLockedDemoRequest(request: Request) {
     .some((item) => item === "spendfence-demo-locked-session-v1=true");
 }
 
-function toApiUser(request: Request, user: User, mode: ApiUser["mode"]): ApiUser {
+async function toApiUser(request: Request, user: User, mode: ApiUser["mode"]): Promise<ApiUser> {
   const email = user.email ?? undefined;
   const isDeveloper = isApprovedDeveloper(user.id, email);
   return {
     id: user.id,
     email,
     mode,
-    realTier: subscriptionTierForUser(user),
+    realTier: (await safeActiveSubscriptionTierForUser(user.id)) ?? subscriptionTierForUser(user),
     isDeveloper,
     developerTierOverride: isDeveloper ? normalizeTier(request.headers.get("x-spendfence-dev-tier-preview")) : null
   };
+}
+
+async function safeActiveSubscriptionTierForUser(userId: string) {
+  try {
+    return await activeSubscriptionTierForUser(userId);
+  } catch {
+    return null;
+  }
 }
 
 function subscriptionTierForUser(user: User): AppTier {

@@ -34,7 +34,7 @@ export default function ReportsPage() {
         title="Clean cycle insights"
         body={
           <>
-            {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics are marked for future Premium.{" "}
+            {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics and deeper insights are included with Premium.{" "}
             <button type="button" className="align-baseline" onClick={() => setUpgradeOpen(true)} aria-label="Open Premium details">
               <PremiumBadge />
             </button>
