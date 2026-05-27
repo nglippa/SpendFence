@@ -72,7 +72,7 @@ const settingsSections = [
       href: "/settings/bank-sync",
       icon: Building2,
       title: "Bank Sync",
-      subtitle: "Teller sandbox and reviewed imports"
+      subtitle: "Connected accounts and reviewed imports"
     },
     {
       href: "/settings/ai",

@@ -58,8 +58,8 @@ export function BankSyncCard() {
   const connectedAccountCount = accountDataAvailable ? accounts.length : accountLimit?.accountCount ?? connectedConnections.length;
   const accountCountUsesAccounts = accountDataAvailable || accountLimit?.accountCountSource === "accounts";
   const freeLimitReached = auth.effectiveTier === "free" && connectedAccountCount >= FREE_TELLER_ACCOUNT_LIMIT;
-  const accountLimitLabel = auth.effectiveTier === "premium" ? "Unlimited account linking" : `${FREE_TELLER_ACCOUNT_LIMIT} accounts included`;
-  const upgradeLimitCopy = auth.effectiveTier === "premium" ? "No account limit is active on Premium." : "Premium unlocks unlimited account linking.";
+  const accountLimitLabel = auth.effectiveTier === "premium" ? "Unlimited syncing" : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} accounts connected`;
+  const upgradeLimitCopy = auth.effectiveTier === "premium" ? "Unlimited account syncing active." : "Free includes 2 accounts. Premium unlocks unlimited syncing.";
 
   const requestHeaders = useCallback(async (): Promise<HeadersInit> => {
     const token = await auth.getAccessToken();
@@ -221,10 +221,10 @@ export function BankSyncCard() {
               {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
             </div>
             <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
-              Connect with Teller sandbox, review imported transactions, and keep access tokens server-side. {upgradeLimitCopy}
+              Connect accounts, import transactions automatically, and review them before they affect your budget. {upgradeLimitCopy}
             </p>
             <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
-              {["Teller Connect handles bank login", "Access tokens stay server-side", "Transactions pause for review", "Smart category suggestions"].map((item) => (
+              {["Secure bank login", "Private connection storage", "Transactions pause for review", "Smart category suggestions"].map((item) => (
                 <span key={item} className="flex items-center gap-2 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-black text-slate-700 sm:rounded-2xl sm:p-3">
                   <CheckCircle2 size={16} className="text-[#58c6a8]" />
                   {item}
@@ -249,7 +249,6 @@ export function BankSyncCard() {
               ) : null}
               {freeLimitReached ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Upgrade for unlimited</Pill> : null}
               {tellerConfigured === false ? <Pill className="border-slate-200 bg-white text-slate-600">Bank sync setup pending</Pill> : null}
-              <Pill className="border-slate-200 bg-white text-slate-600">Teller sandbox</Pill>
             </div>
             {freeLimitReached ? <p className="mt-3 rounded-xl border border-sky-100 bg-sky-50 p-2.5 text-sm font-bold leading-5 text-sky-800 sm:rounded-2xl sm:p-3 sm:leading-6">{TELLER_ACCOUNT_LIMIT_MESSAGE}</p> : null}
             {message ? <p className="mt-3 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:rounded-2xl sm:p-3 sm:leading-6">{message}</p> : null}
@@ -263,11 +262,11 @@ export function BankSyncCard() {
             <h2 className="text-lg font-black sm:text-xl">Connected accounts</h2>
             <p className="mt-1 text-sm font-semibold text-slate-600">
               {auth.effectiveTier === "premium"
-                ? "Unlimited account linking"
-                : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} included accounts connected`}
+                ? "Unlimited account syncing active."
+                : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} accounts connected`}
             </p>
             <p className="mt-1 text-xs font-bold text-slate-500">
-              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : accountCountUsesAccounts ? "Account count is based on Teller accounts." : "Account count falls back to connected enrollments until accounts refresh."}
+              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : accountCountUsesAccounts ? "Account count is based on connected accounts." : "Refresh accounts to update this count."}
             </p>
           </div>
           {loading ? <Pill className="border-slate-200 bg-white text-slate-600"><RefreshCw size={13} className="mr-1 animate-spin" /> Working</Pill> : null}
@@ -279,7 +278,7 @@ export function BankSyncCard() {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-black text-[#10201c]">{connection.institution_name}</p>
-                    <p className="text-xs font-bold text-slate-500">Teller / {connection.status}</p>
+                    <p className="text-xs font-bold text-slate-500">Bank connection / {connection.status}</p>
                   </div>
                   <Pill className={connection.status === "connected" ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}>
                     {connection.status}
@@ -304,7 +303,7 @@ export function BankSyncCard() {
 
       <Card>
         <div className="grid gap-4 md:grid-cols-3">
-          <MiniFeature icon={Building2} title="Connected accounts" body="Teller accounts are fetched server-side from stored enrollments." />
+          <MiniFeature icon={Building2} title="Connected accounts" body="Accounts are fetched server-side from secure stored connections." />
           <MiniFeature icon={RefreshCw} title="Review queue" body="Synced transactions are staged before they affect budgets." />
           <MiniFeature icon={ShieldCheck} title="Token safety" body="Teller access tokens are never saved in localStorage or returned to the client." />
         </div>

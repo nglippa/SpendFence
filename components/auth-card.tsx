@@ -36,7 +36,7 @@ const copy = {
   forgot: {
     kicker: "Reset",
     title: "Forgot your password?",
-    body: "Enter your email and we’ll send a reset link if Supabase auth is configured.",
+    body: "Enter your email and we’ll send a secure reset link.",
     button: "Send reset link",
     foot: "Remembered it?",
     footHref: "/login",
@@ -66,6 +66,8 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const passwordChecks = getPasswordChecks(password);
   const passwordScore = passwordChecks.filter((check) => check.met).length;
   const passwordStrength = getPasswordStrength(password, passwordScore);
+  const localModeAvailable = useLocalModeAvailable();
+  const authUnavailable = !auth.authEnabled && !localModeAvailable;
 
   useEffect(() => {
     if (mode !== "login") return;
@@ -94,6 +96,11 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (authUnavailable) {
+      setError("Authentication is temporarily unavailable. Please try again shortly.");
+      return;
+    }
+
     if (mfaChallenge) {
       await verifyMfa();
       return;
@@ -276,7 +283,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                 <Field label="Email">
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <Input className="pl-11" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+                    <Input className="pl-11" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={authUnavailable} required />
                   </div>
                 </Field>
 
@@ -305,6 +312,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                         autoComplete={mode === "signup" ? "new-password" : "current-password"}
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
+                        disabled={authUnavailable}
                         minLength={mode === "signup" ? 12 : 6}
                         required
                       />
@@ -317,14 +325,19 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
             {error ? <p className="rounded-2xl bg-rose-50 p-3 text-sm font-bold text-rose-700">{error}</p> : null}
             {message ? <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{message}</p> : null}
+            {authUnavailable ? (
+              <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold leading-6 text-slate-700">
+                Secure sign-in is temporarily unavailable. Your data remains protected; please try again soon.
+              </p>
+            ) : null}
 
-            <Button type="submit" size="lg" disabled={submitting}>
+            <Button type="submit" size="lg" disabled={submitting || authUnavailable}>
               {submitting ? "Working..." : mfaChallenge ? "Verify and continue" : content.button}
               <ArrowRight size={18} />
             </Button>
           </form>
 
-          {mode === "login" && auth.demoModeAvailable ? (
+          {mode === "login" && auth.demoModeAvailable && localModeAvailable ? (
             <div className="mt-4 rounded-3xl border border-dashed border-[#cfe8de] bg-[#f7faf7] p-4">
               <p className="text-sm font-black text-[#10201c]">Local Mode</p>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
@@ -352,6 +365,17 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
       </div>
     </main>
   );
+}
+
+function useLocalModeAvailable() {
+  const [available, setAvailable] = useState(false);
+
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    setAvailable(process.env.NODE_ENV === "development" && (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1"));
+  }, []);
+
+  return available;
 }
 
 type PasswordCheck = {
