@@ -7,8 +7,10 @@ import { TellerConnectButton } from "@/components/banking/teller-connect-button"
 import { PremiumBadge } from "@/components/upgrade-modal";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
-import { isPremiumFeatureEnabled, premiumFeatures } from "@/lib/premium-features";
+import { FREE_TELLER_ACCOUNT_LIMIT, TELLER_ACCOUNT_LIMIT_MESSAGE } from "@/lib/bank-sync-limits";
+import { premiumFeatures } from "@/lib/premium-features";
 import { useSpendFence } from "@/lib/store";
+import type { AppTier } from "@/lib/tier";
 import type { ImportedTransactionInput } from "@/lib/types";
 
 type BankConnection = {
@@ -30,6 +32,15 @@ type BankAccount = {
   currency: string;
 };
 
+type TellerAccountLimit = {
+  tier: AppTier;
+  accountCount: number;
+  accountCountSource: "accounts" | "connections";
+  accountLimit: number | null;
+  canLinkMore: boolean;
+  message?: string;
+};
+
 export function BankSyncCard() {
   const auth = useAuth();
   const state = useSpendFence();
@@ -37,18 +48,28 @@ export function BankSyncCard() {
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<BankConnection[]>([]);
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
+  const [accountDataAvailable, setAccountDataAvailable] = useState(false);
+  const [accountLimit, setAccountLimit] = useState<TellerAccountLimit | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState("");
   const [tellerConfigured, setTellerConfigured] = useState<boolean | null>(null);
-  const devTestingEnabled = process.env.NODE_ENV === "development";
-  const premiumEnabled = auth.isPro && isPremiumFeatureEnabled("bank-sync");
-  const bankSyncEnabled = !state.demoModeLocked && (premiumEnabled || devTestingEnabled);
+  const bankSyncEnabled = !state.demoModeLocked;
   const activeConnection = connections.find((connection) => connection.status === "connected");
+  const connectedConnections = connections.filter((connection) => connection.status === "connected");
+  const connectedAccountCount = accountDataAvailable ? accounts.length : accountLimit?.accountCount ?? connectedConnections.length;
+  const accountCountUsesAccounts = accountDataAvailable || accountLimit?.accountCountSource === "accounts";
+  const freeLimitReached = auth.effectiveTier === "free" && connectedAccountCount >= FREE_TELLER_ACCOUNT_LIMIT;
+  const accountLimitLabel = auth.effectiveTier === "premium" ? "Unlimited account linking" : `${FREE_TELLER_ACCOUNT_LIMIT} accounts included`;
+  const upgradeLimitCopy = auth.effectiveTier === "premium" ? "No account limit is active on Premium." : "Premium unlocks unlimited account linking.";
 
   const requestHeaders = useCallback(async (): Promise<HeadersInit> => {
     const token = await auth.getAccessToken();
-    if (token) return { Authorization: `Bearer ${token}` };
-    if (process.env.NODE_ENV === "development" && auth.user?.id) return { "x-spendfence-dev-user": auth.user.id };
-    return {};
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    if (auth.isDeveloper) headers["x-spendfence-dev-tier-preview"] = auth.tierPreviewMode;
+    if (auth.user?.email) headers["x-spendfence-dev-email"] = auth.user.email;
+    headers["x-spendfence-real-tier"] = auth.realTier;
+    if (process.env.NODE_ENV === "development" && auth.user?.id) headers["x-spendfence-dev-user"] = auth.user.id;
+    return headers;
   }, [auth]);
 
   const loadConnections = useCallback(async () => {
@@ -58,8 +79,9 @@ export function BankSyncCard() {
         headers: await requestHeaders(),
         cache: "no-store"
       });
-      const data = (await response.json()) as { connections?: BankConnection[]; message?: string };
+      const data = (await response.json()) as { connections?: BankConnection[]; accountLimit?: TellerAccountLimit; message?: string };
       setConnections(data.connections ?? []);
+      setAccountLimit(data.accountLimit ?? null);
       if (!response.ok && data.message) setMessage(data.message);
     } catch {
       setMessage("Bank connections are unavailable right now.");
@@ -87,9 +109,11 @@ export function BankSyncCard() {
     };
   }, [state.demoModeLocked]);
 
-  async function loadAccounts() {
-    setLoading(true);
-    setMessage("");
+  async function loadAccounts(options?: { silent?: boolean }) {
+    if (!options?.silent) {
+      setLoading(true);
+      setMessage("");
+    }
     try {
       const response = await fetch("/api/teller/accounts", {
         headers: await requestHeaders(),
@@ -97,12 +121,27 @@ export function BankSyncCard() {
       });
       const data = (await response.json()) as { accounts?: BankAccount[]; message?: string };
       setAccounts(data.accounts ?? []);
-      setMessage(data.message ?? (response.ok ? "Connected accounts refreshed." : "Connected accounts are unavailable right now."));
+      setAccountDataAvailable(response.ok);
+      if (!options?.silent) setMessage(data.message ?? (response.ok ? "Connected accounts refreshed." : "Connected accounts are unavailable right now."));
     } catch {
-      setMessage("Connected accounts are unavailable right now.");
+      setAccountDataAvailable(false);
+      if (!options?.silent) setMessage("Connected accounts are unavailable right now.");
     } finally {
-      setLoading(false);
+      if (!options?.silent) setLoading(false);
     }
+  }
+
+  async function handleConnected() {
+    await loadConnections();
+    await loadAccounts({ silent: true });
+  }
+
+  function canOpenTellerConnect() {
+    if (auth.effectiveTier === "free" && connectedAccountCount >= FREE_TELLER_ACCOUNT_LIMIT) {
+      setMessage(TELLER_ACCOUNT_LIMIT_MESSAGE);
+      return false;
+    }
+    return true;
   }
 
   async function syncTransactions() {
@@ -177,11 +216,12 @@ export function BankSyncCard() {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-lg font-black sm:text-xl">{premiumFeatures["bank-sync"].title}</h2>
-              <PremiumBadge />
-              {devTestingEnabled ? <Pill className="border-[#d9e7ff] bg-[#f4f8ff] text-[#315f96]">Dev testing</Pill> : null}
+              {auth.effectiveTier === "premium" ? <PremiumBadge /> : null}
+              <Pill className={auth.effectiveTier === "premium" ? "border-sky-100 bg-sky-50 text-sky-700" : "border-slate-200 bg-white text-slate-600"}>{accountLimitLabel}</Pill>
+              {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
             </div>
             <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
-              Connect with Teller sandbox, review imported transactions, and keep access tokens server-side.
+              Connect with Teller sandbox, review imported transactions, and keep access tokens server-side. {upgradeLimitCopy}
             </p>
             <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
               {["Teller Connect handles bank login", "Access tokens stay server-side", "Transactions pause for review", "Smart category suggestions"].map((item) => (
@@ -194,9 +234,9 @@ export function BankSyncCard() {
 
             <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
               {tellerConfigured ? (
-                <TellerConnectButton disabled={!bankSyncEnabled || loading} requestHeaders={requestHeaders} onConnected={loadConnections} onMessage={setMessage} />
+                <TellerConnectButton disabled={!bankSyncEnabled || loading || freeLimitReached} requestHeaders={requestHeaders} onBeforeOpen={canOpenTellerConnect} onConnected={handleConnected} onMessage={setMessage} />
               ) : null}
-              <Button variant="secondary" onClick={loadAccounts} disabled={!bankSyncEnabled || loading || !activeConnection}>
+              <Button variant="secondary" onClick={() => loadAccounts()} disabled={!bankSyncEnabled || loading || !activeConnection}>
                 <RefreshCw size={18} /> Refresh accounts
               </Button>
               <Button variant="secondary" onClick={syncTransactions} disabled={!bankSyncEnabled || loading || !activeConnection}>
@@ -207,10 +247,11 @@ export function BankSyncCard() {
                   <Unplug size={18} /> Disconnect
                 </Button>
               ) : null}
-              {!premiumEnabled && !devTestingEnabled ? <Pill className="border-slate-200 bg-white text-slate-600">Premium required</Pill> : null}
+              {freeLimitReached ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Upgrade for unlimited</Pill> : null}
               {tellerConfigured === false ? <Pill className="border-slate-200 bg-white text-slate-600">Bank sync setup pending</Pill> : null}
               <Pill className="border-slate-200 bg-white text-slate-600">Teller sandbox</Pill>
             </div>
+            {freeLimitReached ? <p className="mt-3 rounded-xl border border-sky-100 bg-sky-50 p-2.5 text-sm font-bold leading-5 text-sky-800 sm:rounded-2xl sm:p-3 sm:leading-6">{TELLER_ACCOUNT_LIMIT_MESSAGE}</p> : null}
             {message ? <p className="mt-3 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:rounded-2xl sm:p-3 sm:leading-6">{message}</p> : null}
           </div>
         </div>
@@ -221,7 +262,12 @@ export function BankSyncCard() {
           <div>
             <h2 className="text-lg font-black sm:text-xl">Connected accounts</h2>
             <p className="mt-1 text-sm font-semibold text-slate-600">
-              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : "No sync has run this session."}
+              {auth.effectiveTier === "premium"
+                ? "Unlimited account linking"
+                : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} included accounts connected`}
+            </p>
+            <p className="mt-1 text-xs font-bold text-slate-500">
+              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : accountCountUsesAccounts ? "Account count is based on Teller accounts." : "Account count falls back to connected enrollments until accounts refresh."}
             </p>
           </div>
           {loading ? <Pill className="border-slate-200 bg-white text-slate-600"><RefreshCw size={13} className="mr-1 animate-spin" /> Working</Pill> : null}

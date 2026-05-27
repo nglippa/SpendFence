@@ -118,6 +118,11 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
       <main className="app-shell-frame overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
+          {auth.isDeveloper ? (
+            <div className="mb-4 inline-flex min-h-8 items-center rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-sky-700 shadow-soft sm:mb-5">
+              Developer Preview: {auth.planLabel}
+            </div>
+          ) : null}
           {demoDataEnabled ? (
             <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[color:rgb(24_184_137_/_0.20)] bg-[color:rgb(24_184_137_/_0.10)] px-3.5 py-3 shadow-soft sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <div className="flex min-w-0 items-center gap-2.5">

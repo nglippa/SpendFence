@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChevronRight,
   Crown,
+  Code2,
   Database,
   Info,
   ListChecks,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import { SettingsGroup, SettingsRow } from "@/components/settings-ui";
 import { Pill } from "@/components/ui";
+import { useAuth } from "@/lib/auth";
 import { currentCycleLabel } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 
@@ -102,7 +104,19 @@ const settingsSections = [
 ];
 
 export default function SettingsPage() {
+  const auth = useAuth();
   const state = useSpendFence();
+  const developerSection = auth.isDeveloper
+    ? [
+        {
+          href: "/settings/developer",
+          icon: Code2,
+          title: "Developer",
+          subtitle: "Tier preview mode"
+        }
+      ]
+    : [];
+  const sections = developerSection.length ? [...settingsSections, developerSection] : settingsSections;
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
@@ -110,13 +124,14 @@ export default function SettingsPage() {
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
         <h1 className="mt-2 text-3xl font-black leading-9 tracking-tight text-[#10201c]">SpendFence</h1>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Free plan</Pill>
+          <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{auth.planLabel} plan</Pill>
+          {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
           <Pill className="border-slate-200 bg-white text-slate-600">{currentCycleLabel(state.budgetMonth).replace("Current cycle: ", "")}</Pill>
         </div>
       </div>
 
       <div className="grid gap-5">
-        {settingsSections.map((section, index) => (
+        {sections.map((section, index) => (
           <SettingsGroup key={index}>
             {section.map((item) => (
               <SettingsRow key={item.href} {...item} accessory={<ChevronRight size={18} className="shrink-0 text-slate-300" />} />

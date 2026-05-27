@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Brain } from "lucide-react";
-import { IntelligenceCarouselDots, IntelligenceEmptyState, IntelligenceSection } from "@/components/insights/intelligence-section";
+import { IntelligenceCarouselDots, IntelligenceEmptyState, IntelligenceSection, intelligenceCarouselTrackClass } from "@/components/insights/intelligence-section";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { useAuth } from "@/lib/auth";
@@ -12,20 +12,20 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
   const { isPro } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const { activeIndex, carouselRef, handleScroll } = useCenteredCarousel(insights.length);
+  const tierDescription = isPro
+    ? "Advanced pattern recognition, multi-cycle analysis, and predictive spending insights are active. Advanced analytics and deeper insights included with Premium."
+    : "Upgrade for advanced pattern recognition and deeper insight review. Advanced analytics and deeper insights included with Premium.";
 
   return (
     <IntelligenceSection
       title="Smart Insights"
       tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
       tierIcon={Brain}
-      premiumLabel={isPro ? "Pro" : undefined}
-      tierDescription={
-        isPro
-          ? "Advanced pattern recognition, deeper spending insights, multi-cycle analysis, and predictive fence suggestions are active."
-          : "Upgrade for advanced pattern recognition and deeper insights."
-      }
+      premiumLabel="Premium"
+      tierDescription={tierDescription}
       onRefresh={() => setRefreshKey((current) => current + 1)}
       dots={<IntelligenceCarouselDots count={insights.length} activeIndex={activeIndex} />}
+      variant="flagship"
     >
       {insights.length ? (
         <div
@@ -33,7 +33,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
           ref={carouselRef}
           data-carousel="true"
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-4"
+          className={intelligenceCarouselTrackClass}
         >
           {insights.map((insight) => (
             <SpendInsightCard
@@ -42,7 +42,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
               insight={insight}
               dismissible={false}
               compact
-              className="app-carousel-card min-h-[11.5rem] shrink-0 snap-center snap-always"
+              className="app-carousel-card min-h-[15.5rem] shrink-0 snap-center snap-always sm:min-h-[16rem]"
             />
           ))}
         </div>

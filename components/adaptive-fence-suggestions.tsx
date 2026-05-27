@@ -1,8 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronRight, Gauge, Sparkles, X } from "lucide-react";
-import { IntelligenceCarouselDots, IntelligenceSection } from "@/components/insights/intelligence-section";
+import { Check, ChevronRight, Gauge, X } from "lucide-react";
+import {
+  IntelligenceCarouselDots,
+  IntelligenceEmptyState,
+  IntelligenceSection,
+  intelligenceAccentRailClass,
+  intelligenceCardSurfaceClass,
+  intelligenceCarouselTrackClass,
+  intelligenceIconSurfaceClass
+} from "@/components/insights/intelligence-section";
 import { Button, Pill } from "@/components/ui";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { buildAdaptiveSuggestionFingerprint } from "@/lib/adaptive-suggestions-engine";
@@ -17,6 +25,8 @@ type SuggestionResponse = {
   suggestions?: AdaptiveFenceSuggestion[];
   aiUsed?: boolean;
 };
+
+const premiumIntelligenceSentence = "Advanced analytics and deeper insights included with Premium.";
 
 export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message: string) => void }) {
   const state = useSpendFence();
@@ -136,13 +146,13 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
       <IntelligenceSection
         title="Adaptive Fences"
         tierLabel={intelligenceTierLabel(isPro)}
-        premiumLabel={isPro ? "Pro" : undefined}
+        premiumLabel="Premium"
         tierDescription={intelligenceTierDescription(isPro)}
         onRefresh={() => generateSuggestions(true)}
         refreshDisabled
         variant="flagship"
       >
-        <AdaptiveEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." loading={false} />
+        <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
       </IntelligenceSection>
     );
   }
@@ -151,7 +161,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
     <IntelligenceSection
       title="Adaptive Fences"
       tierLabel={intelligenceTierLabel(isPro)}
-      premiumLabel={isPro ? "Pro" : undefined}
+      premiumLabel="Premium"
       tierDescription={intelligenceTierDescription(isPro)}
       loading={loading}
       onRefresh={() => generateSuggestions(true)}
@@ -164,7 +174,7 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
           ref={carouselRef}
           data-carousel="true"
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3.5 py-3.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-5"
+          className={intelligenceCarouselTrackClass}
         >
           {activeSuggestions.map((suggestion) => (
             <SuggestionCard
@@ -209,13 +219,13 @@ function SuggestionCard({
   return (
     <article
       data-carousel-item="true"
-      className="app-carousel-card group relative flex min-h-[15.5rem] shrink-0 snap-center snap-always flex-col self-stretch overflow-hidden rounded-[1.25rem] border border-white/75 bg-[radial-gradient(circle_at_12%_0%,rgb(126_242_212_/_0.22),transparent_12rem),linear-gradient(150deg,#FFFFFF_0%,#F8FFFC_48%,#EEF9F4_100%)] p-3.5 shadow-[0_14px_34px_rgb(11_17_20_/_0.09)] transition-[box-shadow,transform,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-[rgb(31_209_165_/_0.34)] hover:shadow-[0_20px_50px_rgb(11_17_20_/_0.13),0_8px_24px_rgb(24_184_137_/_0.13)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_12%_0%,rgb(31_209_165_/_0.16),transparent_13rem),linear-gradient(150deg,#182229_0%,#121A1F_58%,#10211D_100%)] dark:shadow-[0_14px_34px_rgb(0_0_0_/_0.25)] sm:min-h-[16rem] sm:p-4"
+      className={cn(intelligenceCardSurfaceClass, "app-carousel-card group flex min-h-[15.5rem] shrink-0 snap-center snap-always flex-col self-stretch p-3.5 sm:min-h-[16rem] sm:p-4")}
     >
-      <div className="pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#7EF2D4] via-[#1FD1A5] to-[#18B889] shadow-[0_0_22px_rgb(31_209_165_/_0.38)]" />
-      <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(31_209_165_/_0.16)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+      <div className={intelligenceAccentRailClass} />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.14)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
       <button type="button" onClick={onToggle} className="relative block w-full text-left" aria-expanded={expanded} aria-label={`${expanded ? "Collapse" : "Expand"} suggestion: ${suggestion.title}`}>
         <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#10201C,#18B889)] text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.22)] ring-1 ring-white/70 dark:bg-brand-gradient dark:text-[#0B1114] dark:ring-white/10 sm:h-10 sm:w-10">
+          <div className={intelligenceIconSurfaceClass}>
             <Gauge size={16} />
           </div>
           <Pill className={cn("px-2 py-0.5 text-[0.64rem] shadow-[0_8px_18px_rgb(11_17_20_/_0.06)] sm:text-xs", confidenceClass(suggestion.confidence))}>{suggestion.confidence}</Pill>
@@ -224,16 +234,16 @@ function SuggestionCard({
         <div>
           <p
             className={cn(
-              "mt-1.5 text-xs font-semibold leading-5 text-[#50645C] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none dark:text-[var(--app-text-secondary)] sm:text-sm",
+              "mt-1.5 text-xs font-semibold leading-5 text-[#536173] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none dark:text-[var(--app-text-secondary)] sm:text-sm",
               expanded ? "max-h-24 overflow-y-auto pr-1" : "line-clamp-2 min-h-[2.5rem] max-h-[2.5rem] overflow-hidden sm:line-clamp-3 sm:min-h-[3.75rem] sm:max-h-[3.75rem]"
             )}
           >
             {suggestion.explanation}
           </p>
         </div>
-        <span className="mt-2 inline-flex text-xs font-black text-[var(--brand-primary)]">{expanded ? "Show less" : "Read more"}</span>
+        <span className="mt-2 inline-flex text-xs font-black text-[#4F46E5] dark:text-[#C4B5FD]">{expanded ? "Show less" : "Read more"}</span>
       </button>
-      <div className="relative mt-3 flex items-center justify-between gap-2 rounded-2xl border border-[rgb(24_184_137_/_0.12)] bg-white/78 px-2.5 py-2 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.85)] dark:border-white/10 dark:bg-white/[0.055] sm:px-3 sm:py-2.5">
+      <div className="relative mt-3 flex items-center justify-between gap-2 rounded-2xl border border-[rgb(99_102_241_/_0.14)] bg-white/78 px-2.5 py-2 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.85)] dark:border-white/10 dark:bg-white/[0.055] sm:px-3 sm:py-2.5">
         <span className="min-w-0 text-xs font-black leading-4 text-[#10201c] dark:text-[var(--app-text)] sm:text-sm sm:leading-5">{suggestion.suggestedAction}</span>
         {suggestion.metric ? <span className="shrink-0 text-[0.68rem] font-black text-[var(--app-text-muted)] sm:text-xs">{suggestion.metric}</span> : <ChevronRight size={15} className="shrink-0 text-[var(--app-text-muted)]" />}
       </div>
@@ -243,7 +253,7 @@ function SuggestionCard({
         </p>
       ) : null}
       <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 pt-2 sm:pt-3">
-        <Button type="button" size="sm" onClick={onAccept} className="min-h-9 rounded-xl px-2.5 text-xs sm:min-h-10 sm:px-3">
+        <Button type="button" size="sm" onClick={onAccept} className="min-h-9 rounded-xl bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] px-2.5 text-xs text-white shadow-[0_10px_24px_rgb(79_70_229_/_0.20)] hover:brightness-105 dark:text-white sm:min-h-10 sm:px-3">
           <Check size={14} /> {appliesLimit ? "Accept" : "Useful"}
         </Button>
         <button
@@ -260,29 +270,14 @@ function SuggestionCard({
 }
 
 function AdaptiveEmptyState({ title, body, loading }: { title: string; body: string; loading: boolean }) {
-  return (
-    <div className="p-3.5 sm:p-5">
-      <div className="relative overflow-hidden rounded-[1.25rem] border border-white/75 bg-[radial-gradient(circle_at_10%_0%,rgb(126_242_212_/_0.24),transparent_13rem),linear-gradient(145deg,#FFFFFF,#F5FFFA)] p-4 shadow-[0_14px_34px_rgb(11_17_20_/_0.08)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_10%_0%,rgb(31_209_165_/_0.16),transparent_13rem),linear-gradient(145deg,#182229,#111A1E)] sm:p-5">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-32 w-32 rounded-full bg-[rgb(31_209_165_/_0.16)] blur-2xl" />
-        <div className="relative flex gap-3">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#10201C,#18B889)] text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.20)] dark:bg-brand-gradient dark:text-[#0B1114]">
-            <Sparkles size={18} className={cn(loading && "motion-safe:animate-pulse")} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-black text-[#0B1114] dark:text-[var(--app-text)]">{title}</p>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[#50645C] dark:text-[var(--app-text-muted)]">{body}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <IntelligenceEmptyState title={title} body={body} loading={loading} />;
 }
 
 function confidenceClass(confidence: AdaptiveFenceSuggestion["confidence"]) {
   return cn(
     "capitalize",
-    confidence === "high" && "border-[rgb(31_209_165_/_0.25)] bg-[rgb(31_209_165_/_0.12)] text-[var(--app-success)]",
-    confidence === "medium" && "border-[rgb(245_185_66_/_0.25)] bg-[rgb(245_185_66_/_0.13)] text-[var(--app-warning)]",
+    confidence === "high" && "border-[rgb(99_102_241_/_0.25)] bg-[rgb(99_102_241_/_0.11)] text-[#4F46E5] dark:text-[#C4B5FD]",
+    confidence === "medium" && "border-[rgb(59_130_246_/_0.24)] bg-[rgb(59_130_246_/_0.10)] text-[#2563EB] dark:text-[#93C5FD]",
     confidence === "low" && "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)]"
   );
 }
@@ -293,8 +288,8 @@ function intelligenceTierLabel(isPro: boolean) {
 
 function intelligenceTierDescription(isPro: boolean) {
   return isPro
-    ? "Advanced pattern recognition, deeper spending insights, multi-cycle analysis, and predictive fence suggestions are active."
-    : "Upgrade for advanced pattern recognition and deeper insights.";
+    ? `Advanced pattern recognition, multi-cycle analysis, and predictive fence suggestions are active. ${premiumIntelligenceSentence}`
+    : `Upgrade for advanced pattern recognition and deeper insight review. ${premiumIntelligenceSentence}`;
 }
 
 function categoryName(categories: Category[], categoryId: string) {

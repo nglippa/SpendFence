@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { disconnectTeller, listTellerConnections, saveTellerEnrollment, tellerConfig } from "@/lib/teller/server";
+import { disconnectTeller, listTellerConnections, saveTellerEnrollment, tellerAccountLimitStatus, tellerConfig, TellerAccountLimitError } from "@/lib/teller/server";
 import { isLockedDemoRequest, requireApiUser } from "@/lib/server-auth";
 
 export async function GET(request: Request) {
@@ -11,7 +11,8 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json({
       configured: tellerConfig().configured,
-      connections: await listTellerConnections(auth.user)
+      connections: await listTellerConnections(auth.user),
+      accountLimit: await tellerAccountLimitStatus(auth.user)
     });
   } catch {
     return NextResponse.json({ message: "Bank connections are unavailable right now." }, { status: 500 });
@@ -44,7 +45,10 @@ export async function POST(request: Request) {
       connection,
       message: "Bank account connected. Teller access token was stored server-side only."
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof TellerAccountLimitError) {
+      return NextResponse.json({ message: error.message }, { status: 403 });
+    }
     return NextResponse.json({ message: "Bank connection could not be saved." }, { status: 500 });
   }
 }

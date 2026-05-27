@@ -43,5 +43,5 @@ export const premiumFeatures = {
 } satisfies Record<PremiumFeatureId, PremiumFeature>;
 
 export function isPremiumFeatureEnabled(_featureId: PremiumFeatureId) {
-  return false;
+  return true;
 }

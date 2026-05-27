@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import {
   ArrowRight,
@@ -19,6 +20,7 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
+  TrendingUp,
   WalletCards
 } from "lucide-react";
 import { ProgressBar } from "@/components/ui";
@@ -53,7 +55,7 @@ const featureCards = [
   },
   {
     icon: CalendarClock,
-    title: "Recurring Charges",
+    title: "Recurring Detection",
     body: "Track subscriptions and repeat bills so fixed costs do not blur flexible spending."
   },
   {
@@ -80,18 +82,33 @@ const stagger: Variants = {
 
 export function MarketingShell({ page, children }: { page: MarketingPageKey; children: React.ReactNode }) {
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 12);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
 
   return (
-    <div className="min-h-dvh overflow-x-clip bg-[#071012] text-[#F4F7F6]">
+    <div className="min-h-dvh overflow-x-clip bg-[var(--marketing-bg)] text-[var(--marketing-text)]">
       <div className="landing-bg pointer-events-none fixed inset-0" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgb(31_209_165_/_0.16),transparent_34rem)]" />
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#071012]/78 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6 lg:px-8">
-          <Link href="/" className="flex min-w-0 items-center gap-3">
-            <img src="/brand/spendfence-logo-dark.png" alt="SpendFence" className="h-10 w-auto shrink-0 object-contain" />
-            <span className="truncate text-lg font-black tracking-tight text-white">SpendFence</span>
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-12%,rgb(31_209_165_/_0.16),transparent_34rem)] opacity-90 dark:opacity-100" />
+      <header
+        className={cn(
+          "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] transition-all duration-300",
+          scrolled
+            ? "border-[var(--marketing-border)] bg-[rgb(var(--marketing-nav))] shadow-[0_14px_40px_rgb(0_0_0_/_0.10)] backdrop-blur-2xl"
+            : "border-transparent bg-transparent"
+        )}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3 sm:px-6 lg:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:opacity-90">
+            <img src="/brand/spendfence-logo-dark.png" alt="SpendFence" className="h-10 w-auto shrink-0 object-contain dark:block" />
+            <span className="truncate text-lg font-black tracking-tight text-[var(--marketing-text)]">SpendFence</span>
           </Link>
-          <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 lg:flex">
+          <nav className="hidden items-center gap-1 rounded-full border border-[var(--marketing-border)] bg-[var(--marketing-pill)] p-1 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] lg:flex">
             {navItems.map((item) => {
               const active = pathname === item.href || page === item.key;
               return (
@@ -99,31 +116,31 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative rounded-full px-3.5 py-2 text-sm font-black transition",
-                    active ? "text-[#0B1114]" : "text-white/62 hover:text-white"
+                    "relative rounded-full px-3.5 py-2 text-sm font-black transition-colors",
+                    active ? "text-[var(--marketing-active-text)]" : "text-[var(--marketing-muted)] hover:text-[var(--marketing-text)]"
                   )}
                 >
-                  {active ? <motion.span layoutId="marketing-nav-pill" className="absolute inset-0 rounded-full bg-[#EAFBF5]" transition={{ duration: 0.28 }} /> : null}
+                  {active ? <motion.span layoutId="marketing-nav-pill" className="absolute inset-0 rounded-full bg-[var(--marketing-active-pill)]" transition={{ duration: 0.28 }} /> : null}
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
           <Link
-            href="/dashboard"
-            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl border border-[#1FD1A5]/24 bg-[#1FD1A5]/10 px-4 text-sm font-black text-[#7EF2D4] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[#1FD1A5]/14"
+            href="/demo"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl border border-[rgb(31_209_165_/_0.26)] bg-[rgb(31_209_165_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(31_209_165_/_0.16)]"
           >
-            Open App
+            View Demo
           </Link>
         </div>
-        <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 pb-3 text-sm font-black text-white/62 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
+        <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 pb-3 text-sm font-black text-[var(--marketing-muted)] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "shrink-0 rounded-full border px-3 py-1.5",
-                pathname === item.href ? "border-[#1FD1A5]/30 bg-[#1FD1A5]/12 text-[#7EF2D4]" : "border-white/10 bg-white/[0.04]"
+                "shrink-0 rounded-full border px-3 py-1.5 transition",
+                pathname === item.href ? "border-[rgb(31_209_165_/_0.32)] bg-[rgb(31_209_165_/_0.12)] text-[var(--marketing-accent)]" : "border-[var(--marketing-border)] bg-[var(--marketing-pill)]"
               )}
             >
               {item.label}
@@ -142,9 +159,10 @@ export function HomeMarketingPage() {
   return (
     <MarketingShell page="home">
       <HeroSection />
-      <ProblemSnapshot />
-      <PhilosophyPreview />
+      <FrustrationFlow />
+      <AdaptiveCenterpiece />
       <AiPreview />
+      <FeatureGridSection />
       <MobilePreview />
       <VisionPreview />
       <FinalCta />
@@ -171,8 +189,8 @@ export function PhilosophyMarketingPage() {
         <motion.div variants={stagger} className="grid gap-4 md:grid-cols-2">
           {ideas.map(([title, body]) => (
             <MotionCard key={title}>
-              <h2 className="text-2xl font-black leading-tight text-white">{title}</h2>
-              <p className="mt-3 text-sm font-semibold leading-6 text-[#A7B3BC]">{body}</p>
+              <h2 className="text-2xl font-black leading-tight text-[var(--marketing-text)]">{title}</h2>
+              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
             </MotionCard>
           ))}
         </motion.div>
@@ -198,16 +216,16 @@ export function AdaptiveAiMarketingPage() {
         body="SpendFence combines receipt analysis, category suggestions, smart insights, and adaptive fence recommendations into one restrained intelligence layer."
       />
       <SectionShell>
-        <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+        <div className="grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <AnimatedDashboardMockup />
           <motion.div variants={stagger} className="grid gap-3">
             {steps.map(([title, body], index) => (
               <MotionCard key={title} className="p-4">
                 <div className="flex gap-4">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[#1FD1A5]/12 text-sm font-black text-[#7EF2D4]">{index + 1}</span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.12)] text-sm font-black text-[var(--marketing-accent)]">{index + 1}</span>
                   <div>
-                    <h2 className="font-black text-white">{title}</h2>
-                    <p className="mt-1 text-sm font-semibold leading-6 text-[#A7B3BC]">{body}</p>
+                    <h2 className="font-black text-[var(--marketing-text)]">{title}</h2>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
                   </div>
                 </div>
               </MotionCard>
@@ -228,9 +246,7 @@ export function FeaturesMarketingPage() {
         title="Everything needed for adaptive spending intelligence."
         body="SpendFence brings fences, insights, rules, receipts, recurring charges, and mobile-first workflows into one calm product surface."
       />
-      <SectionShell>
-        <FeatureGrid />
-      </SectionShell>
+      <FeatureGridSection />
       <MockupStrip />
     </MarketingShell>
   );
@@ -256,11 +272,11 @@ export function SecurityMarketingPage() {
         <motion.div variants={stagger} className="grid gap-4 md:grid-cols-2">
           {items.map(([title, body]) => (
             <MotionCard key={title}>
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#1FD1A5]/10 text-[#7EF2D4]">
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
                 <LockKeyhole size={20} />
               </div>
-              <h2 className="mt-5 text-xl font-black text-white">{title}</h2>
-              <p className="mt-2 text-sm font-semibold leading-6 text-[#A7B3BC]">{body}</p>
+              <h2 className="mt-5 text-xl font-black text-[var(--marketing-text)]">{title}</h2>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
             </MotionCard>
           ))}
         </motion.div>
@@ -291,8 +307,8 @@ export function PricingMarketingPage() {
             title="Premium"
             price="Planned"
             body="For deeper pattern recognition and advanced adaptive onboarding."
-            cta="Open App"
-            href="/dashboard"
+            cta="View Demo"
+            href="/demo"
             highlighted
             features={["Advanced intelligence", "Adaptive onboarding", "Advanced pattern recognition", "Predictive pacing", "Deeper behavioral insights", "Future account-linked AI learning"]}
           />
@@ -305,19 +321,31 @@ export function PricingMarketingPage() {
 function HeroSection() {
   return (
     <section className="relative isolate overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(7_16_18_/_0.12),#071012_92%)]" />
-      <div className="relative mx-auto grid min-h-[88svh] max-w-7xl gap-10 px-5 pb-16 pt-12 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:px-8 lg:py-20">
-        <motion.div variants={fadeUp} className="max-w-3xl">
+      <div className="absolute inset-x-0 top-0 h-[45rem] bg-[radial-gradient(circle_at_18%_14%,rgb(31_209_165_/_0.18),transparent_28rem),radial-gradient(circle_at_86%_20%,rgb(94_161_255_/_0.10),transparent_30rem)]" />
+      <div className="relative mx-auto grid min-h-[88svh] max-w-7xl gap-11 px-5 pb-16 pt-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-20">
+        <motion.div variants={fadeUp} className="max-w-3xl text-center lg:text-left">
           <Badge>Adaptive AI-assisted spending intelligence</Badge>
-          <h1 className="mt-6 text-5xl font-black leading-[1.01] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 text-[3.45rem] font-black leading-[0.98] tracking-[-0.04em] text-[var(--marketing-text)] sm:text-7xl lg:text-[5.35rem]">
             Budgeting that adapts to how you actually live.
           </h1>
-          <p className="mt-6 max-w-2xl text-base font-semibold leading-8 text-[#A7B3BC] sm:text-lg">
-            SpendFence uses adaptive AI-assisted insights to help users create realistic spending fences from real behavior — not fantasy budgets.
+          <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-8 text-[var(--marketing-muted)] sm:text-lg lg:mx-0">
+            SpendFence turns real behavior into calm spending fences, AI-assisted insights, and decisions you approve before anything changes.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
             <SecondaryCta href="/demo">View Demo</SecondaryCta>
+          </div>
+          <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
+            {[
+              ["AI-assisted", "insights"],
+              ["User-approved", "changes"],
+              ["Mobile-first", "daily rhythm"]
+            ].map(([top, bottom]) => (
+              <div key={top} className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-pill)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)]">
+                <p className="text-xs font-black text-[var(--marketing-text)]">{top}</p>
+                <p className="mt-1 text-[0.68rem] font-black uppercase tracking-[0.12em] text-[var(--marketing-muted)]">{bottom}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
         <AnimatedDashboardMockup />
@@ -326,39 +354,63 @@ function HeroSection() {
   );
 }
 
-function ProblemSnapshot() {
+function FrustrationFlow() {
+  const story = [
+    ["Budgeting frustration", "Most apps ask for a perfect plan before they understand your actual life."],
+    ["Rigid systems fail", "A single unexpected week can make a neat category limit feel useless."],
+    ["Humans are inconsistent", "Spending has rhythm, pressure, timing, and emotion. That context matters."],
+    ["SpendFence adapts", "The product watches pacing, learns patterns, and turns behavior into useful boundaries."]
+  ];
+
   return (
-    <SectionShell eyebrow="Budgeting fatigue" title="Most budgets fail before they learn anything.">
-      <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <motion.p variants={fadeUp} className="text-lg font-semibold leading-8 text-[#A7B3BC]">
-          Most budgeting apps ask users to guess perfect limits upfront. Then real life arrives, categories drift, and the app quietly becomes another source of pressure.
-        </motion.p>
-        <MotionCard>
-          <p className="text-2xl font-black leading-tight text-white">SpendFence starts from behavior.</p>
-          <p className="mt-3 text-sm font-semibold leading-6 text-[#A7B3BC]">
-            It helps users watch pacing, understand pressure, and build more realistic spending fences over time.
-          </p>
-        </MotionCard>
-      </div>
+    <SectionShell eyebrow="The shift" title="The app is not asking you to become a spreadsheet.">
+      <motion.div variants={stagger} className="grid gap-3 md:grid-cols-4">
+        {story.map(([title, body], index) => (
+          <MotionCard key={title} className="p-4">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">0{index + 1}</p>
+            <h3 className="mt-4 text-lg font-black leading-6 text-[var(--marketing-text)]">{title}</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
+          </MotionCard>
+        ))}
+      </motion.div>
     </SectionShell>
   );
 }
 
-function PhilosophyPreview() {
+function AdaptiveCenterpiece() {
   return (
     <SplitSection
-      eyebrow="Adaptive philosophy"
-      title="Spending boundaries, not spending punishment."
-      body="SpendFence treats budgeting as a feedback loop: observe the rhythm, name the pattern, then adjust the boundary when it makes sense."
-      ctaHref="/philosophy"
-      ctaLabel="Read the philosophy"
+      eyebrow="Adaptive budgeting"
+      title="Fences that move with your actual rhythm."
+      body="SpendFence helps users see pace, pressure, and recurring behavior early enough to adjust with intention. It is designed to feel like financial awareness, not financial surveillance."
+      ctaHref="/adaptive-ai"
+      ctaLabel="Explore Adaptive AI"
     >
-      <div className="grid gap-3">
-        {["Behavioral finance", "Realistic budgeting", "Adaptive pacing"].map((item) => (
-          <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-sm font-black text-white">
-            {item}
-          </div>
-        ))}
+      <div className="relative overflow-hidden rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(145deg,var(--marketing-panel),var(--marketing-panel-strong))] p-4 shadow-[var(--marketing-shadow)] sm:p-5">
+        <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[rgb(31_209_165_/_0.14)] blur-3xl" />
+        <div className="relative grid gap-3">
+          {[
+            ["Eating out", "Pacing 18% faster than usual", 82, "#F5B942"],
+            ["Groceries", "Stable against monthly rhythm", 58, "#1FD1A5"],
+            ["Subscriptions", "Recurring charges detected", 42, "#5EA1FF"]
+          ].map(([name, note, percent, color]) => (
+            <motion.div
+              key={name}
+              className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-4"
+              animate={{ opacity: [0.9, 1, 0.9] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-black text-[var(--marketing-text)]">{name}</p>
+                  <p className="mt-1 text-xs font-semibold text-[var(--marketing-muted)]">{note}</p>
+                </div>
+                <Sparkles size={17} className="text-[var(--marketing-accent)]" />
+              </div>
+              <ProgressBar percent={Number(percent)} color={String(color)} />
+            </motion.div>
+          ))}
+        </div>
       </div>
     </SplitSection>
   );
@@ -367,21 +419,41 @@ function PhilosophyPreview() {
 function AiPreview() {
   return (
     <SplitSection
-      eyebrow="AI-assisted insights"
+      eyebrow="AI assists, user approves"
       title="Intelligence that supports decisions without taking them over."
       body="Receipt analysis, category suggestions, smart insights, and adaptive fence recommendations work together to make budgeting feel clearer and less brittle."
-      ctaHref="/adaptive-ai"
-      ctaLabel="Explore Adaptive AI"
+      ctaHref="/features"
+      ctaLabel="See the surfaces"
       reverse
     >
       <div className="grid gap-3">
-        {["AI suggests", "User approves", "Fences adapt"].map((item) => (
-          <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#1FD1A5]/16 bg-[#1FD1A5]/[0.055] p-4 text-sm font-black text-[#EAFBF5]">
-            <CheckCircle2 size={18} className="text-[#7EF2D4]" /> {item}
-          </div>
+        {([
+          ["AI insight", "Dining is moving faster than your normal cycle pace.", Brain],
+          ["Recurring detection", "Streamly looks like a monthly subscription.", CalendarClock],
+          ["Review-first import", "Approve the category before it touches your budget.", ClipboardCheck]
+        ] satisfies Array<[string, string, LucideIcon]>).map(([title, body, Icon]) => (
+          <MotionCard key={String(title)} className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
+                <Icon size={18} />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-[var(--marketing-text)]">{title}</h3>
+                <p className="mt-1 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
+              </div>
+            </div>
+          </MotionCard>
         ))}
       </div>
     </SplitSection>
+  );
+}
+
+function FeatureGridSection() {
+  return (
+    <SectionShell eyebrow="Product surfaces" title="Adaptive intelligence across the budgeting workflow.">
+      <FeatureGrid />
+    </SectionShell>
   );
 }
 
@@ -401,25 +473,25 @@ function VisionPreview() {
 
 function AnimatedDashboardMockup() {
   return (
-    <motion.div variants={fadeUp} className="relative mx-auto w-full max-w-[42rem]">
+    <motion.div variants={fadeUp} className="relative mx-auto w-full max-w-[43rem]">
       <motion.div
-        className="absolute -inset-4 rounded-[2.5rem] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.24),rgb(75_140_255_/_0.08),transparent)] blur-2xl"
-        animate={{ opacity: [0.55, 0.9, 0.55], scale: [0.98, 1.02, 0.98] }}
+        className="absolute -inset-4 rounded-[2.75rem] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.26),rgb(75_140_255_/_0.10),transparent)] blur-2xl"
+        animate={{ opacity: [0.5, 0.88, 0.5], scale: [0.98, 1.02, 0.98] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="relative rounded-[2rem] border border-white/10 bg-[#0B1114]/88 p-3 shadow-[0_34px_90px_rgb(0_0_0_/_0.42)] backdrop-blur-xl sm:rounded-[2.5rem] sm:p-4"
+        className="relative rounded-[2.1rem] border border-[var(--marketing-border)] bg-[var(--marketing-device)] p-3 shadow-[0_34px_90px_rgb(0_0_0_/_0.30)] backdrop-blur-xl sm:rounded-[2.75rem] sm:p-4"
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.72, ease: [0.2, 0.8, 0.2, 1] }}
       >
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#121A1F] p-4 sm:rounded-[2rem] sm:p-5">
+        <div className="overflow-hidden rounded-[1.65rem] border border-[var(--marketing-border)] bg-[var(--marketing-panel)] p-4 sm:rounded-[2.15rem] sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#1FD1A5]">Dashboard</p>
-              <h2 className="mt-1 text-2xl font-black text-white">Fence rhythm</h2>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">SpendFence Live</p>
+              <h2 className="mt-1 text-2xl font-black text-[var(--marketing-text)]">Adaptive dashboard</h2>
             </div>
-            <span className="rounded-full border border-[#1FD1A5]/20 bg-[#1FD1A5]/10 px-3 py-1 text-xs font-black text-[#7EF2D4]">Live cycle</span>
+            <span className="rounded-full border border-[rgb(31_209_165_/_0.22)] bg-[rgb(31_209_165_/_0.10)] px-3 py-1 text-xs font-black text-[var(--marketing-accent)]">Demo ready</span>
           </div>
           <div className="mt-5 grid gap-3">
             {[
@@ -427,14 +499,18 @@ function AnimatedDashboardMockup() {
               ["Groceries", 58, "#1FD1A5", "$418 of $720"],
               ["Subscriptions", 42, "#5EA1FF", "$51 of $120"]
             ].map(([name, percent, color, caption]) => (
-              <div key={name} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+              <div key={name} className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-sm font-black text-white">{name}</span>
-                  <span className="text-xs font-black text-[#A7B3BC]">{caption}</span>
+                  <span className="text-sm font-black text-[var(--marketing-text)]">{name}</span>
+                  <span className="text-xs font-black text-[var(--marketing-muted)]">{caption}</span>
                 </div>
                 <ProgressBar percent={Number(percent)} color={String(color)} />
               </div>
             ))}
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <MiniMetric label="Available" value="$3,820" />
+            <MiniMetric label="Insights" value="4 active" />
           </div>
         </div>
         <FloatingInsight />
@@ -444,20 +520,29 @@ function AnimatedDashboardMockup() {
   );
 }
 
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
+      <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">{label}</p>
+      <p className="mt-1 text-lg font-black text-[var(--marketing-text)]">{value}</p>
+    </div>
+  );
+}
+
 function FloatingInsight() {
   return (
     <motion.div
-      className="absolute -right-1 top-20 w-[min(17rem,78vw)] rounded-3xl border border-[#1FD1A5]/20 bg-[#0F1B1E]/94 p-4 shadow-[0_24px_70px_rgb(0_0_0_/_0.38)] backdrop-blur sm:-right-8"
+      className="absolute -right-1 top-20 w-[min(17rem,78vw)] rounded-3xl border border-[rgb(31_209_165_/_0.22)] bg-[var(--marketing-float)] p-4 shadow-[0_24px_70px_rgb(0_0_0_/_0.26)] backdrop-blur-xl sm:-right-8"
       animate={{ y: [0, -10, 0] }}
       transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="flex items-start gap-3">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#1FD1A5]/12 text-[#7EF2D4]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.12)] text-[var(--marketing-accent)]">
           <Brain size={19} />
         </div>
         <div>
-          <p className="text-sm font-black text-white">Smart insight</p>
-          <p className="mt-1 text-sm font-semibold leading-6 text-[#A7B3BC]">Dining is moving faster than your usual cycle pace.</p>
+          <p className="text-sm font-black text-[var(--marketing-text)]">Smart insight</p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">Dining is moving faster than your usual cycle pace.</p>
         </div>
       </div>
     </motion.div>
@@ -467,7 +552,7 @@ function FloatingInsight() {
 function FloatingApproval() {
   return (
     <motion.div
-      className="absolute -bottom-5 left-4 w-[min(18rem,78vw)] rounded-3xl border border-white/10 bg-[#F4F7F6] p-4 text-[#0B1114] shadow-[0_24px_70px_rgb(0_0_0_/_0.34)] sm:-bottom-8 sm:left-10"
+      className="absolute -bottom-5 left-4 w-[min(18rem,78vw)] rounded-3xl border border-[var(--marketing-border)] bg-[var(--marketing-approval)] p-4 text-[var(--marketing-approval-text)] shadow-[0_24px_70px_rgb(0_0_0_/_0.24)] sm:-bottom-8 sm:left-10"
       animate={{ y: [0, 8, 0] }}
       transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
     >
@@ -494,12 +579,12 @@ function FeatureGrid() {
 
 function FeatureCard({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <MotionCard className="transition hover:-translate-y-1 hover:border-[#1FD1A5]/28 hover:bg-[#121F23]">
-      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1FD1A5]/10 text-[#7EF2D4]">
+    <MotionCard className="transition hover:-translate-y-1 hover:border-[rgb(31_209_165_/_0.28)] hover:bg-[var(--marketing-panel-strong)]">
+      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
         <Icon size={21} />
       </div>
-      <h3 className="mt-5 text-lg font-black leading-6 text-white">{title}</h3>
-      <p className="mt-2 text-sm font-semibold leading-6 text-[#A7B3BC]">{body}</p>
+      <h3 className="mt-5 text-lg font-black leading-6 text-[var(--marketing-text)]">{title}</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
     </MotionCard>
   );
 }
@@ -509,7 +594,7 @@ function MockupStrip() {
     { title: "Dashboard", metric: "$3,820", label: "available", icon: BarChart3 },
     { title: "Budgets", metric: "6 fences", label: "tracking", icon: WalletCards },
     { title: "Reports", metric: "4 insights", label: "this cycle", icon: ReceiptText },
-    { title: "Add Purchase", metric: "18 sec", label: "quick entry", icon: Camera }
+    { title: "Pacing", metric: "18%", label: "ahead of rhythm", icon: TrendingUp }
   ];
 
   return (
@@ -518,20 +603,20 @@ function MockupStrip() {
         const Icon = screen.icon;
         return (
           <MotionCard key={screen.title} className="p-4">
-            <div className="rounded-[1.35rem] border border-white/10 bg-[#0B1114] p-4">
+            <div className="rounded-[1.35rem] border border-[var(--marketing-border)] bg-[var(--marketing-device)] p-4">
               <div className="mb-5 flex items-center justify-between">
-                <span className="h-2 w-16 rounded-full bg-white/12" />
-                <Icon size={18} className="text-[#7EF2D4]" />
+                <span className="h-2 w-16 rounded-full bg-[var(--marketing-border)]" />
+                <Icon size={18} className="text-[var(--marketing-accent)]" />
               </div>
-              <p className="text-3xl font-black tracking-tight text-white">{screen.metric}</p>
-              <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[#6F7D87]">{screen.label}</p>
+              <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">{screen.metric}</p>
+              <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">{screen.label}</p>
               <div className="mt-5 grid gap-2">
-                <span className="h-10 rounded-xl bg-white/[0.055]" />
-                <span className="h-10 rounded-xl bg-white/[0.04]" />
-                <span className="h-10 rounded-xl bg-white/[0.03]" />
+                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton-strong)]" />
+                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton)]" />
+                <span className="h-10 rounded-xl bg-[var(--marketing-skeleton-soft)]" />
               </div>
             </div>
-            <h3 className="mt-4 text-lg font-black text-white">{screen.title}</h3>
+            <h3 className="mt-4 text-lg font-black text-[var(--marketing-text)]">{screen.title}</h3>
           </MotionCard>
         );
       })}
@@ -541,19 +626,19 @@ function MockupStrip() {
 
 function PricingCard({ title, price, body, features, href, cta, highlighted = false }: { title: string; price: string; body: string; features: string[]; href: string; cta: string; highlighted?: boolean }) {
   return (
-    <MotionCard className={cn("p-6", highlighted && "border-[#1FD1A5]/28 bg-[#1FD1A5]/[0.055]")}>
+    <MotionCard className={cn("p-6", highlighted && "border-[rgb(31_209_165_/_0.28)] bg-[rgb(31_209_165_/_0.055)]")}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7EF2D4]">{title}</p>
-          <h2 className="mt-3 text-4xl font-black text-white">{price}</h2>
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{title}</p>
+          <h2 className="mt-3 text-4xl font-black text-[var(--marketing-text)]">{price}</h2>
         </div>
-        {highlighted ? <span className="rounded-full border border-[#1FD1A5]/20 bg-[#1FD1A5]/10 px-3 py-1 text-xs font-black text-[#7EF2D4]">Future</span> : null}
+        {highlighted ? <span className="rounded-full border border-[rgb(31_209_165_/_0.20)] bg-[rgb(31_209_165_/_0.10)] px-3 py-1 text-xs font-black text-[var(--marketing-accent)]">Future</span> : null}
       </div>
-      <p className="mt-4 text-sm font-semibold leading-6 text-[#A7B3BC]">{body}</p>
+      <p className="mt-4 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
       <div className="mt-6 grid gap-3">
         {features.map((feature) => (
-          <div key={feature} className="flex items-center gap-2 text-sm font-black text-[#EAFBF5]">
-            <CheckCircle2 size={17} className="text-[#7EF2D4]" /> {feature}
+          <div key={feature} className="flex items-center gap-2 text-sm font-black text-[var(--marketing-text)]">
+            <CheckCircle2 size={17} className="text-[var(--marketing-accent)]" /> {feature}
           </div>
         ))}
       </div>
@@ -567,8 +652,8 @@ function PageHero({ eyebrow, title, body }: { eyebrow: string; title: string; bo
     <section className="mx-auto max-w-7xl px-5 py-16 sm:px-6 lg:px-8 lg:py-24">
       <motion.div variants={fadeUp} className="max-w-4xl">
         <Badge>{eyebrow}</Badge>
-        <h1 className="mt-6 text-5xl font-black leading-[1.04] tracking-tight text-white sm:text-6xl">{title}</h1>
-        <p className="mt-6 max-w-3xl text-base font-semibold leading-8 text-[#A7B3BC] sm:text-lg">{body}</p>
+        <h1 className="mt-6 text-5xl font-black leading-[1.04] tracking-[-0.035em] text-[var(--marketing-text)] sm:text-6xl">{title}</h1>
+        <p className="mt-6 max-w-3xl text-base font-semibold leading-8 text-[var(--marketing-muted)] sm:text-lg">{body}</p>
       </motion.div>
     </section>
   );
@@ -579,8 +664,8 @@ function SectionShell({ eyebrow, title, children }: { eyebrow?: string; title?: 
     <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
       {title ? (
         <motion.div variants={fadeUp} className="mb-8 max-w-4xl">
-          {eyebrow ? <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7EF2D4]">{eyebrow}</p> : null}
-          <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">{title}</h2>
+          {eyebrow ? <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{eyebrow}</p> : null}
+          <h2 className="mt-3 text-4xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">{title}</h2>
         </motion.div>
       ) : null}
       {children}
@@ -593,9 +678,9 @@ function SplitSection({ eyebrow, title, body, ctaHref, ctaLabel, reverse = false
     <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
       <div className={cn("grid gap-8 lg:grid-cols-2 lg:items-center", reverse && "lg:[&>*:first-child]:order-2")}>
         <motion.div variants={fadeUp}>
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7EF2D4]">{eyebrow}</p>
-          <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">{title}</h2>
-          <p className="mt-5 text-base font-semibold leading-8 text-[#A7B3BC]">{body}</p>
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{eyebrow}</p>
+          <h2 className="mt-3 text-4xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">{title}</h2>
+          <p className="mt-5 text-base font-semibold leading-8 text-[var(--marketing-muted)]">{body}</p>
           <SecondaryCta href={ctaHref} className="mt-6">{ctaLabel}</SecondaryCta>
         </motion.div>
         <motion.div variants={fadeUp}>{children}</motion.div>
@@ -607,9 +692,12 @@ function SplitSection({ eyebrow, title, body, ctaHref, ctaLabel, reverse = false
 function StatementBand({ title, body }: { title: string; body: string }) {
   return (
     <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
-      <motion.div variants={fadeUp} className="rounded-[2rem] border border-[#1FD1A5]/20 bg-[linear-gradient(135deg,rgb(31_209_165_/_0.14),rgb(255_255_255_/_0.045))] p-6 shadow-[0_34px_90px_rgb(0_0_0_/_0.28)] sm:p-8 lg:p-10">
-        <h2 className="max-w-4xl text-3xl font-black leading-tight text-white sm:text-5xl">{title}</h2>
-        <p className="mt-4 max-w-3xl text-base font-semibold leading-8 text-[#A7B3BC]">{body}</p>
+      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.13),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] sm:p-8 lg:p-10">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[rgb(31_209_165_/_0.14)] blur-3xl" />
+        <div className="relative">
+          <h2 className="max-w-4xl text-3xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">{title}</h2>
+          <p className="mt-4 max-w-3xl text-base font-semibold leading-8 text-[var(--marketing-muted)]">{body}</p>
+        </div>
       </motion.div>
     </section>
   );
@@ -620,7 +708,7 @@ function MotionCard({ children, className }: { children: React.ReactNode; classN
     <motion.article
       variants={fadeUp}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={cn("rounded-[1.5rem] border border-white/10 bg-[#101A1E] p-5 shadow-[0_18px_54px_rgb(0_0_0_/_0.18)]", className)}
+      className={cn("rounded-[1.5rem] border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-5 shadow-[var(--marketing-card-shadow)] backdrop-blur", className)}
     >
       {children}
     </motion.article>
@@ -629,7 +717,7 @@ function MotionCard({ children, className }: { children: React.ReactNode; classN
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#7EF2D4] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] backdrop-blur">
+    <span className="inline-flex items-center gap-2 rounded-full border border-[var(--marketing-border)] bg-[var(--marketing-pill)] px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] backdrop-blur">
       <ShieldCheck size={14} /> {children}
     </span>
   );
@@ -637,7 +725,7 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 function PrimaryCta({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cn("inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-white px-6 text-sm font-black text-[#0B1114] shadow-[0_18px_44px_rgb(31_209_165_/_0.2)] transition hover:-translate-y-1 hover:bg-[#EAFBF5]", className)}>
+    <Link href={href} className={cn("inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--marketing-primary-button)] px-6 text-sm font-black text-[var(--marketing-primary-button-text)] shadow-[0_18px_44px_rgb(31_209_165_/_0.20)] transition hover:-translate-y-1 hover:brightness-105 active:translate-y-0", className)}>
       {children} <ArrowRight size={18} />
     </Link>
   );
@@ -645,7 +733,7 @@ function PrimaryCta({ href, children, className }: { href: string; children: Rea
 
 function SecondaryCta({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cn("inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-6 text-sm font-black text-[#7EF2D4] transition hover:-translate-y-1 hover:bg-white/[0.1]", className)}>
+    <Link href={href} className={cn("inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-pill)] px-6 text-sm font-black text-[var(--marketing-accent)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] transition hover:-translate-y-1 hover:bg-[var(--marketing-pill-strong)] active:translate-y-0", className)}>
       {children} <ChevronRight size={18} />
     </Link>
   );
@@ -654,30 +742,21 @@ function SecondaryCta({ href, children, className }: { href: string; children: R
 function FinalCta() {
   return (
     <section className="relative overflow-hidden px-5 py-16 pb-[calc(env(safe-area-inset-bottom)+2rem)] sm:px-6 lg:px-8 lg:py-24">
-      <motion.div variants={fadeUp} className="mx-auto max-w-5xl rounded-[2rem] border border-[#1FD1A5]/20 bg-[linear-gradient(135deg,rgb(31_209_165_/_0.14),rgb(255_255_255_/_0.045))] p-6 shadow-[0_34px_90px_rgb(0_0_0_/_0.32)] backdrop-blur sm:p-8 lg:p-10">
+      <motion.div variants={fadeUp} className="mx-auto max-w-5xl rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.14),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] backdrop-blur sm:p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7EF2D4]">SpendFence</p>
-            <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">Build fences that fit your life.</h2>
-            <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#A7B3BC]">
+            <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">SpendFence</p>
+            <h2 className="mt-3 text-4xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">Build fences that fit your life.</h2>
+            <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[var(--marketing-muted)]">
               Adaptive budgeting powered by AI-assisted financial pacing and behavioral spending intelligence.
             </p>
           </div>
-          <PrimaryCta href="/signup" className="shrink-0">Try SpendFence</PrimaryCta>
+          <div className="grid gap-3 sm:flex lg:shrink-0">
+            <PrimaryCta href="/signup">Try SpendFence</PrimaryCta>
+            <SecondaryCta href="/demo">View Demo</SecondaryCta>
+          </div>
         </div>
       </motion.div>
     </section>
-  );
-}
-
-function AiPreviewList() {
-  return (
-    <div className="grid gap-3">
-      {["Receipt analysis", "Category suggestions", "Adaptive recommendations"].map((item) => (
-        <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-sm font-black text-white">
-          <Eye size={18} className="text-[#7EF2D4]" /> {item}
-        </div>
-      ))}
-    </div>
   );
 }

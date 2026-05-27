@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.35rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] pb-4 pt-4 backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.9)] sm:-top-5 sm:mb-6 sm:pt-5 lg:-top-8">
-      <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)]">
+    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.65rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] px-6 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.92)] sm:-top-5 sm:mb-6 sm:rounded-b-[1.9rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
+      <Link href="/settings" className="-ml-2 mb-5 inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6">
         <ArrowLeft size={17} /> Settings
       </Link>
-      <h1 className="text-[1.75rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-9">{title}</h1>
-      {subtitle ? <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{subtitle}</p> : null}
+      <h1 className="text-[1.8rem] font-black leading-9 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10">{title}</h1>
+      {subtitle ? <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--app-text-secondary)] sm:mt-3.5">{subtitle}</p> : null}
     </div>
   );
 }

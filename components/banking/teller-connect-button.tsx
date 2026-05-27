@@ -31,11 +31,13 @@ declare global {
 export function TellerConnectButton({
   disabled = false,
   requestHeaders,
+  onBeforeOpen,
   onConnected,
   onMessage
 }: {
   disabled?: boolean;
   requestHeaders: () => Promise<HeadersInit>;
+  onBeforeOpen?: () => boolean | Promise<boolean>;
   onConnected?: () => void;
   onMessage?: (message: string) => void;
 }) {
@@ -54,6 +56,8 @@ export function TellerConnectButton({
   }, []);
 
   async function openConnect() {
+    if (onBeforeOpen && !(await onBeforeOpen())) return;
+
     if (!applicationId) {
       onMessage?.("Teller Connect is not configured yet.");
       return;
@@ -87,7 +91,12 @@ export function TellerConnectButton({
                 "Content-Type": "application/json",
                 ...(await requestHeaders())
               },
-              body: JSON.stringify({ accessToken })
+              body: JSON.stringify({
+                accessToken,
+                enrollment,
+                enrollmentId: enrollment.id,
+                institutionName: enrollment.institution?.name
+              })
             });
             const data = (await response.json()) as { message?: string };
             onMessage?.(data.message ?? (response.ok ? "Bank account connected." : "Bank account could not be connected."));

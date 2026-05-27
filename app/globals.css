@@ -29,6 +29,30 @@
   --app-shadow: 0 16px 42px rgb(11 17 20 / 0.08);
   --app-page-gutter: 1rem;
   --app-shell-max: 80rem;
+  --marketing-bg: #f5f7f6;
+  --marketing-nav: 245 247 246 / 0.82;
+  --marketing-text: #0b1114;
+  --marketing-muted: #64717a;
+  --marketing-accent: #0d8f6a;
+  --marketing-panel: #ffffff;
+  --marketing-panel-strong: #eef8f4;
+  --marketing-card: rgb(255 255 255 / 0.82);
+  --marketing-device: rgb(11 17 20 / 0.94);
+  --marketing-float: rgb(255 255 255 / 0.92);
+  --marketing-approval: #0b1114;
+  --marketing-approval-text: #f4f7f6;
+  --marketing-pill: rgb(255 255 255 / 0.72);
+  --marketing-pill-strong: rgb(255 255 255 / 0.92);
+  --marketing-border: rgb(11 17 20 / 0.10);
+  --marketing-active-pill: #0b1114;
+  --marketing-active-text: #ffffff;
+  --marketing-primary-button: #0b1114;
+  --marketing-primary-button-text: #ffffff;
+  --marketing-skeleton-strong: rgb(255 255 255 / 0.12);
+  --marketing-skeleton: rgb(255 255 255 / 0.08);
+  --marketing-skeleton-soft: rgb(255 255 255 / 0.055);
+  --marketing-shadow: 0 34px 90px rgb(11 17 20 / 0.12);
+  --marketing-card-shadow: 0 18px 54px rgb(11 17 20 / 0.08);
 }
 
 :root.dark {
@@ -46,6 +70,30 @@
   --app-border: #26343d;
   --app-ring: rgb(126 242 212 / 0.18);
   --app-shadow: 0 16px 42px rgb(0 0 0 / 0.22);
+  --marketing-bg: #071012;
+  --marketing-nav: 7 16 18 / 0.80;
+  --marketing-text: #f4f7f6;
+  --marketing-muted: #a7b3bc;
+  --marketing-accent: #7ef2d4;
+  --marketing-panel: #101a1e;
+  --marketing-panel-strong: #152126;
+  --marketing-card: rgb(16 26 30 / 0.82);
+  --marketing-device: rgb(11 17 20 / 0.88);
+  --marketing-float: rgb(15 27 30 / 0.94);
+  --marketing-approval: #f4f7f6;
+  --marketing-approval-text: #0b1114;
+  --marketing-pill: rgb(255 255 255 / 0.055);
+  --marketing-pill-strong: rgb(255 255 255 / 0.095);
+  --marketing-border: rgb(255 255 255 / 0.10);
+  --marketing-active-pill: #eafbf5;
+  --marketing-active-text: #0b1114;
+  --marketing-primary-button: #ffffff;
+  --marketing-primary-button-text: #0b1114;
+  --marketing-skeleton-strong: rgb(255 255 255 / 0.12);
+  --marketing-skeleton: rgb(255 255 255 / 0.08);
+  --marketing-skeleton-soft: rgb(255 255 255 / 0.055);
+  --marketing-shadow: 0 34px 90px rgb(0 0 0 / 0.28);
+  --marketing-card-shadow: 0 18px 54px rgb(0 0 0 / 0.18);
 }
 
 * {
@@ -123,9 +171,9 @@ main {
 
 .landing-bg {
   background:
-    linear-gradient(120deg, rgb(31 209 165 / 0.16), transparent 28rem),
-    linear-gradient(245deg, rgb(94 161 255 / 0.12), transparent 30rem),
-    linear-gradient(180deg, #071012 0%, #0b1114 48%, #071012 100%);
+    linear-gradient(120deg, rgb(31 209 165 / 0.14), transparent 28rem),
+    linear-gradient(245deg, rgb(94 161 255 / 0.10), transparent 30rem),
+    linear-gradient(180deg, var(--marketing-bg) 0%, var(--marketing-bg) 100%);
   background-size: 120% 120%, 110% 110%, 100% 100%;
   animation: landingGlowShift 14s ease-in-out infinite alternate;
 }

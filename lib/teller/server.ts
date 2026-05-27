@@ -5,9 +5,11 @@ import { request as httpsRequest } from "node:https";
 import type { RequestOptions } from "node:https";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { canLinkMoreTellerAccounts, tellerAccountLimitForTier, TELLER_ACCOUNT_LIMIT_MESSAGE } from "@/lib/bank-sync-limits";
 import { categorizeTransaction } from "@/lib/categorization";
 import { hasSupabaseConfig } from "@/lib/supabase";
 import type { ApiUser } from "@/lib/server-auth";
+import { getEffectiveTier } from "@/lib/tier";
 import type { Category, ImportedTransactionInput, MerchantCategoryRule } from "@/lib/types";
 
 export type TellerConnection = {
@@ -81,6 +83,14 @@ export function tellerConfig() {
 }
 
 export async function saveTellerEnrollment(user: ApiUser, payload: TellerEnrollmentPayload) {
+  const limitStatus = await tellerAccountLimitStatus(user);
+  if (!limitStatus.canLinkMore) throw new TellerAccountLimitError();
+
+  const incomingAccountCount = await countAccountsForToken(payload.accessToken);
+  if (!canLinkMoreTellerAccounts(limitStatus.tier, limitStatus.accountCount + Math.max(incomingAccountCount, 1) - 1)) {
+    throw new TellerAccountLimitError();
+  }
+
   const now = new Date().toISOString();
   const connection: TellerConnection = {
     id: crypto.randomUUID(),
@@ -123,6 +133,20 @@ export async function listTellerConnections(user: ApiUser) {
   return connections.map(sanitizeConnection);
 }
 
+export async function tellerAccountLimitStatus(user: ApiUser) {
+  const tier = getEffectiveTier(user);
+  const connectedAccountCount = await connectedTellerAccountCount(user);
+  const accountLimit = tellerAccountLimitForTier(tier);
+  return {
+    tier,
+    accountCount: connectedAccountCount.count,
+    accountCountSource: connectedAccountCount.source,
+    accountLimit,
+    canLinkMore: canLinkMoreTellerAccounts(tier, connectedAccountCount.count),
+    message: canLinkMoreTellerAccounts(tier, connectedAccountCount.count) ? undefined : TELLER_ACCOUNT_LIMIT_MESSAGE
+  };
+}
+
 export async function disconnectTeller(user: ApiUser, connectionId?: string) {
   if (canUseSupabase()) {
     const supabase = serverSupabase();
@@ -142,31 +166,29 @@ export async function disconnectTeller(user: ApiUser, connectionId?: string) {
 }
 
 export async function fetchTellerAccounts(user: ApiUser) {
-  const connection = await activeConnection(user);
-  if (!connection) return [];
+  const connections = await activeConnections(user);
+  if (!connections.length) return [];
 
-  const accounts = await tellerFetch<TellerAccount[]>("/accounts", connection.access_token);
-  return accounts.map((account) => ({
-    id: account.id,
-    name: account.name ?? "Account",
-    institution: account.institution?.name ?? connection.institution_name,
-    type: account.type ?? "unknown",
-    subtype: account.subtype ?? undefined,
-    currency: account.currency ?? "USD"
-  }));
+  return fetchAccountsForConnections(connections);
 }
 
 export async function fetchTellerTransactions(user: ApiUser, input?: { userCategories?: Category[]; merchantRules?: MerchantCategoryRule[] }) {
-  const connection = await activeConnection(user);
-  if (!connection) return [];
+  const connections = await activeConnections(user);
+  if (!connections.length) return [];
 
-  const accounts = await tellerFetch<TellerAccount[]>("/accounts", connection.access_token);
-  const accountTransactions = await Promise.all(
-    accounts.map(async (account) => ({
-      account,
-      transactions: await tellerFetch<TellerTransaction[]>(`/accounts/${encodeURIComponent(account.id)}/transactions`, connection.access_token)
-    }))
-  );
+  const accountTransactions = (
+    await Promise.all(
+      connections.map(async (connection) => {
+        const accounts = await tellerFetch<TellerAccount[]>("/accounts", connection.access_token);
+        return Promise.all(
+          accounts.map(async (account) => ({
+            account,
+            transactions: await tellerFetch<TellerTransaction[]>(`/accounts/${encodeURIComponent(account.id)}/transactions`, connection.access_token)
+          }))
+        );
+      })
+    )
+  ).flat();
 
   return accountTransactions.flatMap(({ account, transactions }) =>
     transactions.map((transaction) => {
@@ -193,8 +215,46 @@ export async function fetchTellerTransactions(user: ApiUser, input?: { userCateg
   );
 }
 
-async function activeConnection(user: ApiUser) {
-  return (await getStoredConnections(user)).find((connection) => connection.status === "connected") ?? null;
+async function activeConnections(user: ApiUser) {
+  return (await getStoredConnections(user)).filter((connection) => connection.status === "connected");
+}
+
+async function connectedTellerAccountCount(user: ApiUser): Promise<{ count: number; source: "accounts" | "connections" }> {
+  const connections = await activeConnections(user);
+  if (!connections.length) return { count: 0, source: "accounts" };
+
+  try {
+    const accounts = await fetchAccountsForConnections(connections);
+    return { count: accounts.length, source: "accounts" };
+  } catch {
+    return { count: connections.length, source: "connections" };
+  }
+}
+
+async function countAccountsForToken(accessToken: string) {
+  try {
+    const accounts = await tellerFetch<TellerAccount[]>("/accounts", accessToken);
+    return accounts.length;
+  } catch {
+    return 1;
+  }
+}
+
+async function fetchAccountsForConnections(connections: TellerConnection[]) {
+  const accountGroups = await Promise.all(
+    connections.map(async (connection) => {
+      const accounts = await tellerFetch<TellerAccount[]>("/accounts", connection.access_token);
+      return accounts.map((account) => ({
+        id: account.id,
+        name: account.name ?? "Account",
+        institution: account.institution?.name ?? connection.institution_name,
+        type: account.type ?? "unknown",
+        subtype: account.subtype ?? undefined,
+        currency: account.currency ?? "USD"
+      }));
+    })
+  );
+  return accountGroups.flat();
 }
 
 async function getStoredConnections(user: ApiUser): Promise<TellerConnection[]> {
@@ -253,6 +313,13 @@ function cleanMerchant(value?: string) {
 function sanitizeConnection(connection: TellerConnection) {
   const { access_token: _accessToken, ...safe } = connection;
   return safe;
+}
+
+export class TellerAccountLimitError extends Error {
+  constructor() {
+    super(TELLER_ACCOUNT_LIMIT_MESSAGE);
+    this.name = "TellerAccountLimitError";
+  }
 }
 
 function canUseSupabase() {

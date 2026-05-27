@@ -4,10 +4,11 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { featureFlags } from "@/lib/feature-flags";
 import { clearActiveAuthStorage, clearPersistentAuthStorage, getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
+import { getEffectiveTier, normalizeTier, tierLabel, type AppTier, type DeveloperTierPreviewMode } from "@/lib/tier";
 
 const DEMO_SESSION_KEY = "spendfence-demo-session-v1";
 const DEMO_LOCKED_SESSION_KEY = "spendfence-demo-locked-session-v1";
-const DEMO_PRO_KEY = "spendfence-demo-pro-v1";
+const DEVELOPER_TIER_PREVIEW_KEY = "spendfence-dev-tier-preview-v1";
 const LEGACY_TRUSTED_DEVICE_KEY = "spendfence-trusted-device-v1";
 
 export type MfaFactorType = "totp" | "phone";
@@ -40,6 +41,7 @@ type AuthUser = {
   email: string;
   isDemo: boolean;
   demoLocked?: boolean;
+  realTier: AppTier;
 };
 
 type AuthContextValue = {
@@ -47,10 +49,12 @@ type AuthContextValue = {
   loading: boolean;
   authEnabled: boolean;
   isPro: boolean;
-  planLabel: "Free" | "Pro";
+  planLabel: "Free" | "Premium";
+  realTier: AppTier;
+  effectiveTier: AppTier;
+  isDeveloper: boolean;
+  tierPreviewMode: DeveloperTierPreviewMode;
   demoModeAvailable: boolean;
-  demoProAvailable: boolean;
-  demoProEnabled: boolean;
   signIn: (email: string, password: string) => Promise<SignInResult>;
   signUp: (email: string, password: string) => Promise<{ error?: string; message?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
@@ -58,7 +62,7 @@ type AuthContextValue = {
   verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
   enterDemoMode: (options?: { locked?: boolean }) => void;
   getAccessToken: () => Promise<string | null>;
-  setDemoPro: (enabled: boolean) => void;
+  setTierPreviewMode: (mode: DeveloperTierPreviewMode) => void;
   startUpgrade: () => Promise<{ error?: string; message?: string }>;
   signOut: () => Promise<void>;
 };
@@ -67,18 +71,23 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [demoProEnabled, setDemoProEnabled] = useState(false);
+  const [serverDeveloperAllowed, setServerDeveloperAllowed] = useState(false);
+  const [developerStatusLoaded, setDeveloperStatusLoaded] = useState(false);
+  const [tierPreviewMode, setTierPreviewModeState] = useState<DeveloperTierPreviewMode>("free");
   const [loading, setLoading] = useState(true);
   const supabase = getSupabaseClient();
   const supabaseConfigError = getSupabaseConfigErrorMessage() ?? "Supabase auth is not configured for this environment.";
   const demoModeAvailable = true;
-  const demoProAvailable = process.env.NODE_ENV === "development";
-  const isPro = demoProEnabled;
+  const publicDeveloperEmail = process.env.NEXT_PUBLIC_DEVELOPER_EMAIL?.trim().toLowerCase() ?? "";
+  const publicDeveloperAllowed = Boolean(user?.email && publicDeveloperEmail && user.email.toLowerCase() === publicDeveloperEmail);
+  const isDeveloper = Boolean(user && (publicDeveloperAllowed || serverDeveloperAllowed));
+  const realTier = user?.realTier ?? "free";
+  const effectiveTier = getEffectiveTier({ isDeveloper, developerTierOverride: tierPreviewMode, realTier });
+  const isPro = effectiveTier === "premium";
 
   useEffect(() => {
     clearPersistentAuthStorage();
     window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
-    setDemoProEnabled(window.localStorage.getItem(DEMO_PRO_KEY) === "true");
 
     const demoSession = getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY);
     if (demoSession) {
@@ -112,16 +121,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setServerDeveloperAllowed(false);
+    setDeveloperStatusLoaded(false);
+
+    if (!user) {
+      setDeveloperStatusLoaded(true);
+      return;
+    }
+
+    developerStatusHeaders(supabase, user).then((headers) =>
+      fetch("/api/developer/status", {
+        headers,
+        cache: "no-store"
+      })
+        .then((response) => response.json())
+        .then((data: { isDeveloper?: boolean }) => {
+          if (!cancelled) setServerDeveloperAllowed(Boolean(data.isDeveloper));
+        })
+        .catch(() => {
+          if (!cancelled) setServerDeveloperAllowed(false);
+        })
+        .finally(() => {
+          if (!cancelled) setDeveloperStatusLoaded(true);
+        })
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, user]);
+
+  useEffect(() => {
+    if (isDeveloper) {
+      setTierPreviewModeState(readStoredTierPreviewMode());
+      return;
+    }
+
+    if (developerStatusLoaded && user) {
+      window.localStorage.removeItem(DEVELOPER_TIER_PREVIEW_KEY);
+    }
+    setTierPreviewModeState("free");
+  }, [developerStatusLoaded, isDeveloper, user]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       loading,
       authEnabled: hasSupabaseConfig,
       isPro,
-      planLabel: isPro ? "Pro" : "Free",
+      planLabel: tierLabel(effectiveTier),
+      realTier,
+      effectiveTier,
+      isDeveloper,
+      tierPreviewMode,
       demoModeAvailable,
-      demoProAvailable,
-      demoProEnabled,
       signIn: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -190,10 +245,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data } = await supabase.auth.getSession();
         return data.session?.access_token ?? null;
       },
-      setDemoPro: (enabled) => {
-        if (!demoProAvailable) return;
-        window.localStorage.setItem(DEMO_PRO_KEY, String(enabled));
-        setDemoProEnabled(enabled);
+      setTierPreviewMode: (mode) => {
+        if (!isDeveloper) return;
+        window.localStorage.setItem(DEVELOPER_TIER_PREVIEW_KEY, mode);
+        setTierPreviewModeState(mode);
       },
       startUpgrade: async () => {
         const response = await fetch("/api/stripe/create-checkout-session", { method: "POST" });
@@ -208,15 +263,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         removeSessionValue(DEMO_LOCKED_SESSION_KEY);
         removeCookieValue(DEMO_SESSION_KEY);
         removeCookieValue(DEMO_LOCKED_SESSION_KEY);
-        window.localStorage.removeItem(DEMO_PRO_KEY);
         window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
         if (supabase && !isDemoSession) await supabase.auth.signOut();
         clearActiveAuthStorage();
         setUser(null);
-        setDemoProEnabled(false);
+        setServerDeveloperAllowed(false);
+        setDeveloperStatusLoaded(false);
+        setTierPreviewModeState("free");
       }
     }),
-    [demoModeAvailable, demoProAvailable, demoProEnabled, isPro, loading, supabase, supabaseConfigError, user]
+    [demoModeAvailable, effectiveTier, isDeveloper, isPro, loading, realTier, supabase, supabaseConfigError, tierPreviewMode, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -284,7 +340,8 @@ function toDemoUser(locked = false): AuthUser {
     id: locked ? "demo-preview-user" : "demo-user",
     email: "demo@spendfence.local",
     isDemo: true,
-    demoLocked: locked
+    demoLocked: locked,
+    realTier: "free"
   };
 }
 
@@ -292,8 +349,32 @@ function toAuthUser(user: User): AuthUser {
   return {
     id: user.id,
     email: user.email ?? "Signed-in user",
-    isDemo: false
+    isDemo: false,
+    realTier: subscriptionTierForUser(user)
   };
+}
+
+function subscriptionTierForUser(user: User): AppTier {
+  return (
+    normalizeTier(user.app_metadata?.spendfence_tier) ??
+    normalizeTier(user.app_metadata?.subscription_tier) ??
+    normalizeTier(user.user_metadata?.spendfence_tier) ??
+    "free"
+  );
+}
+
+function readStoredTierPreviewMode(): DeveloperTierPreviewMode {
+  return normalizeTier(window.localStorage.getItem(DEVELOPER_TIER_PREVIEW_KEY)) ?? "free";
+}
+
+async function developerStatusHeaders(supabase: SupabaseClient | null, user: AuthUser): Promise<HeadersInit> {
+  if (supabase && !user.isDemo) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) return { Authorization: `Bearer ${data.session.access_token}` };
+  }
+
+  if (process.env.NODE_ENV === "development") return { "x-spendfence-dev-user": user.id };
+  return {};
 }
 
 function normalizeMfaFactors(data: { totp: unknown[]; phone: unknown[] }): MfaFactor[] {

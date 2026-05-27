@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ComponentPropsWithoutRef } from "react";
 import { Activity, AlertCircle, CheckCircle2, LineChart, ListChecks, ShieldCheck, X } from "lucide-react";
-import { intelligenceCardSurfaceClass } from "@/components/insights/intelligence-section";
+import { intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
 import type { BehavioralInsight } from "@/lib/insights/insight-types";
 import { cn } from "@/lib/utils";
 
@@ -18,17 +18,17 @@ const iconByType = {
 };
 
 const iconStylesBySeverity = {
-  calm: "bg-slate-100 text-slate-600 dark:bg-[#1D2A32] dark:text-[#A7B3BC]",
-  positive: "bg-emerald-50 text-emerald-700 dark:bg-[#1D2A32] dark:text-[#1FD1A5] dark:ring-1 dark:ring-[rgb(31_209_165_/_0.18)]",
-  watch: "bg-amber-50 text-amber-800 dark:bg-[#1D2A32] dark:text-[#F5B942] dark:ring-1 dark:ring-[rgb(245_185_66_/_0.18)]",
-  limit: "bg-rose-50 text-rose-700 dark:bg-[#1D2A32] dark:text-[#FF6B6B] dark:ring-1 dark:ring-[rgb(255_107_107_/_0.18)]"
+  calm: intelligenceIconSurfaceClass,
+  positive: intelligenceIconSurfaceClass,
+  watch: "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#312E81,#4F46E5_52%,#F59E0B)] text-white shadow-[0_10px_24px_rgb(99_102_241_/_0.20)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10",
+  limit: "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#312E81,#7C3AED_50%,#E11D48)] text-white shadow-[0_10px_24px_rgb(124_58_237_/_0.20)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10"
 };
 
 const accentBySeverity = {
-  calm: "bg-[#A7B3BC]",
-  positive: "bg-[#1FD1A5]",
-  watch: "bg-[#F5B942]",
-  limit: "bg-[#FF6B6B]"
+  calm: intelligenceAccentRailClass,
+  positive: intelligenceAccentRailClass,
+  watch: "pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#93C5FD] via-[#6366F1] to-[#F59E0B] shadow-[0_0_24px_rgb(99_102_241_/_0.28)]",
+  limit: "pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#93C5FD] via-[#7C3AED] to-[#E11D48] shadow-[0_0_24px_rgb(124_58_237_/_0.30)]"
 };
 
 export function SpendInsightCard({
@@ -64,13 +64,14 @@ export function SpendInsightCard({
       {...articleProps}
       className={cn(
         intelligenceCardSurfaceClass,
-        "backdrop-blur hover:shadow-float",
+        "backdrop-blur",
         className
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-1", accentBySeverity[insight.severity])} aria-hidden="true" />
+      <span className={accentBySeverity[insight.severity]} aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.12)] blur-2xl" />
       <div className="flex items-start gap-3">
-        <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", iconStylesBySeverity[insight.severity])}>
+        <div className={iconStylesBySeverity[insight.severity]}>
           <Icon size={17} />
         </div>
         <div className="min-w-0 flex-1">
@@ -79,14 +80,14 @@ export function SpendInsightCard({
             {insight.categoryLabel ? <InsightChip>{insight.categoryLabel}</InsightChip> : null}
             {insight.supportingMetric ? <InsightChip>{insight.supportingMetric}</InsightChip> : null}
           </div>
-          <p className="mt-1 text-sm font-semibold leading-5 text-slate-600 dark:text-[#A7B3BC]">{insight.message}</p>
+          <p className="mt-1 text-sm font-semibold leading-5 text-[#536173] dark:text-[#A7B3BC]">{insight.message}</p>
         </div>
         {dismissible ? (
           <button
             type="button"
             onClick={dismiss}
             aria-label="Dismiss insight"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-white/70 hover:text-slate-600 dark:text-[#6F7D87] dark:hover:bg-[#1D2A32] dark:hover:text-[#F4F7F6]"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-white/70 hover:text-slate-600 dark:text-[#6F7D87] dark:hover:bg-white/[0.06] dark:hover:text-[#F4F7F6]"
           >
             <X size={15} />
           </button>
@@ -102,7 +103,7 @@ function storageKey(id: string) {
 
 function InsightChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="shrink-0 rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[0.68rem] font-black leading-5 text-slate-600 dark:border-[rgb(31_209_165_/_0.2)] dark:bg-[#1D2A32] dark:text-[#A7B3BC]">
+    <span className="shrink-0 rounded-full border border-[rgb(99_102_241_/_0.16)] bg-white/70 px-2 py-0.5 text-[0.68rem] font-black leading-5 text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#A7B3BC]">
       {children}
     </span>
   );
