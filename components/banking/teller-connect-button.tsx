@@ -41,6 +41,7 @@ export function TellerConnectButton({
 }) {
   const [loading, setLoading] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
+  const applicationId = process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID?.trim() ?? "";
 
   useEffect(() => {
     let cancelled = false;
@@ -53,13 +54,15 @@ export function TellerConnectButton({
   }, []);
 
   async function openConnect() {
+    if (!applicationId) {
+      onMessage?.("Teller Connect is not configured yet.");
+      return;
+    }
+
     setLoading(true);
     try {
       const configResponse = await fetch("/api/teller/config", { cache: "no-store" });
-      const config = (await configResponse.json()) as { applicationId?: string; environment?: string; configured?: boolean };
-      if (!config.configured || !config.applicationId) {
-        return;
-      }
+      const config = (await configResponse.json().catch(() => ({}))) as { environment?: string };
 
       const teller = window.TellerConnect ?? (await loadTellerConnect().then(() => window.TellerConnect));
       if (!teller) {
@@ -69,8 +72,8 @@ export function TellerConnectButton({
 
       teller
         .setup({
-          applicationId: config.applicationId,
-          environment: config.environment ?? "sandbox",
+          applicationId,
+          environment: config.environment ?? "development",
           onSuccess: async (enrollment) => {
             const accessToken = enrollment.accessToken ?? enrollment.access_token;
             if (!accessToken) {
@@ -84,12 +87,7 @@ export function TellerConnectButton({
                 "Content-Type": "application/json",
                 ...(await requestHeaders())
               },
-              body: JSON.stringify({
-                accessToken,
-                enrollment,
-                enrollmentId: enrollment.id,
-                institutionName: enrollment.institution?.name
-              })
+              body: JSON.stringify({ accessToken })
             });
             const data = (await response.json()) as { message?: string };
             onMessage?.(data.message ?? (response.ok ? "Bank account connected." : "Bank account could not be connected."));
@@ -106,7 +104,7 @@ export function TellerConnectButton({
   }
 
   return (
-    <Button onClick={openConnect} disabled={disabled || loading || !scriptReady}>
+    <Button onClick={openConnect} disabled={disabled || loading || !scriptReady || !applicationId}>
       {loading ? <RefreshCw size={18} className="animate-spin" /> : <Building2 size={18} />}
       Connect bank account
     </Button>

@@ -1,7 +1,9 @@
 import "server-only";
 
+import { existsSync, readFileSync } from "node:fs";
 import { request as httpsRequest } from "node:https";
 import type { RequestOptions } from "node:https";
+import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { categorizeTransaction } from "@/lib/categorization";
 import { hasSupabaseConfig } from "@/lib/supabase";
@@ -66,11 +68,9 @@ globalThis.__spendFenceTellerConnections = memoryConnections;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-const supabaseKey = supabaseServiceRoleKey ?? supabasePublicKey;
 
 export function tellerConfig() {
-  const applicationId = process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID?.trim() ?? process.env.TELLER_APPLICATION_ID?.trim() ?? "";
+  const applicationId = normalizeEnv(process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID);
   const serverConfig = tellerServerConfig();
   return {
     applicationId,
@@ -95,7 +95,7 @@ export async function saveTellerEnrollment(user: ApiUser, payload: TellerEnrollm
   };
 
   if (canUseSupabase()) {
-    const supabase = serverSupabase(user);
+    const supabase = serverSupabase();
     const { data, error } = await supabase
       .from("bank_connections")
       .insert({
@@ -112,6 +112,7 @@ export async function saveTellerEnrollment(user: ApiUser, payload: TellerEnrollm
     return data as Omit<TellerConnection, "access_token">;
   }
 
+  assertMemoryStoreAvailable();
   const existing = memoryConnections.get(user.id) ?? [];
   memoryConnections.set(user.id, [connection, ...existing.filter((item) => item.enrollment_id !== connection.enrollment_id)]);
   return sanitizeConnection(connection);
@@ -124,7 +125,7 @@ export async function listTellerConnections(user: ApiUser) {
 
 export async function disconnectTeller(user: ApiUser, connectionId?: string) {
   if (canUseSupabase()) {
-    const supabase = serverSupabase(user);
+    const supabase = serverSupabase();
     let query = supabase.from("bank_connections").update({ status: "disconnected", updated_at: new Date().toISOString() }).eq("user_id", user.id).eq("provider", "teller");
     if (connectionId) query = query.eq("id", connectionId);
     const { error } = await query;
@@ -132,6 +133,7 @@ export async function disconnectTeller(user: ApiUser, connectionId?: string) {
     return;
   }
 
+  assertMemoryStoreAvailable();
   const current = memoryConnections.get(user.id) ?? [];
   memoryConnections.set(
     user.id,
@@ -197,7 +199,7 @@ async function activeConnection(user: ApiUser) {
 
 async function getStoredConnections(user: ApiUser): Promise<TellerConnection[]> {
   if (canUseSupabase()) {
-    const supabase = serverSupabase(user);
+    const supabase = serverSupabase();
     const { data, error } = await supabase
       .from("bank_connections")
       .select("id,user_id,provider,access_token,institution_name,enrollment_id,created_at,updated_at,status")
@@ -208,16 +210,17 @@ async function getStoredConnections(user: ApiUser): Promise<TellerConnection[]> 
     return (data ?? []) as TellerConnection[];
   }
 
+  assertMemoryStoreAvailable();
   return memoryConnections.get(user.id) ?? [];
 }
 
 async function tellerFetch<T>(path: string, accessToken: string): Promise<T> {
   const config = tellerServerConfig();
-  if (config.mtlsRequired && !config.hasMtls) throw new Error("Teller mTLS credentials are not configured.");
+  if (!config.hasMtls) throw new Error("Teller mTLS credentials are not configured.");
 
   return tellerRequestJson<T>(new URL(path, config.domain), {
     cert: config.cert,
-    key: config.certKey,
+    key: config.key,
     headers: {
       Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString("base64")}`,
       "Teller-Version": "2019-07-01",
@@ -253,17 +256,18 @@ function sanitizeConnection(connection: TellerConnection) {
 }
 
 function canUseSupabase() {
-  return Boolean(hasSupabaseConfig && supabaseUrl && supabaseKey);
+  return Boolean(hasSupabaseConfig && supabaseUrl && supabaseServiceRoleKey);
 }
 
-function serverSupabase(user: ApiUser) {
-  if (!supabaseUrl || !supabaseKey) throw new Error("Supabase is not configured.");
-  return createClient(supabaseUrl, supabaseKey, {
-    global: supabaseServiceRoleKey || !user.accessToken ? undefined : {
-      headers: {
-        Authorization: `Bearer ${user.accessToken}`
-      }
-    },
+function assertMemoryStoreAvailable() {
+  if (process.env.NODE_ENV === "development") return;
+  if (!hasSupabaseConfig) return;
+  throw new Error("Server-side Teller token storage is not configured.");
+}
+
+function serverSupabase() {
+  if (!supabaseUrl || !supabaseServiceRoleKey) throw new Error("Supabase is not configured.");
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false
@@ -272,21 +276,22 @@ function serverSupabase(user: ApiUser) {
 }
 
 function tellerServerConfig() {
-  const cert = normalizePemEnv(process.env.TELLER_CERT);
-  const certKey = normalizePemEnv(process.env.TELLER_CERT_KEY);
-  const auth = normalizeEnv(process.env.TELLER_AUTH);
-  const environment = normalizeEnv(process.env.TELLER_ENVIRONMENT) || "sandbox";
+  const certPath = normalizeEnv(process.env.TELLER_CERT_PATH);
+  const keyPath = normalizeEnv(process.env.TELLER_KEY_PATH);
+  const cert = readTextFile(certPath);
+  const key = readTextFile(keyPath);
+  const environment = normalizeEnv(process.env.TELLER_ENVIRONMENT) || "development";
   const domain = normalizeTellerDomain(process.env.TELLER_DOMAIN);
-  const hasMtls = Boolean(cert && certKey);
+  const hasMtls = Boolean(cert && key);
   return {
     cert,
-    certKey,
-    auth,
+    key,
+    certPath,
+    keyPath,
     domain,
     environment,
     hasMtls,
-    mtlsRequired: environment !== "sandbox",
-    apiConfigured: Boolean(domain && auth && (environment === "sandbox" || hasMtls))
+    apiConfigured: Boolean(domain && hasMtls)
   };
 }
 
@@ -296,14 +301,21 @@ function normalizeEnv(value?: string) {
   return normalized;
 }
 
-function normalizePemEnv(value?: string) {
-  return normalizeEnv(value).replace(/\\n/g, "\n");
-}
-
 function normalizeTellerDomain(value?: string) {
   const domain = normalizeEnv(value) || "api.teller.io";
   const withProtocol = /^https?:\/\//i.test(domain) ? domain : `https://${domain}`;
   return withProtocol.replace(/\/+$/, "");
+}
+
+function readTextFile(filePath: string) {
+  if (!filePath) return "";
+  try {
+    const absolutePath = resolve(/* turbopackIgnore: true */ process.cwd(), filePath);
+    if (!existsSync(absolutePath)) return "";
+    return readFileSync(absolutePath, "utf8");
+  } catch {
+    return "";
+  }
 }
 
 function tellerRequestJson<T>(url: URL, input: { cert?: string; key?: string; headers: Record<string, string> }) {

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireApiUser } from "@/lib/server-auth";
+import { isLockedDemoRequest, requireApiUser } from "@/lib/server-auth";
 import { fetchTellerTransactions } from "@/lib/teller/server";
 import type { Category, MerchantCategoryRule } from "@/lib/types";
 
 export async function GET(request: Request) {
+  if (isLockedDemoRequest(request)) return lockedDemoResponse();
+
   const auth = await requireApiUser(request);
   if (!auth.user) return auth.response;
 
@@ -15,6 +17,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (isLockedDemoRequest(request)) return lockedDemoResponse();
+
   const auth = await requireApiUser(request);
   if (!auth.user) return auth.response;
 
@@ -38,4 +42,8 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ message: "Transactions are unavailable right now." }, { status: 502 });
   }
+}
+
+function lockedDemoResponse() {
+  return NextResponse.json({ message: "Bank sync is disabled in locked demo mode." }, { status: 403 });
 }

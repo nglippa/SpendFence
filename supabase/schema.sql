@@ -15,18 +15,14 @@ create index if not exists bank_connections_provider_idx on public.bank_connecti
 
 alter table public.bank_connections enable row level security;
 
-create policy "Users can read their own bank connections"
-  on public.bank_connections
-  for select
-  using (auth.uid() = user_id);
+drop policy if exists "Users can read their own bank connections"
+  on public.bank_connections;
 
-create policy "Users can insert their own bank connections"
-  on public.bank_connections
-  for insert
-  with check (auth.uid() = user_id);
+drop policy if exists "Users can insert their own bank connections"
+  on public.bank_connections;
 
-create policy "Users can update their own bank connections"
-  on public.bank_connections
-  for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own bank connections"
+  on public.bank_connections;
+
+comment on table public.bank_connections is
+  'Server-managed Teller enrollments. Access tokens must only be read through backend service-role API code.';

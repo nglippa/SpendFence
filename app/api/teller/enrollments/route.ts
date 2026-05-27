@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { disconnectTeller, listTellerConnections, saveTellerEnrollment, tellerConfig } from "@/lib/teller/server";
-import { requireApiUser } from "@/lib/server-auth";
+import { isLockedDemoRequest, requireApiUser } from "@/lib/server-auth";
 
 export async function GET(request: Request) {
+  if (isLockedDemoRequest(request)) return lockedDemoResponse();
+
   const auth = await requireApiUser(request);
   if (!auth.user) return auth.response;
 
@@ -17,6 +19,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (isLockedDemoRequest(request)) return lockedDemoResponse();
+
   const auth = await requireApiUser(request);
   if (!auth.user) return auth.response;
 
@@ -46,6 +50,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (isLockedDemoRequest(request)) return lockedDemoResponse();
+
   const auth = await requireApiUser(request);
   if (!auth.user) return auth.response;
 
@@ -56,4 +62,8 @@ export async function DELETE(request: Request) {
   } catch {
     return NextResponse.json({ message: "Bank connection could not be disconnected." }, { status: 500 });
   }
+}
+
+function lockedDemoResponse() {
+  return NextResponse.json({ message: "Bank sync is disabled in locked demo mode." }, { status: 403 });
 }

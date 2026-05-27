@@ -9,7 +9,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ?? 
 export type ApiUser = {
   id: string;
   mode: "supabase" | "development";
-  accessToken?: string;
 };
 
 export async function requireApiUser(request: Request): Promise<{ user?: ApiUser; response?: Response }> {
@@ -33,7 +32,7 @@ export async function requireApiUser(request: Request): Promise<{ user?: ApiUser
     const { data, error } = await supabase.auth.getUser(bearer);
     if (error || !data.user) return unauthorized("Sign in again to use bank sync.");
 
-    return { user: { id: data.user.id, mode: "supabase", accessToken: bearer } };
+    return { user: { id: data.user.id, mode: "supabase" } };
   }
 
   if (process.env.NODE_ENV === "development") {
@@ -42,6 +41,14 @@ export async function requireApiUser(request: Request): Promise<{ user?: ApiUser
   }
 
   return unauthorized("Authentication is not configured for bank sync.");
+}
+
+export function isLockedDemoRequest(request: Request) {
+  const cookies = request.headers.get("cookie") ?? "";
+  return cookies
+    .split(";")
+    .map((item) => item.trim())
+    .some((item) => item === "spendfence-demo-locked-session-v1=true");
 }
 
 function unauthorized(message: string) {
