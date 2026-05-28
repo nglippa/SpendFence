@@ -31,7 +31,7 @@ export default function DeveloperSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Developer" subtitle="Preview paid and free tier surfaces without changing subscription records." />
+      <SettingsDetailHeader title="Developer" subtitle="Preview Free and Premium UI." />
       <SettingsFeedback message={feedback} />
       <div className="grid gap-5">
         <SettingsGroup title="Tier Preview Mode">
@@ -56,7 +56,7 @@ export default function DeveloperSettingsPage() {
           <SettingsRow
             icon={Code2}
             title={`Developer Preview: ${auth.planLabel}`}
-            subtitle={`Real subscription tier remains ${auth.realTier === "premium" ? "Premium" : "Free"}. This preview only changes local UI entitlement checks.`}
+            subtitle={`Real tier remains ${auth.realTier === "premium" ? "Premium" : "Free"}. Local UI only.`}
             accessory={<Pill className="border-sky-100 bg-sky-50 text-sky-700">Local only</Pill>}
           />
         </SettingsGroup>

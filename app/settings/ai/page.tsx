@@ -25,14 +25,14 @@ export default function AiSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="AI Features" subtitle="Control server-side assistance for categorization and receipt review." />
+      <SettingsDetailHeader title="AI Features" subtitle="Control suggestions and adaptive intelligence." />
       <SettingsFeedback message={feedback} />
       <div className="grid gap-5">
         <SettingsGroup title="Categorization">
           <SettingsSwitchRow
             icon={Brain}
             title="AI purchase categorization"
-            subtitle="Server-side category suggestions are included for all users and always require review before saving."
+            subtitle="Category suggestions require review."
             checked={state.aiCategorizationEnabled}
             onChange={update}
             accessory={<Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">Included</Pill>}
@@ -42,7 +42,7 @@ export default function AiSettingsPage() {
           <SettingsRow
             icon={ScanLine}
             title="AI receipt analysis"
-            subtitle="Receipt text understanding, line-item extraction, category suggestions, and split allocations are included for all users. Review suggestions before saving."
+            subtitle="Line items, splits, and categories."
             accessory={<Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">Included</Pill>}
           />
         </SettingsGroup>
@@ -50,7 +50,7 @@ export default function AiSettingsPage() {
           <SettingsSwitchRow
             icon={Gauge}
             title="Adaptive Suggestions"
-            subtitle="SpendFence can suggest small fence adjustments as category patterns stabilize."
+            subtitle="Suggest fence changes as patterns stabilize."
             checked={state.adaptiveFenceSettings.enabled}
             onChange={(enabled) => updateAdaptiveSettings({ ...state.adaptiveFenceSettings, enabled })}
             accessory={<Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">Free</Pill>}
@@ -63,7 +63,7 @@ export default function AiSettingsPage() {
               <Select
                 value={state.adaptiveFenceSettings.frequency}
                 onChange={(event) => updateAdaptiveSettings({ ...state.adaptiveFenceSettings, frequency: event.target.value as AdaptiveFenceSettings["frequency"] })}
-                className="min-h-10 w-36 text-xs sm:w-40"
+                className="min-h-10 w-28 text-xs sm:w-40"
               >
                 <option value="minimal">Minimal</option>
                 <option value="balanced">Balanced</option>
@@ -74,12 +74,12 @@ export default function AiSettingsPage() {
           <SettingsRow
             icon={Brain}
             title="Automation Level"
-            subtitle="For now, changes stay review-first so SpendFence suggests instead of taking over."
+            subtitle="Changes stay review-first."
             accessory={
               <Select
                 value={state.adaptiveFenceSettings.automationLevel}
                 onChange={(event) => updateAdaptiveSettings({ ...state.adaptiveFenceSettings, automationLevel: event.target.value as AdaptiveFenceSettings["automationLevel"] })}
-                className="min-h-10 w-40 text-xs sm:w-48"
+                className="min-h-10 w-32 text-xs sm:w-48"
               >
                 <option value="suggestions-only">Suggestions only</option>
                 <option value="require-confirmation">Require confirmation</option>
@@ -90,14 +90,14 @@ export default function AiSettingsPage() {
           <SettingsRow
             icon={Gauge}
             title="Learning Sensitivity"
-            subtitle="Tune how quickly SpendFence reacts to spending patterns."
+            subtitle="Adjust reaction speed."
             accessory={
               <Select
                 value={state.adaptiveFenceSettings.learningSensitivity}
                 onChange={(event) =>
                   updateAdaptiveSettings({ ...state.adaptiveFenceSettings, learningSensitivity: event.target.value as AdaptiveFenceSettings["learningSensitivity"] })
                 }
-                className="min-h-10 w-36 text-xs sm:w-40"
+                className="min-h-10 w-28 text-xs sm:w-40"
               >
                 <option value="conservative">Conservative</option>
                 <option value="moderate">Moderate</option>

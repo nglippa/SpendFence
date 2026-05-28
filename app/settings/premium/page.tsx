@@ -62,7 +62,7 @@ export default function PremiumSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-4xl">
-      <SettingsDetailHeader title="Premium" subtitle="Unlock SpendFence's full adaptive budgeting layer with Stripe-secured billing." />
+      <SettingsDetailHeader title="Premium" subtitle="Unlock advanced budgeting intelligence." />
 
       <div className="grid gap-5">
         {(checkoutSuccess || checkoutCanceled || message || cancellationCopy) ? (
@@ -84,9 +84,9 @@ export default function PremiumSettingsPage() {
                 </Pill>
                 {auth.isDeveloper ? <Pill className="border-violet-100 bg-violet-50 text-violet-700">Developer Preview: {auth.planLabel}</Pill> : null}
               </div>
-              <h2 className="mt-3 text-2xl font-black tracking-tight text-[var(--app-text)] sm:text-3xl">Adaptive budgeting, fully unlocked.</h2>
-              <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
-                Premium turns SpendFence into a deeper AI-assisted finance system: unlimited bank linking, advanced pattern recognition, and richer recommendations while you stay in control.
+              <h2 className="mt-3 text-xl font-black tracking-tight text-[var(--app-text)] sm:text-3xl">Adaptive budgeting, unlocked.</h2>
+              <p className="mt-2 max-w-2xl text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm sm:leading-6">
+                Unlimited bank linking, advanced intelligence, and deeper recommendations.
               </p>
             </div>
             {subscribed ? (
@@ -122,7 +122,7 @@ export default function PremiumSettingsPage() {
         <Card>
           <div className="mb-4 flex items-center gap-2">
             <Crown size={18} className="text-[#4F46E5]" />
-            <h2 className="text-lg font-black sm:text-xl">Premium includes</h2>
+            <h2 className="text-base font-black sm:text-xl">Premium includes</h2>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {premiumPlanFeatures.map((feature) => (
@@ -135,7 +135,7 @@ export default function PremiumSettingsPage() {
         </Card>
 
         <Card>
-          <h2 className="mb-4 text-lg font-black sm:text-xl">Feature comparison</h2>
+          <h2 className="mb-4 text-base font-black sm:text-xl">Feature comparison</h2>
           <div className="overflow-hidden rounded-2xl border border-[var(--app-border)]">
             {comparisonRows.map((row, index) => (
               <div key={row.feature} className={cn("grid grid-cols-[1.2fr_0.7fr_0.9fr] items-center gap-2 px-3 py-3 text-sm font-bold", index % 2 === 0 ? "bg-[var(--app-secondary)]" : "bg-[var(--app-card)]")}>
@@ -184,17 +184,17 @@ function PricingCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-black">{title}</h2>
+            <h2 className="text-lg font-black sm:text-xl">{title}</h2>
             {badge ? <Pill className="border-violet-100 bg-violet-50 text-violet-700">{badge}</Pill> : null}
           </div>
-          <p className="mt-3 text-3xl font-black tracking-tight">
+          <p className="mt-2 text-2xl font-black tracking-tight sm:mt-3 sm:text-3xl">
             {price} <span className="text-sm font-black text-[var(--app-text-muted)]">{cadence}</span>
           </p>
         </div>
         {active ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Current</Pill> : null}
       </div>
       <Button className="mt-5 w-full" onClick={onClick} disabled={disabled || active}>
-        <Sparkles size={17} /> {loading ? "Opening..." : active ? "Current Plan" : "Upgrade"}
+        <Sparkles size={17} /> {loading ? "Opening" : active ? "Current Plan" : "Upgrade"}
       </Button>
     </Card>
   );
@@ -216,4 +216,3 @@ function PremiumFeature({ icon: Icon, title, body }: { icon: typeof Building2; t
     </div>
   );
 }
-

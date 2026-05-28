@@ -7,13 +7,13 @@ import { SettingsDetailHeader, SettingsGroup, SettingsSwitchRow } from "@/compon
 export default function SecuritySettingsPage() {
   return (
     <div className="settings-page-frame mx-auto w-full max-w-3xl">
-      <SettingsDetailHeader title="Security" subtitle="Protect your account with session-only login and MFA." />
+      <SettingsDetailHeader title="Security" subtitle="Manage login and MFA." />
       <div className="mb-5">
         <SettingsGroup title="Session protection">
           <SettingsSwitchRow
             icon={LockKeyhole}
             title="Require login each session"
-            subtitle="For better protection, SpendFence asks you to sign in again when you start a new session."
+            subtitle="Sign in again for new sessions."
             checked
             disabled
             onChange={() => undefined}

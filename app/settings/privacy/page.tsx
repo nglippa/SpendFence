@@ -84,13 +84,13 @@ export default function PrivacySettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Data & Privacy" subtitle="Review local data and control reset/export actions." />
+      <SettingsDetailHeader title="Data & Privacy" subtitle="Review data, export, or reset demo mode." />
       <SettingsFeedback message={feedback} />
 
       <div className="grid gap-5">
         <SettingsGroup title="Local data">
-          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases, ${state.recurringItems.length} recurring`} subtitle={`${state.demoDataEnabled ? "Demo mode is showing isolated sample data." : "Personal data is active."} Income is ${formatMoney(state.budgetMonth.income)}. MVP data stays in localStorage on this device.`} />
-          <SettingsRow icon={ShieldAlert} title="Frontend secrets stay out" subtitle="Provider tokens and AI keys belong server-side only." />
+          <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases`} subtitle={`${state.demoDataEnabled ? "Demo data active." : "Personal data active."} Income: ${formatMoney(state.budgetMonth.income)}.`} />
+          <SettingsRow icon={ShieldAlert} title="Secrets stay server-side" subtitle="Tokens and AI keys are not stored in the UI." />
         </SettingsGroup>
 
         <SettingsGroup title="Demo Data">
@@ -99,8 +99,8 @@ export default function PrivacySettingsPage() {
             title={demoLocked ? "Demo Mode Enabled" : state.demoDataEnabled ? "Disable Demo Data" : "Enable Demo Data"}
             subtitle={
               demoLocked
-                ? "Demo mode is locked for this preview. Create an account to use SpendFence with your own data."
-                : "Demo data lets testers explore SpendFence with sample categories and purchases."
+                ? "Locked for this preview."
+                : "Use sample categories and purchases."
             }
             checked={state.demoDataEnabled}
             disabled={demoLocked}
@@ -122,7 +122,7 @@ export default function PrivacySettingsPage() {
             </Button>
             {demoLocked ? (
               <p className="rounded-2xl bg-[var(--app-secondary)] px-3 py-2 text-xs font-bold leading-5 text-[var(--app-text-muted)] sm:col-span-2">
-                Demo mode is locked for this preview. Create an account to use SpendFence with your own data.
+                Demo mode is locked. Create an account to use your own data.
               </p>
             ) : null}
           </div>

@@ -13,6 +13,8 @@ type AuthMode = "login" | "signup" | "forgot";
 type AuthResult = SignInResult & { message?: string; signedIn?: boolean };
 const REMEMBERED_EMAIL_KEY = "spendfence-remembered-email-v1";
 const AUTH_FLASH_KEY = "spendfence-auth-flash-v1";
+const AUTH_ICON_CLASS = "pointer-events-none absolute left-4 top-1/2 grid h-5 w-5 shrink-0 -translate-y-1/2 place-items-center text-slate-400";
+const AUTH_ICON_INPUT_CLASS = "pl-12 pr-4 sm:pl-12 sm:pr-4";
 
 const copy = {
   login: {
@@ -294,10 +296,10 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               <>
                 <Field label="Email">
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center text-slate-400">
+                    <span className={AUTH_ICON_CLASS}>
                       <Mail size={18} />
                     </span>
-                    <Input className="pl-12 pr-4" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={authUnavailable} required />
+                    <Input className={AUTH_ICON_INPUT_CLASS} type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={authUnavailable} required />
                   </div>
                 </Field>
 
@@ -319,11 +321,11 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                 {mode !== "forgot" ? (
                   <Field label="Password">
                     <div className="relative">
-                      <span className="pointer-events-none absolute left-4 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center text-slate-400">
+                      <span className={AUTH_ICON_CLASS}>
                         <KeyRound size={18} />
                       </span>
                       <Input
-                        className="pl-12 pr-4"
+                        className={AUTH_ICON_INPUT_CLASS}
                         type="password"
                         autoComplete={mode === "signup" ? "new-password" : "current-password"}
                         value={password}

@@ -194,13 +194,13 @@ export function BankSyncCard() {
   if (state.demoModeLocked) {
     return (
       <Card>
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
-            <LockKeyhole size={20} />
+        <div className="flex items-start gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36]">
+            <LockKeyhole size={18} />
           </div>
           <div>
-            <h2 className="text-lg font-black sm:text-xl">Bank sync disabled</h2>
-            <p className="mt-1.5 text-sm font-semibold leading-6 text-slate-600">Bank sync is disabled in demo mode.</p>
+            <h2 className="text-base font-black sm:text-lg">Bank sync disabled</h2>
+            <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Bank sync is disabled in demo mode.</p>
           </div>
         </div>
       </Card>
@@ -212,17 +212,17 @@ export function BankSyncCard() {
       <Card>
         <div className="flex items-start gap-3 sm:gap-4">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12 sm:rounded-2xl">
-            {bankSyncEnabled ? <Building2 size={20} /> : <LockKeyhole size={20} />}
+            {bankSyncEnabled ? <Building2 size={18} /> : <LockKeyhole size={18} />}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg font-black sm:text-xl">{premiumFeatures["bank-sync"].title}</h2>
+              <h2 className="text-base font-black sm:text-xl">{premiumFeatures["bank-sync"].title}</h2>
               {auth.effectiveTier === "premium" ? <PremiumBadge /> : null}
               <Pill className={auth.effectiveTier === "premium" ? "border-sky-100 bg-sky-50 text-sky-700" : "border-slate-200 bg-white text-slate-600"}>{accountLimitLabel}</Pill>
               {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
             </div>
-            <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
-              Connect accounts, import transactions automatically, and review them before they affect your budget. {upgradeLimitCopy}{" "}
+            <p className="mt-1.5 text-xs font-bold leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">
+              Connect accounts and import transactions. {upgradeLimitCopy}{" "}
               {auth.effectiveTier === "free" ? (
                 <Link href="/premium" className="font-black text-[var(--app-info)] underline decoration-[rgb(75_140_255_/_0.28)] underline-offset-4">
                   Premium unlocks unlimited syncing.
@@ -230,15 +230,15 @@ export function BankSyncCard() {
               ) : null}
             </p>
             <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
-              {["Secure bank login", "Private connection storage", "Transactions pause for review", "Smart category suggestions"].map((item) => (
-                <span key={item} className="flex items-center gap-2 rounded-xl bg-[#f7faf7] p-2.5 text-sm font-black text-slate-700 sm:rounded-2xl sm:p-3">
-                  <CheckCircle2 size={16} className="text-[#58c6a8]" />
+              {["Secure login", "Private tokens", "Review before import", "Smart categories"].map((item) => (
+                <span key={item} className="flex items-center gap-2 rounded-xl bg-[#f7faf7] p-2 text-xs font-black text-slate-700 sm:rounded-2xl sm:p-3 sm:text-sm">
+                  <CheckCircle2 size={15} className="shrink-0 text-[#58c6a8]" />
                   {item}
                 </span>
               ))}
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
+            <div className="mt-3 grid gap-2 sm:mt-4 sm:flex sm:flex-wrap">
               {tellerConfigured ? (
                 <TellerConnectButton disabled={!bankSyncEnabled || loading || freeLimitReached} requestHeaders={requestHeaders} onBeforeOpen={canOpenTellerConnect} onConnected={handleConnected} onMessage={setMessage} />
               ) : null}
@@ -269,14 +269,14 @@ export function BankSyncCard() {
       <Card>
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-black sm:text-xl">Connected accounts</h2>
-            <p className="mt-1 text-sm font-semibold text-slate-600">
+            <h2 className="text-base font-black sm:text-xl">Connected accounts</h2>
+            <p className="mt-1 text-xs font-bold text-slate-600 sm:text-sm">
               {auth.effectiveTier === "premium"
                 ? "Unlimited account syncing active."
                 : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} accounts connected`}
             </p>
             <p className="mt-1 text-xs font-bold text-slate-500">
-              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : accountCountUsesAccounts ? "Account count is based on connected accounts." : "Refresh accounts to update this count."}
+              {lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}` : accountCountUsesAccounts ? "Count uses connected accounts." : "Refresh to update count."}
             </p>
           </div>
           {loading ? <Pill className="border-slate-200 bg-white text-slate-600"><RefreshCw size={13} className="mr-1 animate-spin" /> Working</Pill> : null}
@@ -287,8 +287,8 @@ export function BankSyncCard() {
               <div key={connection.id} className="rounded-2xl bg-[#f7faf7] p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-black text-[#10201c]">{connection.institution_name}</p>
-                    <p className="text-xs font-bold text-slate-500">Bank connection / {connection.status}</p>
+                    <p className="text-sm font-black text-[#10201c]">{connection.institution_name}</p>
+                    <p className="text-xs font-bold text-slate-500">Connection / {connection.status}</p>
                   </div>
                   <Pill className={connection.status === "connected" ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}>
                     {connection.status}
@@ -297,12 +297,12 @@ export function BankSyncCard() {
               </div>
             ))
           ) : (
-            <p className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm font-bold text-slate-500">No Teller accounts connected yet.</p>
+            <p className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm font-bold text-slate-500">No accounts connected yet.</p>
           )}
 
           {accounts.map((account) => (
             <div key={account.id} className="rounded-2xl bg-[#f7faf7] p-3">
-              <p className="font-black text-[#10201c]">{account.name}</p>
+              <p className="text-sm font-black text-[#10201c]">{account.name}</p>
               <p className="text-xs font-bold text-slate-500">
                 {account.institution} / {account.type}{account.subtype ? ` / ${account.subtype}` : ""} / {account.currency}
               </p>
@@ -313,9 +313,9 @@ export function BankSyncCard() {
 
       <Card>
         <div className="grid gap-4 md:grid-cols-3">
-          <MiniFeature icon={Building2} title="Connected accounts" body="Accounts are fetched server-side from secure stored connections." />
-          <MiniFeature icon={RefreshCw} title="Review queue" body="Synced transactions are staged before they affect budgets." />
-          <MiniFeature icon={ShieldCheck} title="Token safety" body="Teller access tokens are never saved in localStorage or returned to the client." />
+          <MiniFeature icon={Building2} title="Accounts" body="Fetched server-side." />
+          <MiniFeature icon={RefreshCw} title="Review queue" body="Transactions stage before import." />
+          <MiniFeature icon={ShieldCheck} title="Token safety" body="Tokens stay server-side." />
         </div>
       </Card>
     </>
@@ -328,8 +328,8 @@ function MiniFeature({ icon: Icon, title, body }: { icon: LucideIcon; title: str
       <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#183f36] shadow-soft sm:h-10 sm:w-10 sm:rounded-2xl">
         <Icon size={18} />
       </div>
-      <h3 className="mt-2.5 text-sm font-black text-[#10201c] sm:mt-3 sm:text-base">{title}</h3>
-      <p className="mt-1 text-sm font-semibold leading-5 text-slate-600 sm:leading-6">{body}</p>
+      <h3 className="mt-2.5 text-sm font-black text-[#10201c] sm:mt-3">{title}</h3>
+      <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">{body}</p>
     </div>
   );
 }

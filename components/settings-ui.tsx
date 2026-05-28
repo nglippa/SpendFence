@@ -8,21 +8,21 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.65rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] px-6 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.92)] sm:-top-5 sm:mb-6 sm:rounded-b-[1.9rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
-      <Link href="/settings" className="-ml-2 mb-5 inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-sm font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6">
+    <div className="sticky -top-4 z-20 mb-4 rounded-b-[1.55rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] px-6 pb-4 pt-[max(0.9rem,env(safe-area-inset-top))] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.92)] sm:-top-5 sm:mb-6 sm:rounded-b-[1.9rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
+      <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-xs font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6 sm:min-h-10 sm:text-sm">
         <ArrowLeft size={17} /> Settings
       </Link>
-      <h1 className="text-[1.8rem] font-black leading-9 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10">{title}</h1>
-      {subtitle ? <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--app-text-secondary)] sm:mt-3.5">{subtitle}</p> : null}
+      <h1 className="text-[1.55rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10">{title}</h1>
+      {subtitle ? <p className="mt-2 max-w-2xl text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:mt-3.5 sm:text-sm sm:leading-6">{subtitle}</p> : null}
     </div>
   );
 }
 
 export function SettingsGroup({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <section className="grid w-full min-w-0 gap-2.5">
-      {title ? <h2 className="px-1 text-[0.7rem] font-black uppercase leading-4 tracking-[0.18em] text-[var(--app-text-secondary)]">{title}</h2> : null}
-      <div className="w-full min-w-0 overflow-hidden rounded-[1.35rem] border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur">{children}</div>
+    <section className="grid w-full min-w-0 gap-2">
+      {title ? <h2 className="px-1 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-secondary)]">{title}</h2> : null}
+      <div className="w-full min-w-0 overflow-hidden rounded-[1.2rem] border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur sm:rounded-[1.35rem]">{children}</div>
     </section>
   );
 }
@@ -44,18 +44,20 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] text-white", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
-        <Icon size={18} />
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
+        <Icon size={17} />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className={cn("text-sm font-black leading-5 sm:text-base sm:leading-6", danger ? "text-[var(--app-danger)]" : "text-[var(--app-text)]")}>{title}</p>
-        {subtitle ? <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-muted)] sm:text-sm sm:leading-6">{subtitle}</p> : null}
+      <div className="min-w-0">
+        <p className={cn("break-words text-sm font-black leading-5 [overflow-wrap:anywhere]", danger ? "text-[var(--app-danger)]" : "text-[var(--app-text)]")}>{title}</p>
+        {subtitle ? <p className="mt-0.5 break-words text-[0.72rem] font-bold leading-4 text-[var(--app-text-muted)] [overflow-wrap:anywhere] sm:mt-1 sm:text-xs sm:leading-5">{subtitle}</p> : null}
       </div>
-      {accessory ?? (href ? <ChevronRight size={18} className="shrink-0 text-slate-300" /> : null)}
+      <div className="flex min-w-max shrink-0 items-center justify-end">
+        {accessory ?? (href ? <ChevronRight size={18} className="shrink-0 text-slate-300" /> : null)}
+      </div>
     </>
   );
 
-  const className = "flex min-h-[4.25rem] items-center gap-3.5 border-b border-[var(--app-border)] px-4 py-3.5 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] sm:px-5";
+  const className = "grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -87,18 +89,20 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="flex min-h-[4.5rem] w-full items-center gap-3.5 border-b border-[var(--app-border)] px-4 py-3.5 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
+      className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
     >
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-brand-gradient text-white">
-        <Icon size={18} />
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
+        <Icon size={17} />
       </div>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-black leading-5 text-[var(--app-text)] sm:text-base sm:leading-6">{title}</span>
-        {subtitle ? <span className="mt-1 block text-xs font-semibold leading-5 text-[var(--app-text-muted)] sm:text-sm sm:leading-6">{subtitle}</span> : null}
+      <span className="min-w-0">
+        <span className="block break-words text-sm font-black leading-5 text-[var(--app-text)] [overflow-wrap:anywhere]">{title}</span>
+        {subtitle ? <span className="mt-0.5 block break-words text-[0.72rem] font-bold leading-4 text-[var(--app-text-muted)] [overflow-wrap:anywhere] sm:mt-1 sm:text-xs sm:leading-5">{subtitle}</span> : null}
       </span>
-      {accessory}
-      <span className={cn("relative h-7 w-12 shrink-0 rounded-full p-1 transition-colors duration-200", checked ? "bg-[var(--brand-primary)]" : "bg-[var(--app-border)]")}>
-        <span className={cn("block h-5 w-5 rounded-full bg-[var(--app-card)] shadow transition-transform duration-200", checked && "translate-x-5")} />
+      <span className="flex min-w-max shrink-0 items-center justify-end gap-1.5">
+        {accessory}
+        <span className={cn("relative h-7 w-12 shrink-0 rounded-full p-1 transition-colors duration-200", checked ? "bg-[var(--brand-primary)]" : "bg-[var(--app-border)]")}>
+          <span className={cn("block h-5 w-5 rounded-full bg-[var(--app-card)] shadow transition-transform duration-200", checked && "translate-x-5")} />
+        </span>
       </span>
     </button>
   );
@@ -154,7 +158,7 @@ export function ConfirmSheet({
             Cancel
           </Button>
           <Button type="button" variant={danger ? "danger" : "primary"} onClick={onConfirm} disabled={working}>
-            {working ? "Working..." : confirmLabel}
+            {working ? "Working" : confirmLabel}
           </Button>
         </div>
       </div>

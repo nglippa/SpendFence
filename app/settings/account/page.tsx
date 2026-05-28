@@ -15,7 +15,7 @@ export default function AccountSettingsPage() {
 
   async function logout() {
     setWorking(true);
-    setFeedback("Signing out...");
+    setFeedback("Signing out");
     await auth.signOut();
     window.sessionStorage.setItem("spendfence-auth-flash-v1", "Signed out securely.");
     router.replace("/login");
@@ -23,7 +23,7 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Account" subtitle="Profile, plan, and session controls." />
+      <SettingsDetailHeader title="Account" subtitle="Profile and sign out." />
       <SettingsFeedback message={feedback} />
       <div className="grid gap-5">
         <SettingsGroup title="Profile">
@@ -38,7 +38,7 @@ export default function AccountSettingsPage() {
         <SettingsGroup>
           <div className="p-4 sm:p-5">
             <Button variant="secondary" className="w-full" onClick={logout} disabled={working}>
-              <LogOut size={18} /> {working ? "Signing out..." : "Log out"}
+              <LogOut size={18} /> {working ? "Signing out" : "Log out"}
             </Button>
           </div>
         </SettingsGroup>

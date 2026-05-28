@@ -119,7 +119,7 @@ export default function SpendingRulesSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Spending Rules" subtitle="Create personal guardrails that match how you want SpendFence to watch your spending." />
+      <SettingsDetailHeader title="Spending Rules" subtitle="Create custom spending alerts." />
       <SettingsFeedback message={feedback} />
 
       <div className="grid gap-5">
@@ -138,8 +138,8 @@ export default function SpendingRulesSettingsPage() {
             ) : (
               <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
                 <p className="text-sm font-black text-[var(--app-text)]">No personal rules yet</p>
-                <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
-                  Start with one simple preference, like a dining threshold or a weekend spending awareness note.
+                <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">
+                  Start with a dining limit, pacing alert, or weekend nudge.
                 </p>
               </div>
             )}
@@ -162,7 +162,7 @@ export default function SpendingRulesSettingsPage() {
               <form className="grid gap-4 p-4 sm:p-5" onSubmit={saveRule}>
                 <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
                   <p className="text-sm font-black text-[var(--app-text)]">{preview.title}</p>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{preview.description}</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">{preview.description}</p>
                 </div>
 
                 <div className="grid gap-3">
@@ -237,7 +237,7 @@ export default function SpendingRulesSettingsPage() {
                 <div className="min-w-0">
                   <p className="text-sm font-black text-[#0B1114] dark:text-white">AI-generated rules</p>
                   <p className="mt-1 text-sm font-bold leading-6 text-[#475569] dark:text-[#C9D4E4]">
-                    Predictive behavioral alerts, adaptive thresholds, merchant pattern intelligence, and cross-cycle analysis will live here as Premium rule automation expands.
+                    Predictive alerts and adaptive thresholds will live here as Premium automation expands.
                   </p>
                 </div>
               </div>
@@ -252,7 +252,7 @@ export default function SpendingRulesSettingsPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-black leading-5 text-[#0B1114] dark:text-white">{suggestion.title}</p>
-                    <p className="mt-1 text-sm font-bold leading-6 text-[#475569] dark:text-[#C9D4E4]">{suggestion.body}</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-[#475569] dark:text-[#C9D4E4] sm:text-sm">{suggestion.body}</p>
                   </div>
                 </div>
               </div>
@@ -388,7 +388,7 @@ function RuleCard({
               {spendingRuleConditionLabels[rule.condition]}
             </Pill>
           </div>
-          <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{rule.description}</p>
+          <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">{rule.description}</p>
         </div>
         <RuleToggle checked={rule.enabled} onChange={onToggle} />
       </div>

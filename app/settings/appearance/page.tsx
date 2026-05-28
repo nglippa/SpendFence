@@ -33,15 +33,15 @@ export default function AppearanceSettingsPage() {
             key={key}
             type="button"
             onClick={() => updateTheme(key)}
-            className="flex min-h-[4.5rem] w-full items-center gap-3.5 border-b border-[var(--app-border)] px-4 py-3.5 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] sm:px-5"
+            className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
             aria-pressed={preference === key}
           >
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-brand-gradient text-white">
-              <Icon size={18} />
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
+              <Icon size={17} />
             </div>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-black leading-5 text-[var(--app-text)] sm:text-base sm:leading-6">{label}</span>
-              <span className="mt-1 block text-xs font-semibold leading-5 text-[var(--app-text-muted)] sm:text-sm sm:leading-6">{body}</span>
+            <span className="min-w-0">
+              <span className="block text-sm font-black leading-5 text-[var(--app-text)]">{label}</span>
+              <span className="mt-0.5 block text-xs font-bold leading-5 text-[var(--app-text-muted)]">{body}</span>
             </span>
             <span className={cn("grid h-6 w-6 place-items-center rounded-full border", preference === key ? "border-[var(--brand-primary)] bg-[var(--brand-primary)]" : "border-[var(--app-border)] bg-[var(--app-card)]")}>
               {preference === key ? <span className="h-2.5 w-2.5 rounded-full bg-[var(--app-card)]" /> : null}
@@ -51,7 +51,7 @@ export default function AppearanceSettingsPage() {
       </SettingsGroup>
       <div className="mt-5">
         <SettingsGroup title="Display">
-          <SettingsRow icon={Palette} title="Device-ready appearance" subtitle="Light, dark, and system appearance are optimized for iPhone, PWA, and desktop use." />
+          <SettingsRow icon={Palette} title="Device-ready" subtitle="Optimized for iPhone, PWA, and desktop." />
         </SettingsGroup>
       </div>
     </div>

@@ -350,7 +350,7 @@ export function MfaSettings() {
     return (
       <Card className="p-4 sm:p-5 lg:col-span-2">
         <MfaHeader />
-        <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
+        <div className="mt-4 rounded-2xl bg-amber-50 p-3 text-sm font-bold leading-5 text-amber-900 sm:p-4">
           MFA settings are available when you are signed in with Supabase authentication.
         </div>
       </Card>
@@ -361,35 +361,33 @@ export function MfaSettings() {
     <Card className="p-4 sm:p-5 lg:col-span-2">
       <MfaHeader />
 
-      <div className="mt-5 grid gap-3.5 sm:grid-cols-3">
+      <div className="mt-4 grid gap-2.5 sm:mt-5 sm:grid-cols-3 sm:gap-3.5">
         <StatusTile label="MFA status" value={activeFactors.length ? "Enabled" : "Not enabled"} tone={activeFactors.length ? "good" : "neutral"} />
         <StatusTile label="Session level" value={aal.toUpperCase()} tone={aal === "aal2" ? "good" : "neutral"} />
         <StatusTile label="Primary method" value={primaryAvailable ? methodLabel(primaryMethod) : "Not set"} tone={primaryAvailable ? "good" : "neutral"} />
       </div>
 
-      <div className="mt-5 rounded-2xl border border-[#cfe8de] bg-[#f7faf7] p-4">
+      <div className="mt-4 rounded-2xl border border-[#cfe8de] bg-[#f7faf7] p-3 sm:mt-5 sm:p-4">
         <div className="flex items-start gap-3">
-          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-[#183f36]">
-            <ShieldCheck size={20} />
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-[#183f36]">
+            <ShieldCheck size={18} />
           </div>
           <div>
-            <p className="text-sm font-black text-[#10201c]">Authenticator apps currently provide the strongest supported protection for SpendFence accounts.</p>
-            <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-              Authenticator-based MFA is currently the recommended security method. Additional verification methods may arrive in future updates.
-            </p>
+            <p className="text-sm font-black text-[#10201c]">Authenticator apps are recommended.</p>
+            <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Use an authenticator for stronger account protection.</p>
           </div>
         </div>
       </div>
 
-      {error ? <p className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm font-bold leading-6 text-rose-700">{error}</p> : null}
-      {message ? <p className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-700">{message}</p> : null}
+      {error ? <p className="mt-4 rounded-2xl bg-rose-50 p-3 text-sm font-bold leading-5 text-rose-700 sm:p-4">{error}</p> : null}
+      {message ? <p className="mt-4 rounded-2xl bg-emerald-50 p-3 text-sm font-bold leading-5 text-emerald-700 sm:p-4">{message}</p> : null}
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5">
+      <div className="mt-5 grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-black text-[#10201c]">Authenticator app</h3>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Recommended for maximum protection.</p>
+              <h3 className="text-base font-black text-[#10201c] sm:text-lg">Authenticator app</h3>
+              <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Recommended protection.</p>
             </div>
             <Pill className={hasTotp ? "border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]" : "border-slate-200 bg-slate-50 text-slate-600"}>
               {hasTotp ? "Enabled" : "Available"}
@@ -419,12 +417,12 @@ export function MfaSettings() {
           )}
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-black text-[#10201c]">SMS verification</h3>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                {smsMfaEnabled ? "Use SMS as a primary method or backup phone." : "Planned as a future verification method."}
+              <h3 className="text-base font-black text-[#10201c] sm:text-lg">SMS verification</h3>
+              <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">
+                {smsMfaEnabled ? "Primary or backup phone." : "Planned for later."}
               </p>
             </div>
             <Pill className={smsMfaEnabled && hasPhone ? "border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]" : "border-slate-200 bg-slate-50 text-slate-600"}>
@@ -433,10 +431,10 @@ export function MfaSettings() {
           </div>
 
           {!smsMfaEnabled ? (
-            <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+            <div className="mt-4 rounded-2xl bg-slate-50 p-3 sm:p-4">
               <p className="text-sm font-black text-slate-800">Planned feature</p>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                SMS verification is not active right now. The settings structure is preserved so phone-based verification can be restored after provider services and abuse controls are ready.
+              <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">
+                SMS is not active yet. Provider and abuse controls are reserved.
               </p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-4 text-sm font-bold leading-5 text-slate-500">
@@ -449,7 +447,7 @@ export function MfaSettings() {
             </div>
           ) : pendingPhone ? (
             <div className="mt-4 grid gap-4">
-              <div className="rounded-2xl bg-slate-50 p-4 text-sm font-bold leading-6 text-slate-700">
+              <div className="rounded-2xl bg-slate-50 p-3 text-sm font-bold leading-5 text-slate-700 sm:p-4">
                 Verification code sent to {pendingPhone.phone}. Do not share this code with anyone.
               </div>
               <Field label="SMS verification code">
@@ -488,10 +486,10 @@ export function MfaSettings() {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-black text-[#10201c]">Primary MFA method</h3>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Choose which method SpendFence starts with during login.</p>
+      <div className="mt-5 grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
+          <h3 className="text-base font-black text-[#10201c] sm:text-lg">Primary MFA method</h3>
+          <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Choose the default login method.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <Button disabled={working || !hasTotp} onClick={() => setPrimaryMethod("totp")} variant={primaryMethod === "totp" ? "primary" : "secondary"}>
               Authenticator app
@@ -508,27 +506,25 @@ export function MfaSettings() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-black text-[#10201c]">Trusted devices</h3>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-            Trusted-device bypass is disabled. New browser and PWA sessions require sign-in again.
-          </p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
+          <h3 className="text-base font-black text-[#10201c] sm:text-lg">Trusted devices</h3>
+          <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Bypass is disabled. New sessions require sign-in.</p>
           <p className="mt-2 text-xs font-bold leading-5 text-slate-500">
-            Abuse prevention placeholder: Supabase rate limits MFA challenges; SMS cooldown controls are preserved for future reactivation.
+            Supabase rate limits MFA challenges.
           </p>
           <Pill className="mt-4 border-slate-200 bg-slate-50 text-slate-600">Locked off</Pill>
         </div>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-5">
-        <h3 className="text-lg font-black text-[#10201c]">MFA factors</h3>
+      <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
+        <h3 className="text-base font-black text-[#10201c] sm:text-lg">MFA factors</h3>
         <div className="mt-3 grid gap-2">
           {factors.length ? (
             factors.map((factor) => (
               <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between" key={factor.id}>
                 <div className="min-w-0">
                   <p className="font-black text-[#10201c]">{factor.type === "totp" ? "Authenticator app" : "SMS phone"}</p>
-                  <p className="break-words text-sm font-semibold text-slate-600">{factor.phone ?? factor.label}</p>
+                  <p className="break-words text-xs font-bold text-slate-600 sm:text-sm">{factor.phone ?? factor.label}</p>
                 </div>
                 <Button disabled={working} onClick={() => removeFactor(factor)} variant="danger">
                   <Trash2 size={17} /> Remove
@@ -536,22 +532,20 @@ export function MfaSettings() {
               </div>
             ))
           ) : (
-            <p className="rounded-2xl bg-slate-50 p-4 text-sm font-bold leading-6 text-slate-600">
-              MFA is ready when you want another layer of protection. Start with an authenticator app for the smoothest setup.
+            <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold leading-5 text-slate-600 sm:p-4">
+              Add an authenticator app for stronger protection.
             </p>
           )}
         </div>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-5">
-        <h3 className="text-lg font-black text-[#10201c]">Recovery and fallback</h3>
+      <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
+        <h3 className="text-base font-black text-[#10201c] sm:text-lg">Recovery and fallback</h3>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <FallbackItem enabled={hasTotp} label="Recovery codes" body="Recovery-code handling remains reserved for provider-backed account recovery." />
           <FallbackItem enabled={false} label="SMS fallback" body={SMS_MFA_PLANNED_COPY} />
         </div>
-        <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-          Keep your authenticator recovery codes from Google Authenticator, Authy, Microsoft Authenticator, 1Password, or your password manager in a safe place.
-        </p>
+        <p className="mt-3 text-xs font-bold leading-5 text-slate-600 sm:text-sm">Keep authenticator recovery codes in a safe place.</p>
       </div>
       <ConfirmSheet
         open={Boolean(pendingRemoval)}
@@ -569,15 +563,13 @@ export function MfaSettings() {
 
 function MfaHeader() {
   return (
-    <div className="flex items-start gap-4">
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#e9f3ee] text-[#183f36]">
-        <ShieldCheck size={22} />
+    <div className="flex items-start gap-3 sm:gap-4">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#e9f3ee] text-[#183f36] sm:h-12 sm:w-12">
+        <ShieldCheck size={20} />
       </div>
       <div>
-        <h2 className="text-xl font-black text-[#10201c]">Multi-factor authentication</h2>
-        <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-          Protect your financial data with an extra layer of security.
-        </p>
+        <h2 className="text-lg font-black text-[#10201c] sm:text-xl">Multi-factor authentication</h2>
+        <p className="mt-1 text-xs font-bold leading-5 text-slate-600 sm:mt-2 sm:text-sm">Add an extra login check.</p>
       </div>
     </div>
   );
@@ -585,9 +577,9 @@ function MfaHeader() {
 
 function StatusTile({ label, value, tone }: { label: string; value: string; tone: "good" | "neutral" }) {
   return (
-    <div className={`rounded-2xl p-4 ${tone === "good" ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-700"}`}>
+    <div className={`rounded-2xl p-3 sm:p-4 ${tone === "good" ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-700"}`}>
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{label}</p>
-      <p className="mt-1 flex items-center gap-2 text-sm font-black">
+      <p className="mt-1 flex items-center gap-2 text-xs font-black sm:text-sm">
         {tone === "good" ? <CheckCircle2 size={16} /> : null}
         {value}
       </p>
@@ -597,9 +589,9 @@ function StatusTile({ label, value, tone }: { label: string; value: string; tone
 
 function FallbackItem({ enabled, label, body }: { enabled: boolean; label: string; body: string }) {
   return (
-    <div className={`rounded-2xl p-4 ${enabled ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-600"}`}>
+    <div className={`rounded-2xl p-3 sm:p-4 ${enabled ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-600"}`}>
       <p className="font-black">{label}: {enabled ? "Ready" : "Not ready"}</p>
-      <p className="mt-1 text-sm font-semibold leading-5">{body}</p>
+      <p className="mt-1 text-xs font-bold leading-5 sm:text-sm">{body}</p>
     </div>
   );
 }

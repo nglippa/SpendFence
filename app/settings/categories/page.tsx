@@ -13,11 +13,11 @@ export default function CategorySettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Categories" subtitle="Manage the budget fences that power dashboard cards and reports." />
+      <SettingsDetailHeader title="Categories" subtitle="Manage budget fences." />
       <div className="grid gap-5">
         <SettingsGroup title="Overview">
           <SettingsRow icon={WalletCards} title={`${state.categories.length} categories`} subtitle={`${formatMoney(totalLimits)} total planned category limits`} />
-          <SettingsRow icon={ListChecks} title={`${state.purchases.length} purchases assigned`} subtitle="Category totals recalculate from purchases automatically." />
+          <SettingsRow icon={ListChecks} title={`${state.purchases.length} purchases assigned`} subtitle="Totals update automatically." />
         </SettingsGroup>
         <SettingsGroup title="Manage">
           <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">

@@ -8,22 +8,22 @@ import { Pill } from "@/components/ui";
 export default function AboutSettingsPage() {
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="About" subtitle="SpendFence MVP notes and product posture." />
+      <SettingsDetailHeader title="About" subtitle="Version and product notes." />
       <div className="grid gap-5">
         <SettingsGroup title="App">
           <div className="flex items-center gap-4 rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-5">
             <BrandLogo alt="SpendFence logo" className="h-20 w-auto" />
             <div>
-              <p className="text-lg font-black text-[var(--app-text)]">SpendFence</p>
-              <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">Official brand mark</p>
+              <p className="text-base font-black text-[var(--app-text)] sm:text-lg">SpendFence</p>
+              <p className="mt-0.5 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">Official brand mark</p>
             </div>
           </div>
-          <SettingsRow icon={Info} title="SpendFence" subtitle="A clean local-first budget control app." accessory={<Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">MVP</Pill>} />
-          <SettingsRow icon={Smartphone} title="iPhone-first layout" subtitle="Designed for compact dashboard scans and quick purchase entry." />
+          <SettingsRow icon={Info} title="SpendFence" subtitle="Adaptive budget control." accessory={<Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">MVP</Pill>} />
+          <SettingsRow icon={Smartphone} title="iPhone-first" subtitle="Built for quick daily scans." />
         </SettingsGroup>
         <SettingsGroup title="Principles">
-          <SettingsRow icon={ShieldCheck} title="Local-first by default" subtitle="The MVP keeps budget data on this device unless a server feature is explicitly used." />
-          <SettingsRow icon={Code2} title="Read-only financial integrations" subtitle="Future brokerage/bank import architecture must not place trades or move money." />
+          <SettingsRow icon={ShieldCheck} title="Local-first" subtitle="Budget data stays on this device by default." />
+          <SettingsRow icon={Code2} title="Read-only finance" subtitle="Imports never trade or move money." />
         </SettingsGroup>
       </div>
     </div>

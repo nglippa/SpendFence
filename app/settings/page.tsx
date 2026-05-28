@@ -28,31 +28,31 @@ const settingsSections = [
       href: "/settings/account",
       icon: UserRound,
       title: "Account",
-      subtitle: "Profile, plan, and sign out"
+      subtitle: "Profile and session"
     },
     {
       href: "/settings/budget-cycle",
       icon: CalendarDays,
       title: "Budget Cycle",
-      subtitle: "Choose when your budget month resets"
+      subtitle: "Monthly reset date"
     },
     {
       href: "/settings/categories",
       icon: WalletCards,
       title: "Categories",
-      subtitle: "Manage budget fences and category tools"
+      subtitle: "Budget fences"
     },
     {
       href: "/settings/spending-rules",
       icon: ListChecks,
       title: "Spending Rules",
-      subtitle: "Personal guardrails for habits and thresholds"
+      subtitle: "Custom alerts"
     },
     {
       href: "/settings/notifications",
       icon: Bell,
       title: "Notifications",
-      subtitle: "Tune local nudges and spending insights"
+      subtitle: "Nudges and inbox"
     }
   ],
   [
@@ -60,25 +60,25 @@ const settingsSections = [
       href: "/settings/security",
       icon: LockKeyhole,
       title: "Security",
-      subtitle: "Session login and MFA controls"
+      subtitle: "Login and MFA"
     },
     {
       href: "/settings/premium",
       icon: Crown,
       title: "Premium",
-      subtitle: "Plan, billing, and entitlement"
+      subtitle: "Plan and billing"
     },
     {
       href: "/settings/bank-sync",
       icon: Building2,
       title: "Bank Sync",
-      subtitle: "Connected accounts and reviewed imports"
+      subtitle: "Accounts and imports"
     },
     {
       href: "/settings/ai",
       icon: Brain,
       title: "AI Features",
-      subtitle: "Receipt, categorization, and adaptive fence settings"
+      subtitle: "Insights and suggestions"
     }
   ],
   [
@@ -92,13 +92,13 @@ const settingsSections = [
       href: "/settings/privacy",
       icon: Database,
       title: "Data & Privacy",
-      subtitle: "Local data, export, and reset controls"
+      subtitle: "Export and reset"
     },
     {
       href: "/settings/about",
       icon: Info,
       title: "About",
-      subtitle: "Version and app notes"
+      subtitle: "Version and notes"
     }
   ]
 ];
@@ -120,17 +120,17 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <div className="mb-5 px-1 pt-1">
+      <div className="mb-4 px-1 pt-1">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
-        <h1 className="mt-2 text-3xl font-black leading-9 tracking-tight text-[#10201c]">SpendFence</h1>
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <h1 className="mt-1.5 text-[1.7rem] font-black leading-8 tracking-tight text-[#10201c] sm:text-3xl sm:leading-9">SpendFence</h1>
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{auth.planLabel} plan</Pill>
           {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
           <Pill className="border-slate-200 bg-white text-slate-600">{currentCycleLabel(state.budgetMonth).replace("Current cycle: ", "")}</Pill>
         </div>
       </div>
 
-      <div className="grid gap-5">
+      <div className="grid gap-4 sm:gap-5">
         {sections.map((section, index) => (
           <SettingsGroup key={index}>
             {section.map((item) => (

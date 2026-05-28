@@ -6,11 +6,11 @@ import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsSwitchRo
 import { useSpendFence } from "@/lib/store";
 
 const settings = [
-  { key: "fiftyPercent", title: "50% spent", subtitle: "A quiet nudge when a category reaches halfway.", icon: Gauge },
-  { key: "eightyPercent", title: "80% warning", subtitle: "A stronger heads-up before a category gets tight.", icon: TrendingUp },
-  { key: "limitReached", title: "Limit reached", subtitle: "Show when a category crosses its hard stop.", icon: LockKeyhole },
-  { key: "dailySummary", title: "Daily spending summary", subtitle: "Reserved for a future local summary.", icon: CalendarClock },
-  { key: "weeklyCheckIn", title: "Weekly budget check-in", subtitle: "A weekly prompt to review the cycle.", icon: CheckCircle2 }
+  { key: "fiftyPercent", title: "50% spent", subtitle: "Quiet halfway nudge.", icon: Gauge },
+  { key: "eightyPercent", title: "80% warning", subtitle: "Heads-up before it gets tight.", icon: TrendingUp },
+  { key: "limitReached", title: "Limit reached", subtitle: "Show hard-stop alerts.", icon: LockKeyhole },
+  { key: "dailySummary", title: "Daily summary", subtitle: "Future local summary.", icon: CalendarClock },
+  { key: "weeklyCheckIn", title: "Weekly check-in", subtitle: "Review the cycle weekly.", icon: CheckCircle2 }
 ] as const;
 
 type BooleanInsightSetting = "spendingInsights" | "showDashboardInsights";
@@ -39,20 +39,20 @@ export default function NotificationSettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <SettingsDetailHeader title="Notifications" subtitle="Tune local spending nudges without adding noise." />
+      <SettingsDetailHeader title="Notifications" subtitle="Tune nudges and inbox behavior." />
       <SettingsFeedback message={feedback} />
       <SettingsGroup title="Spending insights">
         <SettingsSwitchRow
           icon={Brain}
           title="Spending insights"
-          subtitle="Generate local behavioral feedback from your own categories and purchases."
+          subtitle="Generate local spending feedback."
           checked={state.insightSettings.spendingInsights}
           onChange={(checked) => updateInsight("spendingInsights", checked)}
         />
         <SettingsSwitchRow
           icon={LayoutDashboard}
           title="Show insights on dashboard"
-          subtitle="Keep one tactful insight near the top of Home."
+          subtitle="Show one insight on Home."
           checked={state.insightSettings.showDashboardInsights}
           onChange={(checked) => updateInsight("showDashboardInsights", checked)}
         />
@@ -61,8 +61,8 @@ export default function NotificationSettingsPage() {
             <MessageCircle size={18} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-black leading-5 text-[#10201c] sm:text-base sm:leading-6">Encouragement tone</p>
-            <p className="mt-1 text-xs font-semibold leading-5 text-slate-500 sm:text-sm sm:leading-6">Choose how much supportive language SpendFence uses.</p>
+            <p className="text-sm font-black leading-5 text-[#10201c]">Encouragement tone</p>
+            <p className="mt-0.5 text-xs font-bold leading-5 text-slate-500">Supportive language level.</p>
           </div>
           <div className="grid shrink-0 grid-cols-2 rounded-xl bg-slate-100 p-1 text-xs font-black">
             {(["minimal", "balanced"] as const).map((tone) => (
@@ -85,7 +85,7 @@ export default function NotificationSettingsPage() {
           <SettingsSwitchRow
             icon={CheckCircle2}
             title="Generated locally"
-            subtitle="No spending insight data leaves this device or app."
+            subtitle="Insights stay on this device."
             checked
             disabled
             onChange={() => undefined}
@@ -111,7 +111,7 @@ export default function NotificationSettingsPage() {
           <SettingsSwitchRow
             icon={Bell}
             title={`${state.notifications.filter((item) => !item.read).length} unread nudges`}
-            subtitle="Open Notifications from the app header to review recent messages."
+            subtitle="Review recent messages."
             checked={state.notifications.some((item) => !item.read)}
             disabled
             onChange={() => undefined}
