@@ -14,7 +14,7 @@ export function getEffectiveTier(user?: TierUser | null): AppTier {
   if (user?.isDeveloper && user.developerTierOverride) return user.developerTierOverride;
   if (user?.hasActiveStripeSubscription) return "premium";
   if (user?.stripeSubscriptionStatus) return isActiveStripeSubscriptionStatus(user.stripeSubscriptionStatus) ? "premium" : "free";
-  return user?.subscriptionTier ?? user?.realTier ?? "free";
+  return "free";
 }
 
 export function tierLabel(tier: AppTier) {

@@ -226,9 +226,13 @@ export default function SpendingRulesSettingsPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <p className="text-sm font-black text-[var(--app-text)]">AI-generated rules</p>
-                  <Pill className={isPro ? "border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]" : "border-slate-200 bg-white text-slate-600"}>
-                    {isPro ? "Premium ready" : "Premium"}
-                  </Pill>
+                  {isPro ? (
+                    <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Premium ready</Pill>
+                  ) : (
+                    <Link href="/pricing" className="inline-flex transition hover:brightness-105">
+                      <Pill className="border-slate-200 bg-white text-slate-600">Premium</Pill>
+                    </Link>
+                  )}
                 </div>
                 <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
                   Premium will add predictive behavioral alerts, adaptive thresholds, merchant pattern intelligence, and cross-cycle analysis.

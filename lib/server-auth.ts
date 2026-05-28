@@ -14,6 +14,7 @@ export type ApiUser = {
   email?: string;
   mode: "supabase" | "development";
   realTier: AppTier;
+  hasActiveStripeSubscription?: boolean;
   isDeveloper?: boolean;
   developerTierOverride?: DeveloperTierPreviewMode | null;
 };
@@ -51,6 +52,7 @@ export async function requireApiUser(request: Request): Promise<{ user?: ApiUser
         email,
         mode: "development",
         realTier: normalizeTier(request.headers.get("x-spendfence-real-tier")) ?? "free",
+        hasActiveStripeSubscription: normalizeTier(request.headers.get("x-spendfence-real-tier")) === "premium",
         isDeveloper: isApprovedDeveloper(devUserId, email),
         developerTierOverride: normalizeTier(request.headers.get("x-spendfence-dev-tier-preview"))
       }
@@ -71,11 +73,13 @@ export function isLockedDemoRequest(request: Request) {
 async function toApiUser(request: Request, user: User, mode: ApiUser["mode"]): Promise<ApiUser> {
   const email = user.email ?? undefined;
   const isDeveloper = isApprovedDeveloper(user.id, email);
+  const stripeTier = await safeActiveSubscriptionTierForUser(user.id);
   return {
     id: user.id,
     email,
     mode,
-    realTier: (await safeActiveSubscriptionTierForUser(user.id)) ?? subscriptionTierForUser(user),
+    realTier: stripeTier ?? "free",
+    hasActiveStripeSubscription: stripeTier === "premium",
     isDeveloper,
     developerTierOverride: isDeveloper ? normalizeTier(request.headers.get("x-spendfence-dev-tier-preview")) : null
   };
@@ -87,15 +91,6 @@ async function safeActiveSubscriptionTierForUser(userId: string) {
   } catch {
     return null;
   }
-}
-
-function subscriptionTierForUser(user: User): AppTier {
-  return (
-    normalizeTier(user.app_metadata?.spendfence_tier) ??
-    normalizeTier(user.app_metadata?.subscription_tier) ??
-    normalizeTier(user.user_metadata?.spendfence_tier) ??
-    "free"
-  );
 }
 
 function isApprovedDeveloper(userId: string, email?: string) {

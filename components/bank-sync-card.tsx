@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Building2, CheckCircle2, LockKeyhole, RefreshCw, ShieldCheck, Sparkles, Unplug } from "lucide-react";
@@ -59,7 +60,7 @@ export function BankSyncCard() {
   const accountCountUsesAccounts = accountDataAvailable || accountLimit?.accountCountSource === "accounts";
   const freeLimitReached = auth.effectiveTier === "free" && connectedAccountCount >= FREE_TELLER_ACCOUNT_LIMIT;
   const accountLimitLabel = auth.effectiveTier === "premium" ? "Unlimited syncing" : `${connectedAccountCount} of ${FREE_TELLER_ACCOUNT_LIMIT} accounts connected`;
-  const upgradeLimitCopy = auth.effectiveTier === "premium" ? "Unlimited account syncing active." : "Free includes 2 accounts. Premium unlocks unlimited syncing.";
+  const upgradeLimitCopy = auth.effectiveTier === "premium" ? "Unlimited account syncing active." : "Free includes 2 accounts.";
 
   const requestHeaders = useCallback(async (): Promise<HeadersInit> => {
     const token = await auth.getAccessToken();
@@ -221,7 +222,12 @@ export function BankSyncCard() {
               {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
             </div>
             <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
-              Connect accounts, import transactions automatically, and review them before they affect your budget. {upgradeLimitCopy}
+              Connect accounts, import transactions automatically, and review them before they affect your budget. {upgradeLimitCopy}{" "}
+              {auth.effectiveTier === "free" ? (
+                <Link href="/pricing" className="font-black text-[var(--app-info)] underline decoration-[rgb(75_140_255_/_0.28)] underline-offset-4">
+                  Premium unlocks unlimited syncing.
+                </Link>
+              ) : null}
             </p>
             <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-2">
               {["Secure bank login", "Private connection storage", "Transactions pause for review", "Smart category suggestions"].map((item) => (
@@ -247,7 +253,11 @@ export function BankSyncCard() {
                   <Unplug size={18} /> Disconnect
                 </Button>
               ) : null}
-              {freeLimitReached ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Upgrade for unlimited</Pill> : null}
+              {freeLimitReached ? (
+                <Link href="/pricing" className="inline-flex">
+                  <Pill className="border-sky-100 bg-sky-50 text-sky-700">Upgrade for unlimited</Pill>
+                </Link>
+              ) : null}
               {tellerConfigured === false ? <Pill className="border-slate-200 bg-white text-slate-600">Bank sync setup pending</Pill> : null}
             </div>
             {freeLimitReached ? <p className="mt-3 rounded-xl border border-sky-100 bg-sky-50 p-2.5 text-sm font-bold leading-5 text-sky-800 sm:rounded-2xl sm:p-3 sm:leading-6">{TELLER_ACCOUNT_LIMIT_MESSAGE}</p> : null}

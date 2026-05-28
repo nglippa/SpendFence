@@ -24,6 +24,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { ProgressBar } from "@/components/ui";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type MarketingPageKey = "home" | "philosophy" | "adaptive-ai" | "features" | "security" | "pricing";
@@ -295,6 +296,23 @@ export function SecurityMarketingPage() {
 }
 
 export function PricingMarketingPage() {
+  const auth = useAuth();
+  const [busyPlan, setBusyPlan] = useState<"monthly" | "yearly" | null>(null);
+  const [message, setMessage] = useState("");
+
+  async function startPremium(plan: "monthly" | "yearly") {
+    if (!auth.user || auth.user.isDemo) {
+      window.location.href = "/signup";
+      return;
+    }
+
+    setBusyPlan(plan);
+    setMessage("");
+    const result = await auth.startUpgrade(plan);
+    if (result.error) setMessage(result.error);
+    setBusyPlan(null);
+  }
+
   return (
     <MarketingShell page="pricing">
       <PageHero
@@ -318,8 +336,9 @@ export function PricingMarketingPage() {
             price="$8"
             cadence="/month"
             body="For full SpendFence intelligence with unlimited account syncing and deeper cycle analysis."
-            cta="Start Premium"
-            href="/signup"
+            cta={busyPlan === "monthly" ? "Opening Checkout..." : "Start Monthly"}
+            onClick={() => startPremium("monthly")}
+            disabled={busyPlan !== null}
             highlighted
             features={premiumFeatureHighlights}
           />
@@ -329,12 +348,19 @@ export function PricingMarketingPage() {
             cadence="/year"
             badge="Save 25% annually"
             body="The best value for users who want SpendFence to become a daily financial rhythm."
-            cta="Start Premium"
-            href="/signup"
+            cta={busyPlan === "yearly" ? "Opening Checkout..." : "Start Yearly"}
+            onClick={() => startPremium("yearly")}
+            disabled={busyPlan !== null}
             highlighted
             features={premiumFeatureHighlights}
           />
         </div>
+        <PricingComparison />
+        {message ? (
+          <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4 text-center text-sm font-black text-amber-500">
+            {message}
+          </div>
+        ) : null}
         <div className="mt-5 flex justify-center">
           <SecondaryCta href="/demo">Try Demo</SecondaryCta>
         </div>
@@ -357,7 +383,7 @@ function HeroSection() {
             SpendFence turns real behavior into calm spending fences, AI-assisted insights, and decisions you approve before anything changes.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-            <PrimaryCta href="/signup">Start Premium</PrimaryCta>
+            <PrimaryCta href="/pricing">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
@@ -761,7 +787,39 @@ function MiniLine() {
   );
 }
 
-function PricingCard({ title, price, cadence, body, features, href, cta, badge, highlighted = false }: { title: string; price: string; cadence?: string; body: string; features: string[]; href: string; cta: string; badge?: string; highlighted?: boolean }) {
+function PricingComparison() {
+  const rows = [
+    ["Manual fences", "Included", "Included"],
+    ["Manual purchases", "Included", "Included"],
+    ["Receipt scanning", "Included", "Included"],
+    ["Teller-linked accounts", "2 accounts", "Unlimited"],
+    ["Intelligence label", "Basic Intelligence", "Advanced Intelligence"],
+    ["Pattern recognition", "Basic", "Advanced"],
+    ["Adaptive recommendations", "Limited", "Included"],
+    ["Future predictive budgeting", "-", "Included"]
+  ];
+
+  return (
+    <MotionCard className="mt-5 overflow-hidden p-0">
+      <div className="grid grid-cols-[1.1fr_0.8fr_0.9fr] border-b border-[var(--marketing-border)] bg-[var(--marketing-panel)] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-[var(--marketing-muted)]">
+        <span>Feature</span>
+        <span>Free</span>
+        <span>Premium</span>
+      </div>
+      {rows.map(([feature, free, premium], index) => (
+        <div key={feature} className={cn("grid grid-cols-[1.1fr_0.8fr_0.9fr] gap-2 px-4 py-3 text-sm font-bold", index % 2 === 0 ? "bg-[var(--marketing-card)]" : "bg-[var(--marketing-panel)]")}>
+          <span className="font-black text-[var(--marketing-text)]">{feature}</span>
+          <span className="text-[var(--marketing-muted)]">{free}</span>
+          <span className="font-black text-[#A5B4FC]">{premium}</span>
+        </div>
+      ))}
+    </MotionCard>
+  );
+}
+
+function PricingCard({ title, price, cadence, body, features, href, onClick, cta, badge, highlighted = false, disabled = false }: { title: string; price: string; cadence?: string; body: string; features: string[]; href?: string; onClick?: () => void; cta: string; badge?: string; highlighted?: boolean; disabled?: boolean }) {
+  const ctaClassName = cn("relative mt-7 w-full", highlighted && "bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] shadow-[0_18px_44px_rgb(79_70_229_/_0.22)] text-white");
+
   return (
     <MotionCard className={cn("relative overflow-hidden p-6 transition hover:shadow-[0_28px_90px_rgb(79_70_229_/_0.14)]", highlighted && "border-[rgb(99_102_241_/_0.28)] bg-[radial-gradient(circle_at_12%_0%,rgb(99_102_241_/_0.13),transparent_16rem),var(--marketing-card)]")}>
       {highlighted ? <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgb(99_102_241_/_0.16)] blur-3xl" /> : null}
@@ -783,7 +841,13 @@ function PricingCard({ title, price, cadence, body, features, href, cta, badge, 
           </div>
         ))}
       </div>
-      <PrimaryCta href={href} className={cn("relative mt-7 w-full", highlighted && "bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] shadow-[0_18px_44px_rgb(79_70_229_/_0.22)] text-white")}>{cta}</PrimaryCta>
+      {onClick ? (
+        <button type="button" onClick={onClick} disabled={disabled} className={cn(primaryCtaClassName, ctaClassName, disabled && "cursor-not-allowed opacity-70 hover:translate-y-0")}>
+          {cta} <ArrowRight size={18} />
+        </button>
+      ) : href ? (
+        <PrimaryCta href={href} className={ctaClassName}>{cta}</PrimaryCta>
+      ) : null}
     </MotionCard>
   );
 }
@@ -866,11 +930,14 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 function PrimaryCta({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cn("inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--marketing-primary-button)] px-6 text-sm font-black text-[var(--marketing-primary-button-text)] shadow-[0_18px_44px_rgb(31_209_165_/_0.20)] transition hover:-translate-y-1 hover:brightness-105 active:translate-y-0", className)}>
+    <Link href={href} className={cn(primaryCtaClassName, className)}>
       {children} <ArrowRight size={18} />
     </Link>
   );
 }
+
+const primaryCtaClassName =
+  "inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--marketing-primary-button)] px-6 text-sm font-black text-[var(--marketing-primary-button-text)] shadow-[0_18px_44px_rgb(31_209_165_/_0.20)] transition hover:-translate-y-1 hover:brightness-105 active:translate-y-0";
 
 function SecondaryCta({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
@@ -893,7 +960,7 @@ function FinalCta() {
             </p>
           </div>
           <div className="grid gap-3 sm:flex lg:shrink-0">
-            <PrimaryCta href="/signup">Start Premium</PrimaryCta>
+            <PrimaryCta href="/pricing">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
         </div>

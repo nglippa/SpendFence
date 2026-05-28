@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import Link from "next/link";
 import { BarChart3, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
 import { SmartInsightsSection } from "@/components/insights/smart-insights-section";
-import { PremiumBadge, UpgradeModal } from "@/components/upgrade-modal";
+import { PremiumBadge } from "@/components/upgrade-modal";
 import { Card, EmptyState, PageHeader, Pill } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle } from "@/lib/budget";
 import { selectSmartReportInsights } from "@/lib/insights/behavioral-insights";
@@ -14,7 +15,6 @@ import { formatShortDate } from "@/lib/utils";
 
 export default function ReportsPage() {
   const state = useSpendFence();
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const cyclePurchases = purchasesForCycle(state.purchases, state.budgetMonth);
   const biggest = [...cyclePurchases].sort((a, b) => b.amount - a.amount).slice(0, 5);
   const close = state.categories
@@ -35,13 +35,12 @@ export default function ReportsPage() {
         body={
           <>
             {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics and deeper insights are included with Premium.{" "}
-            <button type="button" className="align-baseline" onClick={() => setUpgradeOpen(true)} aria-label="Open Premium details">
+            <Link href="/pricing" className="align-baseline transition hover:brightness-105" aria-label="Open Premium purchase page">
               <PremiumBadge />
-            </button>
+            </Link>
           </>
         }
       />
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
 
       <SmartInsightsSection insights={smartInsights} />
 

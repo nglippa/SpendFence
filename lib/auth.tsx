@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const publicDeveloperAllowed = Boolean(user?.email && publicDeveloperEmail && user.email.toLowerCase() === publicDeveloperEmail);
   const isDeveloper = Boolean(user && (publicDeveloperAllowed || serverDeveloperAllowed));
   const stripeTier = subscription ? (subscription.status === "active" || subscription.status === "trialing" ? "premium" : "free") : null;
-  const realTier = stripeTier ?? user?.realTier ?? "free";
+  const realTier = stripeTier ?? "free";
   const effectiveTier = getEffectiveTier({ isDeveloper, developerTierOverride: tierPreviewMode, stripeSubscriptionStatus: subscription?.status, realTier });
   const isPro = effectiveTier === "premium";
 
@@ -439,17 +439,8 @@ function toAuthUser(user: User): AuthUser {
     id: user.id,
     email: user.email ?? "Signed-in user",
     isDemo: false,
-    realTier: subscriptionTierForUser(user)
+    realTier: "free"
   };
-}
-
-function subscriptionTierForUser(user: User): AppTier {
-  return (
-    normalizeTier(user.app_metadata?.spendfence_tier) ??
-    normalizeTier(user.app_metadata?.subscription_tier) ??
-    normalizeTier(user.user_metadata?.spendfence_tier) ??
-    "free"
-  );
 }
 
 function readStoredTierPreviewMode(): DeveloperTierPreviewMode {
