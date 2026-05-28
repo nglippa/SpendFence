@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell, Clock3, Edit3, ListChecks, Plus, Sparkles, Trash2, WalletCards } from "lucide-react";
+import { IntelligenceSection, intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
 import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup } from "@/components/settings-ui";
 import { Button, Field, Input, Pill, Select } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
@@ -217,36 +218,47 @@ export default function SpendingRulesSettingsPage() {
           </div>
         ) : null}
 
-        <SettingsGroup title="Suggested Rules (Future AI)">
-          <div className="grid gap-3 p-4 sm:p-5">
-            <div className="flex items-start gap-3 rounded-3xl bg-[var(--app-secondary)] p-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-brand-gradient text-white">
-                <Sparkles size={18} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <p className="text-sm font-black text-[var(--app-text)]">AI-generated rules</p>
-                  {isPro ? (
-                    <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Premium ready</Pill>
-                  ) : (
-                    <Link href="/premium" className="inline-flex transition hover:brightness-105">
-                      <Pill className="border-slate-200 bg-white text-slate-600">Premium</Pill>
-                    </Link>
-                  )}
+        <IntelligenceSection
+          title="Suggested Rules"
+          tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
+          tierIcon={Sparkles}
+          premiumLabel={isPro ? undefined : "Premium"}
+          tierDescription={isPro ? "Advanced pattern recognition and deeper insights are active." : "Predictive rule generation is part of SpendFence intelligence. Advanced analytics and deeper insights included with Premium."}
+          sourceLabel="Future AI"
+          variant="flagship"
+        >
+          <div className="grid gap-3 p-3.5 sm:p-4">
+            <div className="relative overflow-hidden rounded-2xl border border-[rgb(99_102_241_/_0.16)] bg-[radial-gradient(circle_at_12%_0%,rgb(124_58_237_/_0.10),transparent_12rem),linear-gradient(145deg,#FFFFFF,#F6F8FF)] p-3.5 shadow-[0_12px_30px_rgb(31_41_55_/_0.08)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_12%_0%,rgb(99_102_241_/_0.15),transparent_13rem),linear-gradient(145deg,#18202B,#111722)] sm:p-4">
+              <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.14)] blur-2xl" />
+              <div className="relative flex items-start gap-3">
+                <div className={intelligenceIconSurfaceClass}>
+                  <Sparkles size={17} />
                 </div>
-                <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">
-                  Premium will add predictive behavioral alerts, adaptive thresholds, merchant pattern intelligence, and cross-cycle analysis.
-                </p>
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-[#0B1114] dark:text-white">AI-generated rules</p>
+                  <p className="mt-1 text-sm font-bold leading-6 text-[#475569] dark:text-[#C9D4E4]">
+                    Predictive behavioral alerts, adaptive thresholds, merchant pattern intelligence, and cross-cycle analysis will live here as Premium rule automation expands.
+                  </p>
+                </div>
               </div>
             </div>
             {suggestions.map((suggestion) => (
-              <div key={suggestion.title} className="rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-4">
-                <p className="text-sm font-black text-[var(--app-text)]">{suggestion.title}</p>
-                <p className="mt-1 text-sm font-semibold leading-6 text-[var(--app-text-secondary)]">{suggestion.body}</p>
+              <div key={suggestion.title} className={cn(intelligenceCardSurfaceClass, "group p-3.5 sm:p-4")}>
+                <div className={intelligenceAccentRailClass} />
+                <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.12)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="relative flex items-start gap-3">
+                  <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9 sm:h-10 sm:w-10")}>
+                    <Sparkles size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black leading-5 text-[#0B1114] dark:text-white">{suggestion.title}</p>
+                    <p className="mt-1 text-sm font-bold leading-6 text-[#475569] dark:text-[#C9D4E4]">{suggestion.body}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-        </SettingsGroup>
+        </IntelligenceSection>
       </div>
 
       <ConfirmSheet

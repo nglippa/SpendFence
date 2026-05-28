@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronRight, Gauge, X } from "lucide-react";
 import {
@@ -11,6 +12,7 @@ import {
   intelligenceCarouselTrackClass,
   intelligenceIconSurfaceClass
 } from "@/components/insights/intelligence-section";
+import { PremiumBadge } from "@/components/upgrade-modal";
 import { Button, Pill } from "@/components/ui";
 import { useCenteredCarousel } from "@/components/use-centered-carousel";
 import { buildAdaptiveSuggestionFingerprint } from "@/lib/adaptive-suggestions-engine";
@@ -152,59 +154,74 @@ export function AdaptiveFenceSuggestions({ onFeedback }: { onFeedback?: (message
 
   if (!state.adaptiveFenceSettings.enabled) {
     return (
-      <IntelligenceSection
-        title="Adaptive Fences"
-        tierLabel={intelligenceTierLabel(isPro)}
-        premiumLabel={isPro ? undefined : "Premium"}
-        tierDescription={intelligenceTierDescription(isPro)}
-        onRefresh={() => generateSuggestions(true)}
-        refreshDisabled
-        variant="flagship"
-      >
-        <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
-      </IntelligenceSection>
+      <>
+        <AdaptivePremiumNotice isPro={isPro} />
+        <IntelligenceSection
+          title="Adaptive Fences"
+          tierLabel={intelligenceTierLabel(isPro)}
+          onRefresh={() => generateSuggestions(true)}
+          refreshDisabled
+          variant="flagship"
+        >
+          <IntelligenceEmptyState title="Adaptive Fences are off." body="You can turn them back on in AI settings." />
+        </IntelligenceSection>
+      </>
     );
   }
 
   return (
-    <IntelligenceSection
-      title="Adaptive Fences"
-      tierLabel={intelligenceTierLabel(isPro)}
-      premiumLabel={isPro ? undefined : "Premium"}
-      tierDescription={intelligenceTierDescription(isPro)}
-      loading={loading}
-      onRefresh={() => generateSuggestions(true)}
-      refreshDisabled={loading}
-      dots={<IntelligenceCarouselDots count={activeSuggestions.length} activeIndex={activeIndex} />}
-      variant="flagship"
-    >
-      {hasVisibleSuggestions ? (
-        <div
-          ref={carouselRef}
-          data-carousel="true"
-          onScroll={handleScroll}
-          className={intelligenceCarouselTrackClass}
-        >
-          {activeSuggestions.map((suggestion) => (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              automationLevel={state.adaptiveFenceSettings.automationLevel}
-              expanded={expandedId === suggestion.id}
-              onToggle={() => state.rememberAdaptiveFenceSuggestionsView({ expandedId: expandedId === suggestion.id ? null : suggestion.id })}
-              onAccept={() => accept(suggestion)}
-              onDismiss={() => dismiss(suggestion)}
-            />
-          ))}
-        </div>
-      ) : (
-        <AdaptiveEmptyState
-          title={loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}
-          body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface adjustments when patterns become meaningful."}
-          loading={loading}
-        />
-      )}
-    </IntelligenceSection>
+    <>
+      <AdaptivePremiumNotice isPro={isPro} />
+      <IntelligenceSection
+        title="Adaptive Fences"
+        tierLabel={intelligenceTierLabel(isPro)}
+        loading={loading}
+        onRefresh={() => generateSuggestions(true)}
+        refreshDisabled={loading}
+        dots={<IntelligenceCarouselDots count={activeSuggestions.length} activeIndex={activeIndex} />}
+        variant="flagship"
+      >
+        {hasVisibleSuggestions ? (
+          <div
+            ref={carouselRef}
+            data-carousel="true"
+            onScroll={handleScroll}
+            className={intelligenceCarouselTrackClass}
+          >
+            {activeSuggestions.map((suggestion) => (
+              <SuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                automationLevel={state.adaptiveFenceSettings.automationLevel}
+                expanded={expandedId === suggestion.id}
+                onToggle={() => state.rememberAdaptiveFenceSuggestionsView({ expandedId: expandedId === suggestion.id ? null : suggestion.id })}
+                onAccept={() => accept(suggestion)}
+                onDismiss={() => dismiss(suggestion)}
+              />
+            ))}
+          </div>
+        ) : (
+          <AdaptiveEmptyState
+            title={loading ? "Refreshing suggestions..." : "No fence changes suggested right now."}
+            body={loading ? "SpendFence is checking your latest budget rhythm." : "SpendFence will surface adjustments when patterns become meaningful."}
+            loading={loading}
+          />
+        )}
+      </IntelligenceSection>
+    </>
+  );
+}
+
+function AdaptivePremiumNotice({ isPro }: { isPro: boolean }) {
+  if (isPro) return null;
+
+  return (
+    <p className="mb-2.5 px-1 text-xs font-bold leading-5 text-[#475569] dark:text-[#C9D4E4] sm:mb-3 sm:px-1.5">
+      {premiumIntelligenceSentence}{" "}
+      <Link href="/premium" className="inline-flex align-baseline transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-[rgb(75_140_255_/_0.16)]">
+        <PremiumBadge />
+      </Link>
+    </p>
   );
 }
 
@@ -243,7 +260,7 @@ function SuggestionCard({
         <div>
           <p
             className={cn(
-              "mt-1.5 text-xs font-semibold leading-5 text-[#536173] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none dark:text-[var(--app-text-secondary)] sm:text-sm",
+              "mt-1.5 text-xs font-bold leading-5 text-[#475569] transition-[max-height,opacity] duration-200 ease-out motion-reduce:transition-none dark:text-[#C9D4E4] sm:text-sm sm:leading-6",
               expanded ? "max-h-24 overflow-y-auto pr-1" : "line-clamp-2 min-h-[2.5rem] max-h-[2.5rem] overflow-hidden sm:line-clamp-3 sm:min-h-[3.75rem] sm:max-h-[3.75rem]"
             )}
           >
@@ -293,12 +310,6 @@ function confidenceClass(confidence: AdaptiveFenceSuggestion["confidence"]) {
 
 function intelligenceTierLabel(isPro: boolean) {
   return isPro ? "Advanced Intelligence" : "Basic Intelligence";
-}
-
-function intelligenceTierDescription(isPro: boolean) {
-  return isPro
-    ? "Advanced pattern recognition and deeper insights are active."
-    : `Upgrade for advanced pattern recognition and deeper insight review. ${premiumIntelligenceSentence}`;
 }
 
 function categoryName(categories: Category[], categoryId: string) {

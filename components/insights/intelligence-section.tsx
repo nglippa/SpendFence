@@ -113,7 +113,7 @@ export function IntelligenceSection({
             </IntelligencePill>
           </div>
           {tierDescription ? (
-            <p className="mt-1.5 max-w-md text-xs font-semibold leading-5 text-[#475569] dark:text-white/72">
+            <p className="mt-1.5 max-w-md text-xs font-bold leading-5 text-[#475569] dark:text-[#C9D4E4]">
               {tierDescription}{" "}
               {premiumLabel ? (
                 <Link href={premiumHref} className="inline-flex align-baseline transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-[rgb(75_140_255_/_0.16)]">
@@ -172,7 +172,7 @@ export function IntelligenceEmptyState({ title, body, loading = false }: { title
           </div>
           <div className="min-w-0">
             <p className="text-sm font-black text-[var(--app-text)]">{title}</p>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-muted)]">{body}</p>
+            <p className="mt-1 text-xs font-bold leading-5 text-[#536173] dark:text-[#C9D4E4]">{body}</p>
           </div>
         </div>
       </div>

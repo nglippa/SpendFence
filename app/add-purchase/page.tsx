@@ -479,32 +479,32 @@ function AddActionCard({
 }
 
 function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; demoLocked: boolean }) {
+  const tierChip = demoLocked ? "Preview" : tier === "premium" ? "Unlimited sync" : "2 free accounts";
+  const tierNote = demoLocked ? "Disabled in demo" : tier === "premium" ? "Premium active" : "Unlimited with Premium";
   const content = (
     <>
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36]">
-        {demoLocked ? <LockKeyhole size={20} /> : <Building2 size={20} />}
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.7)] sm:h-10 sm:w-10">
+        {demoLocked ? <LockKeyhole size={18} /> : <Building2 size={18} />}
       </div>
       <div className="min-w-0">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <h2 className="text-base font-black leading-5 text-[#10201c] sm:text-lg sm:leading-6">Sync Bank Account</h2>
-          <Pill className={tier === "premium" ? "border-sky-100 bg-sky-50 text-sky-700" : "border-slate-200 bg-white text-slate-600"}>
-            {tier === "premium" ? "Unlimited syncing" : "2 accounts included"}
-          </Pill>
-        </div>
+        <h2 className="text-base font-black leading-5 text-[#10201c] sm:text-lg sm:leading-6">Bank Sync</h2>
         <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-600">
           {demoLocked ? "Bank sync is disabled in demo mode." : "Connect accounts and import transactions automatically."}
         </p>
-        <p className="mt-1 text-xs font-black leading-5 text-slate-500">
-          {demoLocked ? "Preview only. Create an account to connect your bank." : "Free includes 2 accounts. Premium unlocks unlimited syncing."}
-        </p>
+        <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1.5">
+          <Pill className={tier === "premium" && !demoLocked ? "border-sky-100 bg-sky-50 text-sky-700" : "border-slate-200 bg-white text-slate-600"}>
+            {tierChip}
+          </Pill>
+          <span className="text-[0.72rem] font-black leading-4 text-slate-500 sm:text-xs">{tierNote}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-1.5 self-center">
         <span
-          className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-black sm:text-sm ${
+          className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 text-xs font-black shadow-sm sm:min-h-10 sm:px-3 sm:text-sm ${
             demoLocked ? "bg-[var(--app-secondary)] text-[var(--app-text-muted)]" : "bg-brand-gradient text-white shadow-float dark:text-[#0B1114]"
           }`}
         >
-          {demoLocked ? <LockKeyhole size={15} /> : <Building2 size={15} />}
+          {demoLocked ? <LockKeyhole size={14} /> : <Building2 size={14} />}
           {demoLocked ? "Disabled" : "Sync"}
         </span>
         <ChevronRight size={18} className="hidden text-slate-400 sm:block" />
@@ -513,7 +513,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   );
 
   const className =
-    "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 text-left shadow-[0_14px_36px_rgba(16,32,28,0.07)] transition sm:p-4";
+    "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-3 text-left shadow-[0_14px_36px_rgba(16,32,28,0.07)] transition sm:gap-3 sm:p-4";
 
   if (demoLocked) {
     return (
