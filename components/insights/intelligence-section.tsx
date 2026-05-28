@@ -37,7 +37,7 @@ export function IntelligenceSection({
   dots,
   className,
   variant = "default",
-  premiumHref = "/pricing"
+  premiumHref = "/premium"
 }: {
   title: string;
   tierLabel: string;

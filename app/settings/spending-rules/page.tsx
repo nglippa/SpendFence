@@ -229,7 +229,7 @@ export default function SpendingRulesSettingsPage() {
                   {isPro ? (
                     <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">Premium ready</Pill>
                   ) : (
-                    <Link href="/pricing" className="inline-flex transition hover:brightness-105">
+                    <Link href="/premium" className="inline-flex transition hover:brightness-105">
                       <Pill className="border-slate-200 bg-white text-slate-600">Premium</Pill>
                     </Link>
                   )}

@@ -31,7 +31,7 @@ const publicRoutes = ["/", "/demo", "/philosophy", "/adaptive-ai", "/features", 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, enterDemoMode } = useAuth();
+  const { user, loading, enterDemoMode, signOut } = useAuth();
   const isPublic = publicRoutes.includes(pathname) || pathname.startsWith("/demo/");
 
   useEffect(() => {
@@ -44,8 +44,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       return;
     }
     if (!user && !isPublic) router.replace("/login");
-    if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) router.replace("/onboarding");
-  }, [enterDemoMode, isPublic, loading, pathname, router, user]);
+    if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) {
+      if (user.isDemo) {
+        signOut();
+        return;
+      }
+      router.replace(authPageRedirectDestination());
+    }
+  }, [enterDemoMode, isPublic, loading, pathname, router, signOut, user]);
 
   if (isPublic) return <>{children}</>;
   if (loading || !user) {
@@ -78,6 +84,23 @@ function hasLockedDemoCookie() {
 function hasDemoQuery() {
   if (typeof window === "undefined") return false;
   return new URLSearchParams(window.location.search).get("demo") === "true";
+}
+
+function authPageRedirectDestination() {
+  if (typeof window === "undefined") return "/onboarding";
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get("next");
+  const plan = params.get("plan");
+  const intent = params.get("intent");
+  if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") && !next.startsWith("/signup") && !next.startsWith("/forgot-password") && !next.startsWith("/demo")) {
+    const nextParams = new URLSearchParams();
+    if (plan === "monthly" || plan === "yearly") nextParams.set("plan", plan);
+    if (intent === "free") nextParams.set("intent", intent);
+    const query = nextParams.toString();
+    return `${next}${query ? `?${query}` : ""}`;
+  }
+  if (intent === "free") return "/dashboard";
+  return "/onboarding";
 }
 
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {

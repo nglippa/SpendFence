@@ -224,7 +224,7 @@ export function BankSyncCard() {
             <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
               Connect accounts, import transactions automatically, and review them before they affect your budget. {upgradeLimitCopy}{" "}
               {auth.effectiveTier === "free" ? (
-                <Link href="/pricing" className="font-black text-[var(--app-info)] underline decoration-[rgb(75_140_255_/_0.28)] underline-offset-4">
+                <Link href="/premium" className="font-black text-[var(--app-info)] underline decoration-[rgb(75_140_255_/_0.28)] underline-offset-4">
                   Premium unlocks unlimited syncing.
                 </Link>
               ) : null}
@@ -254,7 +254,7 @@ export function BankSyncCard() {
                 </Button>
               ) : null}
               {freeLimitReached ? (
-                <Link href="/pricing" className="inline-flex">
+                <Link href="/premium" className="inline-flex">
                   <Pill className="border-sky-100 bg-sky-50 text-sky-700">Upgrade for unlimited</Pill>
                 </Link>
               ) : null}

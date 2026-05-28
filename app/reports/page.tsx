@@ -35,7 +35,7 @@ export default function ReportsPage() {
         body={
           <>
             {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics and deeper insights are included with Premium.{" "}
-            <Link href="/pricing" className="align-baseline transition hover:brightness-105" aria-label="Open Premium purchase page">
+            <Link href="/premium" className="align-baseline transition hover:brightness-105" aria-label="Open Premium purchase page">
               <PremiumBadge />
             </Link>
           </>

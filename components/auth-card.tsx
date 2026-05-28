@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowRight, Check, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
@@ -46,6 +46,7 @@ const copy = {
 
 export function AuthCard({ mode }: { mode: AuthMode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const auth = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,6 +69,11 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const passwordStrength = getPasswordStrength(password, passwordScore);
   const localModeAvailable = useLocalModeAvailable();
   const authUnavailable = !auth.authEnabled && !localModeAvailable;
+  const nextPath = sanitizeNextPath(searchParams.get("next"));
+  const plan = sanitizePlan(searchParams.get("plan"));
+  const intent = searchParams.get("intent") === "free" ? "free" : "";
+  const preservedQuery = buildAuthQuery({ nextPath, plan, intent });
+  const footHref = `${content.footHref}${preservedQuery}`;
 
   useEffect(() => {
     if (mode !== "login") return;
@@ -137,12 +143,18 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     if (mode === "signup") {
+      if (nextPath || plan || intent) {
+        window.sessionStorage.setItem(AUTH_FLASH_KEY, result.message ?? "Account created. Log in to continue.");
+        router.replace(`/login${preservedQuery}`);
+        return;
+      }
+
       setMessage(result.message ?? "Account created. You can log in once your email is confirmed.");
       return;
     }
 
     updateRememberedEmail();
-    router.replace("/dashboard");
+    router.replace(postAuthDestination(nextPath, plan, intent));
   }
 
   async function verifyMfa() {
@@ -161,7 +173,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     updateRememberedEmail();
-    router.replace("/dashboard");
+    router.replace(postAuthDestination(nextPath, plan, intent));
   }
 
   async function switchMfaFactor(factor: MfaFactor) {
@@ -351,7 +363,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
           <div className="mt-5 flex items-center justify-between gap-3 text-sm font-bold text-slate-600">
             <span>{content.foot}</span>
-            <Link href={content.footHref} className="text-[#327d6d] hover:text-[#10201c]">
+            <Link href={footHref} className="text-[#327d6d] hover:text-[#10201c]">
               {content.footLink}
             </Link>
           </div>
@@ -376,6 +388,37 @@ function useLocalModeAvailable() {
   }, []);
 
   return available;
+}
+
+function sanitizeNextPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "";
+  if (value.startsWith("/login") || value.startsWith("/signup") || value.startsWith("/forgot-password") || value.startsWith("/demo")) return "";
+  return value;
+}
+
+function sanitizePlan(value: string | null) {
+  return value === "monthly" || value === "yearly" ? value : "";
+}
+
+function buildAuthQuery({ nextPath, plan, intent }: { nextPath: string; plan: string; intent: string }) {
+  const params = new URLSearchParams();
+  if (nextPath) params.set("next", nextPath);
+  if (plan) params.set("plan", plan);
+  if (intent) params.set("intent", intent);
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function postAuthDestination(nextPath: string, plan: string, intent: string) {
+  if (nextPath) {
+    const params = new URLSearchParams();
+    if (plan) params.set("plan", plan);
+    if (intent) params.set("intent", intent);
+    const query = params.toString();
+    return `${nextPath}${query ? `?${query}` : ""}`;
+  }
+
+  return "/dashboard";
 }
 
 type PasswordCheck = {

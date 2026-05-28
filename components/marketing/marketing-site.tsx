@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -92,7 +92,16 @@ const stagger: Variants = {
 
 export function MarketingShell({ page, children }: { page: MarketingPageKey; children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const auth = useAuth();
   const [scrolled, setScrolled] = useState(false);
+
+  async function openAuthRoute(path: "/login" | "/dashboard") {
+    if (auth.user?.isDemo) await auth.signOut();
+    router.push(path);
+  }
+
+  const signedIn = Boolean(auth.user && !auth.user.isDemo);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 12);
@@ -136,12 +145,21 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
               );
             })}
           </nav>
-          <Link
-            href="/demo"
-            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl border border-[rgb(31_209_165_/_0.26)] bg-[rgb(31_209_165_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(31_209_165_/_0.16)]"
-          >
-            Try Demo
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => openAuthRoute(signedIn ? "/dashboard" : "/login")}
+              className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-pill)] px-4 text-sm font-black text-[var(--marketing-text)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] transition hover:-translate-y-0.5 hover:bg-[var(--marketing-pill-strong)]"
+            >
+              {signedIn ? "Open App" : "Sign In"}
+            </button>
+            <Link
+              href="/demo"
+              className="hidden min-h-10 items-center justify-center rounded-2xl border border-[rgb(31_209_165_/_0.26)] bg-[rgb(31_209_165_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(31_209_165_/_0.16)] sm:inline-flex"
+            >
+              Try Demo
+            </Link>
+          </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 pb-3 text-sm font-black text-[var(--marketing-muted)] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
           {navItems.map((item) => (
@@ -297,12 +315,24 @@ export function SecurityMarketingPage() {
 
 export function PricingMarketingPage() {
   const auth = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [busyPlan, setBusyPlan] = useState<"monthly" | "yearly" | null>(null);
   const [message, setMessage] = useState("");
+  const [autoStartedPlan, setAutoStartedPlan] = useState<"monthly" | "yearly" | null>(null);
+
+  const intentPlan = searchParams.get("plan") === "yearly" ? "yearly" : searchParams.get("plan") === "monthly" ? "monthly" : null;
+
+  useEffect(() => {
+    if (!intentPlan || autoStartedPlan || !auth.user || auth.user.isDemo) return;
+    setAutoStartedPlan(intentPlan);
+    startPremium(intentPlan);
+  }, [autoStartedPlan, auth.user, intentPlan]);
 
   async function startPremium(plan: "monthly" | "yearly") {
     if (!auth.user || auth.user.isDemo) {
-      window.location.href = "/signup";
+      if (auth.user?.isDemo) await auth.signOut();
+      router.push(`/login?next=/premium&plan=${plan}`);
       return;
     }
 
@@ -311,6 +341,16 @@ export function PricingMarketingPage() {
     const result = await auth.startUpgrade(plan);
     if (result.error) setMessage(result.error);
     setBusyPlan(null);
+  }
+
+  async function startFree() {
+    if (auth.user && !auth.user.isDemo) {
+      router.push("/dashboard");
+      return;
+    }
+
+    if (auth.user?.isDemo) await auth.signOut();
+    router.push("/signup?intent=free");
   }
 
   return (
@@ -328,7 +368,7 @@ export function PricingMarketingPage() {
             cadence="/month"
             body="For manual budgeting with basic intelligence and adaptive guidance."
             cta="Start Free"
-            href="/signup"
+            onClick={startFree}
             features={["Manual budgeting", "Basic intelligence", "Receipt scanning", "Adaptive suggestions", "Spending rules"]}
           />
           <PricingCard
@@ -383,7 +423,7 @@ function HeroSection() {
             SpendFence turns real behavior into calm spending fences, AI-assisted insights, and decisions you approve before anything changes.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-            <PrimaryCta href="/pricing">Start Premium</PrimaryCta>
+            <PrimaryCta href="/premium">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
@@ -960,7 +1000,7 @@ function FinalCta() {
             </p>
           </div>
           <div className="grid gap-3 sm:flex lg:shrink-0">
-            <PrimaryCta href="/pricing">Start Premium</PrimaryCta>
+            <PrimaryCta href="/premium">Start Premium</PrimaryCta>
             <SecondaryCta href="/demo">Try Demo</SecondaryCta>
           </div>
         </div>
