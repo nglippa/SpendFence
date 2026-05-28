@@ -294,8 +294,10 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               <>
                 <Field label="Email">
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <Input className="pl-11" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={authUnavailable} required />
+                    <span className="pointer-events-none absolute left-4 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center text-slate-400">
+                      <Mail size={18} />
+                    </span>
+                    <Input className="pl-12 pr-4" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={authUnavailable} required />
                   </div>
                 </Field>
 
@@ -317,9 +319,11 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                 {mode !== "forgot" ? (
                   <Field label="Password">
                     <div className="relative">
-                      <KeyRound className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <span className="pointer-events-none absolute left-4 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center text-slate-400">
+                        <KeyRound size={18} />
+                      </span>
                       <Input
-                        className="pl-11"
+                        className="pl-12 pr-4"
                         type="password"
                         autoComplete={mode === "signup" ? "new-password" : "current-password"}
                         value={password}
