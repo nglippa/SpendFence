@@ -10,7 +10,7 @@ import { MfaChallenge, MfaFactor, SignInResult, useAuth } from "@/lib/auth";
 import { featureFlags } from "@/lib/feature-flags";
 
 type AuthMode = "login" | "signup" | "forgot";
-type AuthResult = SignInResult & { message?: string };
+type AuthResult = SignInResult & { message?: string; signedIn?: boolean };
 const REMEMBERED_EMAIL_KEY = "spendfence-remembered-email-v1";
 const AUTH_FLASH_KEY = "spendfence-auth-flash-v1";
 
@@ -145,7 +145,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     if (mode === "signup") {
       if (nextPath || plan || intent) {
         window.sessionStorage.setItem(AUTH_FLASH_KEY, result.message ?? "Account created. Log in to continue.");
-        router.replace(`/login${preservedQuery}`);
+        router.replace(result.signedIn ? postAuthDestination(nextPath, plan, intent) : `/login${preservedQuery}`);
         return;
       }
 

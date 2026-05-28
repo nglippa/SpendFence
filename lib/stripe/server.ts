@@ -95,7 +95,7 @@ export async function createCheckoutSession(user: ApiUser, input: { plan?: unkno
     customer: customerId,
     client_reference_id: user.id,
     success_url: `${input.origin}/settings/premium?success=true`,
-    cancel_url: `${input.origin}/settings/premium?canceled=true`,
+    cancel_url: `${input.origin}/pricing?canceled=true`,
     "line_items[0][price]": priceId,
     "line_items[0][quantity]": "1",
     "metadata[user_id]": user.id,

@@ -64,7 +64,7 @@ type AuthContextValue = {
   tierPreviewMode: DeveloperTierPreviewMode;
   demoModeAvailable: boolean;
   signIn: (email: string, password: string) => Promise<SignInResult>;
-  signUp: (email: string, password: string) => Promise<{ error?: string; message?: string }>;
+  signUp: (email: string, password: string) => Promise<{ error?: string; message?: string; signedIn?: boolean }>;
   resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
   startMfaChallenge: (factor: MfaFactor) => Promise<{ error?: string; challenge?: MfaChallenge }>;
   verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
@@ -267,8 +267,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       signUp: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
-        const { error } = await supabase.auth.signUp({ email, password });
-        return error ? { error: error.message } : { message: "Check your email if confirmation is enabled." };
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) return { error: error.message };
+        if (data.session?.user) setUser(toAuthUser(data.session.user));
+        return { message: "Check your email if confirmation is enabled.", signedIn: Boolean(data.session) };
       },
       resetPassword: async (email) => {
         if (!supabase) return { error: supabaseConfigError };

@@ -319,28 +319,20 @@ export function PricingMarketingPage() {
   const searchParams = useSearchParams();
   const [busyPlan, setBusyPlan] = useState<"monthly" | "yearly" | null>(null);
   const [message, setMessage] = useState("");
-  const [autoStartedPlan, setAutoStartedPlan] = useState<"monthly" | "yearly" | null>(null);
 
   const intentPlan = searchParams.get("plan") === "yearly" ? "yearly" : searchParams.get("plan") === "monthly" ? "monthly" : null;
+  const checkoutCanceled = searchParams.get("canceled") === "true";
 
   useEffect(() => {
-    if (!intentPlan || autoStartedPlan || !auth.user || auth.user.isDemo) return;
-    setAutoStartedPlan(intentPlan);
-    startPremium(intentPlan);
-  }, [autoStartedPlan, auth.user, intentPlan]);
+    if (!intentPlan) return;
+    router.replace(`/checkout?plan=${intentPlan}`);
+  }, [intentPlan, router]);
 
   async function startPremium(plan: "monthly" | "yearly") {
-    if (!auth.user || auth.user.isDemo) {
-      if (auth.user?.isDemo) await auth.signOut();
-      router.push(`/login?next=/premium&plan=${plan}`);
-      return;
-    }
-
     setBusyPlan(plan);
     setMessage("");
-    const result = await auth.startUpgrade(plan);
-    if (result.error) setMessage(result.error);
-    setBusyPlan(null);
+    if (auth.user?.isDemo) await auth.signOut();
+    router.push(`/checkout?plan=${plan}`);
   }
 
   async function startFree() {
@@ -350,7 +342,7 @@ export function PricingMarketingPage() {
     }
 
     if (auth.user?.isDemo) await auth.signOut();
-    router.push("/signup?intent=free");
+    router.push("/login?next=/dashboard");
   }
 
   return (
@@ -396,9 +388,9 @@ export function PricingMarketingPage() {
           />
         </div>
         <PricingComparison />
-        {message ? (
+        {message || checkoutCanceled ? (
           <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4 text-center text-sm font-black text-amber-500">
-            {message}
+            {message || "Checkout canceled. Nothing changed on your account."}
           </div>
         ) : null}
         <div className="mt-5 flex justify-center">
