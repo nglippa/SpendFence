@@ -263,13 +263,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return { mfaRequired: true, mfa: { factors, challenge: challenge.challenge } };
         }
 
+        const confirmedUser = await waitForSessionUser(supabase);
+        if (!confirmedUser) return { error: "Signed in, but the session was not ready. Please try again." };
+        clearDemoSession();
+        setUser(toAuthUser(confirmedUser));
+        setLoading(false);
         return {};
       },
       signUp: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return { error: error.message };
-        if (data.session?.user) setUser(toAuthUser(data.session.user));
+        if (data.session?.user) {
+          const confirmedUser = await waitForSessionUser(supabase);
+          if (confirmedUser) {
+            clearDemoSession();
+            setUser(toAuthUser(confirmedUser));
+            setLoading(false);
+          }
+        }
         return { message: "Check your email if confirmation is enabled.", signedIn: Boolean(data.session) };
       },
       resetPassword: async (email) => {
@@ -283,14 +295,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       verifyMfaChallenge: async (challenge, code) => {
         if (!supabase) return { error: supabaseConfigError };
-        const { data, error } = await supabase.auth.mfa.verify({
+        const { error } = await supabase.auth.mfa.verify({
           factorId: challenge.factorId,
           challengeId: challenge.challengeId,
           code
         });
         if (error) return { error: error.message };
 
-        setUser(toAuthUser(data.user));
+        const confirmedUser = await waitForSessionUser(supabase);
+        if (!confirmedUser) return { error: "Verified MFA, but the session was not ready. Please try again." };
+        clearDemoSession();
+        setUser(toAuthUser(confirmedUser));
+        setLoading(false);
         return {};
       },
       enterDemoMode: (options) => {
@@ -348,10 +364,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshSubscription,
       signOut: async () => {
         const isDemoSession = (getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY)) === "true";
-        removeSessionValue(DEMO_SESSION_KEY);
-        removeSessionValue(DEMO_LOCKED_SESSION_KEY);
-        removeCookieValue(DEMO_SESSION_KEY);
-        removeCookieValue(DEMO_LOCKED_SESSION_KEY);
+        clearDemoSession();
         window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
         if (supabase && !isDemoSession) await supabase.auth.signOut();
         clearActiveAuthStorage();
@@ -424,6 +437,27 @@ function removeCookieValue(key: string) {
   } catch {
     // Nothing to clear when cookies are unavailable.
   }
+}
+
+function clearDemoSession() {
+  removeSessionValue(DEMO_SESSION_KEY);
+  removeSessionValue(DEMO_LOCKED_SESSION_KEY);
+  removeCookieValue(DEMO_SESSION_KEY);
+  removeCookieValue(DEMO_LOCKED_SESSION_KEY);
+}
+
+async function waitForSessionUser(supabase: SupabaseClient) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) return data.session.user;
+    await wait(100);
+  }
+
+  return null;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function toDemoUser(locked = false): AuthUser {

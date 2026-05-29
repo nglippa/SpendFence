@@ -331,8 +331,13 @@ export function PricingMarketingPage() {
   async function startPremium(plan: "monthly" | "yearly") {
     setBusyPlan(plan);
     setMessage("");
+    if (auth.user && !auth.user.isDemo) {
+      router.push(`/checkout?plan=${plan}`);
+      return;
+    }
+
     if (auth.user?.isDemo) await auth.signOut();
-    router.push(`/checkout?plan=${plan}`);
+    router.push(`/login?next=/checkout&plan=${plan}`);
   }
 
   async function startFree() {

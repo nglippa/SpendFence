@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { ArrowRight, Bell, ChartPie, Home, ListChecks, LogOut, PlusCircle, ScanLine, Settings, TestTube2, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
+import { postAuthDestination, sanitizeAuthIntent, sanitizeAuthNextPath, sanitizeAuthPlan } from "@/lib/auth-redirects";
 import { SpendFenceProvider, useSpendFence } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -87,20 +88,12 @@ function hasDemoQuery() {
 }
 
 function authPageRedirectDestination() {
-  if (typeof window === "undefined") return "/onboarding";
-  const params = new URLSearchParams(window.location.search);
-  const next = params.get("next");
-  const plan = params.get("plan");
-  const intent = params.get("intent");
-  if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") && !next.startsWith("/signup") && !next.startsWith("/forgot-password") && !next.startsWith("/demo")) {
-    const nextParams = new URLSearchParams();
-    if (plan === "monthly" || plan === "yearly") nextParams.set("plan", plan);
-    if (intent === "free") nextParams.set("intent", intent);
-    const query = nextParams.toString();
-    return `${next}${query ? `?${query}` : ""}`;
-  }
-  if (intent === "free") return "/dashboard";
-  return "/onboarding";
+  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+  return postAuthDestination({
+    nextPath: sanitizeAuthNextPath(params.get("next")),
+    plan: sanitizeAuthPlan(params.get("plan")),
+    intent: sanitizeAuthIntent(params.get("intent"))
+  });
 }
 
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {

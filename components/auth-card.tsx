@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, Field, Input, Pill } from "@/components/ui";
+import { buildAuthQuery, postAuthDestination, sanitizeAuthIntent, sanitizeAuthNextPath, sanitizeAuthPlan } from "@/lib/auth-redirects";
 import { MfaChallenge, MfaFactor, SignInResult, useAuth } from "@/lib/auth";
 import { featureFlags } from "@/lib/feature-flags";
 
@@ -60,6 +61,8 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const [mfaCode, setMfaCode] = useState("");
   const [rememberEmail, setRememberEmail] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(0);
+  const [redirecting, setRedirecting] = useState(false);
+  const redirectStartedRef = useRef(false);
   const content = copy[mode];
   const smsMfaEnabled = featureFlags.ENABLE_SMS_MFA;
   const activeFactor = useMemo(
@@ -71,11 +74,19 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const passwordStrength = getPasswordStrength(password, passwordScore);
   const localModeAvailable = useLocalModeAvailable();
   const authUnavailable = !auth.authEnabled && !localModeAvailable;
-  const nextPath = sanitizeNextPath(searchParams.get("next"));
-  const plan = sanitizePlan(searchParams.get("plan"));
-  const intent = searchParams.get("intent") === "free" ? "free" : "";
+  const nextPath = sanitizeAuthNextPath(searchParams.get("next"));
+  const plan = sanitizeAuthPlan(searchParams.get("plan"));
+  const intent = sanitizeAuthIntent(searchParams.get("intent"));
   const preservedQuery = buildAuthQuery({ nextPath, plan, intent });
   const footHref = `${content.footHref}${preservedQuery}`;
+  const destination = postAuthDestination({ nextPath, plan, intent });
+
+  useEffect(() => {
+    if (auth.loading || !auth.user || auth.user.isDemo || redirectStartedRef.current) return;
+    redirectStartedRef.current = true;
+    setRedirecting(true);
+    router.replace(destination);
+  }, [auth.loading, auth.user, destination, router]);
 
   useEffect(() => {
     if (mode !== "login") return;
@@ -147,7 +158,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     if (mode === "signup") {
       if (nextPath || plan || intent) {
         window.sessionStorage.setItem(AUTH_FLASH_KEY, result.message ?? "Account created. Log in to continue.");
-        router.replace(result.signedIn ? postAuthDestination(nextPath, plan, intent) : `/login${preservedQuery}`);
+        router.replace(result.signedIn ? destination : `/login${preservedQuery}`);
         return;
       }
 
@@ -156,7 +167,9 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     updateRememberedEmail();
-    router.replace(postAuthDestination(nextPath, plan, intent));
+    redirectStartedRef.current = true;
+    setRedirecting(true);
+    router.replace(destination);
   }
 
   async function verifyMfa() {
@@ -175,7 +188,9 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     updateRememberedEmail();
-    router.replace(postAuthDestination(nextPath, plan, intent));
+    redirectStartedRef.current = true;
+    setRedirecting(true);
+    router.replace(destination);
   }
 
   async function switchMfaFactor(factor: MfaFactor) {
@@ -349,8 +364,8 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               </p>
             ) : null}
 
-            <Button type="submit" size="lg" disabled={submitting || authUnavailable}>
-              {submitting ? "Working..." : mfaChallenge ? "Verify and continue" : content.button}
+            <Button type="submit" size="lg" disabled={submitting || redirecting || authUnavailable}>
+              {redirecting ? "Redirecting..." : submitting ? "Working..." : mfaChallenge ? "Verify and continue" : content.button}
               <ArrowRight size={18} />
             </Button>
           </form>
@@ -394,37 +409,6 @@ function useLocalModeAvailable() {
   }, []);
 
   return available;
-}
-
-function sanitizeNextPath(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "";
-  if (value.startsWith("/login") || value.startsWith("/signup") || value.startsWith("/forgot-password") || value.startsWith("/demo")) return "";
-  return value;
-}
-
-function sanitizePlan(value: string | null) {
-  return value === "monthly" || value === "yearly" ? value : "";
-}
-
-function buildAuthQuery({ nextPath, plan, intent }: { nextPath: string; plan: string; intent: string }) {
-  const params = new URLSearchParams();
-  if (nextPath) params.set("next", nextPath);
-  if (plan) params.set("plan", plan);
-  if (intent) params.set("intent", intent);
-  const query = params.toString();
-  return query ? `?${query}` : "";
-}
-
-function postAuthDestination(nextPath: string, plan: string, intent: string) {
-  if (nextPath) {
-    const params = new URLSearchParams();
-    if (plan) params.set("plan", plan);
-    if (intent) params.set("intent", intent);
-    const query = params.toString();
-    return `${nextPath}${query ? `?${query}` : ""}`;
-  }
-
-  return "/dashboard";
 }
 
 type PasswordCheck = {
