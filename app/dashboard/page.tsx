@@ -5,7 +5,7 @@ import { AlertTriangle, Brain, CalendarClock, ChevronRight, LockKeyhole, Plus, R
 import { CategoryCard } from "@/components/category-card";
 import { IntelligenceEmptyState, IntelligenceSection, intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
-import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
+import { Button, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, getSmartPrompts, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
 import { selectDashboardInsight } from "@/lib/insights/behavioral-insights";
@@ -45,146 +45,132 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="page-zone grid grid-cols-1 gap-2.5 p-3 min-[430px]:grid-cols-2 md:grid-cols-4">
-        <Card className="border-0 bg-brand-gradient text-white shadow-[0_18px_46px_rgb(24_184_137_/_0.18)] min-[430px]:col-span-2 md:col-span-2">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
-          <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
-          <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
-        </Card>
-        <Card className="bg-white/42 p-4 shadow-none md:p-5 dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
-          <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(spent)}</p>
-          <div className="mt-2">
-            <ProgressBar percent={budgetPercent} color={budgetColor} compact />
-          </div>
-        </Card>
-        <Card className="bg-white/42 p-4 shadow-none md:p-5 dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Remaining</p>
-          <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(remaining)}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
-            <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
-            <Pill className="border-amber-100 bg-amber-50 text-amber-800"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
-            <Pill className="border-rose-100 bg-rose-50 text-rose-700"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
-          </div>
-        </Card>
-      </div>
-
-      {dashboardInsight ? (
-        <div className="mt-4 sm:mt-5">
-          <SpendInsightCard insight={dashboardInsight} className="shadow-[0_14px_34px_rgb(99_102_241_/_0.08)]" />
-        </div>
-      ) : null}
-
-      <div className="mt-6 grid gap-6 sm:mt-7 xl:grid-cols-[1fr_0.82fr]">
-        <section className="content-start page-zone p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flow-canvas">
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr] lg:items-end">
             <div>
-              <h2 className="text-base font-black text-[#10201c] sm:text-lg">Category fences</h2>
-              <p className="text-xs font-bold text-slate-500">Tap a tile to review purchases.</p>
+              <p className="section-kicker text-[var(--brand-primary)]">Remaining this cycle</p>
+              <p className="mt-2 text-5xl font-black leading-none tracking-tight text-[#10201c] sm:text-6xl">{formatMoney(remaining)}</p>
+              <p className="mt-2 text-sm font-bold leading-5 text-slate-600">Available after {formatMoney(spent)} spent from {formatMoney(available)} in planned money.</p>
             </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/categories">View all</Link>
-            </Button>
+            <div className="grid gap-3">
+              <div>
+                <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  <span>Budget health</span>
+                  <span>{Math.round(budgetPercent)}%</span>
+                </div>
+                <ProgressBar percent={budgetPercent} color={budgetColor} />
+              </div>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
+                <Pill className="border-amber-100 bg-amber-50 text-amber-800"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
+                <Pill className="border-rose-100 bg-rose-50 text-rose-700"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
+              </div>
+            </div>
           </div>
+        </section>
+
+        {dashboardInsight ? (
+          <section className="ai-flow-layer p-4 sm:p-5">
+            <p className="section-kicker pl-2 text-[#4F46E5]">AI insight</p>
+            <div className="mt-3">
+              <SpendInsightCard insight={dashboardInsight} className="bg-transparent shadow-none" />
+            </div>
+          </section>
+        ) : null}
+
+        <section className="flow-zone p-4 sm:p-5">
+          <SectionHeading title="Category fences" subtitle="A quick read on where the month is calm, close, or locked." action={<Link href="/categories" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">View all <ChevronRight size={14} /></Link>} />
           {state.categories.length ? (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {state.categories.map((category) => (
-                <Link key={category.id} href={`/categories/${category.id}`} className="block rounded-[1.15rem] transition active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#58c6a8]/20 sm:rounded-[1.55rem]">
+                <Link key={category.id} href={`/categories/${category.id}`} className="block rounded-[1.25rem] transition active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#58c6a8]/20">
                   <CategoryCard category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} variant="compact" />
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.52)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] backdrop-blur dark:bg-white/[0.04]">
-              <EmptyState
-                icon={WalletCards}
-                title="Your budget categories are ready to be shaped"
-                body="Start with one or two spending areas you want to watch. SpendFence will use them to organize purchases and surface pacing alerts."
-                action={
-                  <Button asChild size="sm">
-                    <Link href="/categories">
-                      <Plus size={16} /> Add category
-                    </Link>
-                  </Button>
-                }
-              />
-            </div>
+            <EmptyState
+              icon={WalletCards}
+              title="Your budget categories are ready to be shaped"
+              body="Start with one or two spending areas you want to watch. SpendFence will use them to organize purchases and surface pacing alerts."
+              action={
+                <Button asChild size="sm">
+                  <Link href="/categories">
+                    <Plus size={16} /> Add category
+                  </Link>
+                </Button>
+              }
+            />
           )}
         </section>
 
-        <section className="grid content-start gap-6">
-          <div className="grid items-stretch gap-3 md:grid-cols-2">
-            <SmartPromptsPanel prompts={prompts} isPro={isPro} />
+        <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+          <SmartPromptsPanel prompts={prompts} isPro={isPro} />
 
-            <Card className="h-full bg-white/44 p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] dark:bg-white/[0.04]">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <h2 className="text-sm font-black sm:text-base">Recurring charges</h2>
-                <Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
-                  View all <ChevronRight size={14} />
-                </Link>
-              </div>
-              {upcomingRecurring.length ? (
-                <div className="grid gap-2">
-                  {upcomingRecurring.slice(0, 2).map(({ item, date }) => (
-                    <div key={item.id} className="native-row flex items-center justify-between gap-2 rounded-[1rem] bg-[color:rgb(238_244_241_/_0.48)] px-3 py-2.5 dark:bg-white/[0.035]">
-                      <div className="min-w-0">
-                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                          <p className="text-sm font-black leading-5">{item.name}</p>
-                          <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
-                            {recurringKindLabel(item.kind)}
-                          </span>
-                        </div>
-                        <p className="mt-0.5 flex items-center gap-1 text-[0.68rem] font-bold text-slate-500">
-                          <CalendarClock size={12} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
-                        </p>
+          <section className="flow-zone p-4 sm:p-5">
+            <SectionHeading title="Recurring charges" subtitle="Upcoming bills and income without another dashboard block." action={<Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">Manage <ChevronRight size={14} /></Link>} />
+            {upcomingRecurring.length ? (
+              <div className="flow-list mt-3">
+                {upcomingRecurring.slice(0, 3).map(({ item, date }) => (
+                  <div key={item.id} className="flex items-center justify-between gap-3 py-3">
+                    <div className="min-w-0">
+                      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        <p className="text-sm font-black leading-5">{item.name}</p>
+                        <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
+                          {recurringKindLabel(item.kind)}
+                        </span>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <p className={item.kind === "income" ? "text-sm font-black text-emerald-700" : "text-sm font-black"}>
-                          {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
-                        </p>
-                        <p className="text-[0.65rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
-                      </div>
+                      <p className="mt-0.5 flex items-center gap-1 text-[0.68rem] font-bold text-slate-500">
+                        <CalendarClock size={12} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
+                      </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-2xl bg-[color:rgb(238_244_241_/_0.60)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)] dark:bg-white/[0.04]">
-                  Mark recurring purchases or paycheck income to see upcoming dates.
-                </div>
-              )}
-            </Card>
-          </div>
-
-          <Card className="p-4 sm:p-5">
-            <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Recent purchases</h2>
-            {cyclePurchases.length ? (
-              <div className="soft-divider">
-                {cyclePurchases.slice(0, 5).map((purchase) => (
-                  <div key={purchase.id} className="flex items-center justify-between gap-3 py-3">
-                    <div>
-                      <p className="text-sm font-black sm:text-base">{purchase.merchant}</p>
-                      <p className="text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(purchase.date)}</p>
+                    <div className="shrink-0 text-right">
+                      <p className={item.kind === "income" ? "text-sm font-black text-emerald-700" : "text-sm font-black"}>
+                        {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
+                      </p>
+                      <p className="text-[0.65rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
                     </div>
-                    <p className="text-sm font-black sm:text-base">{formatMoney(purchase.amount)}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <EmptyState
-                compact
-                icon={ReceiptText}
-                title="Your first purchase this cycle will land here"
-                body="When you add a purchase, it will show up here with its category and cycle date."
-                action={
-                  <Button asChild size="sm" variant="secondary">
-                    <Link href="/add-purchase">
-                      <Plus size={16} /> Add purchase
-                    </Link>
-                  </Button>
-                }
-              />
+              <p className="mt-3 rounded-2xl bg-white/24 p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)] dark:bg-white/[0.035]">
+                Mark recurring purchases or paycheck income to see upcoming dates.
+              </p>
             )}
-          </Card>
+          </section>
+        </div>
+
+        <section className="flow-zone p-4 sm:p-5">
+          <SectionHeading title="Recent activity" subtitle="The cycle’s latest movement, grouped as a list." />
+          {cyclePurchases.length ? (
+            <div className="flow-list mt-3">
+              {cyclePurchases.slice(0, 6).map((purchase) => (
+                <div key={purchase.id} className="flex items-center justify-between gap-3 py-3">
+                  <div>
+                    <p className="text-sm font-black sm:text-base">{purchase.merchant}</p>
+                    <p className="text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(purchase.date)}</p>
+                  </div>
+                  <p className="text-sm font-black sm:text-base">{formatMoney(purchase.amount)}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              compact
+              icon={ReceiptText}
+              title="Your first purchase this cycle will land here"
+              body="When you add a purchase, it will show up here with its category and cycle date."
+              action={
+                <Button asChild size="sm" variant="secondary">
+                  <Link href="/add-purchase">
+                    <Plus size={16} /> Add purchase
+                  </Link>
+                </Button>
+              }
+            />
+          )}
         </section>
       </div>
     </>
@@ -218,6 +204,18 @@ function SmartPromptsPanel({ prompts, isPro }: { prompts: Prompt[]; isPro: boole
         <IntelligenceEmptyState title="No smart prompts yet." body="SpendFence will surface short setup notes once categories and purchases exist." />
       )}
     </IntelligenceSection>
+  );
+}
+
+function SectionHeading({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-lg font-black tracking-tight text-[#10201c] sm:text-xl">{title}</h2>
+        <p className="mt-1 text-xs font-bold leading-5 text-slate-500 sm:text-sm">{subtitle}</p>
+      </div>
+      {action ? <div className="shrink-0 pt-1">{action}</div> : null}
+    </div>
   );
 }
 

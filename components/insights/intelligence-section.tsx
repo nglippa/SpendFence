@@ -9,7 +9,7 @@ import { PremiumBadge } from "@/components/upgrade-modal";
 import { cn } from "@/lib/utils";
 
 export const intelligenceCardSurfaceClass =
-  "relative overflow-hidden rounded-[1.25rem] bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.075),transparent_12rem),linear-gradient(145deg,rgb(255_255_255_/_0.62)_0%,rgb(248_250_255_/_0.52)_52%,rgb(242_245_255_/_0.44)_100%)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.62),0_10px_26px_rgb(31_41_55_/_0.045)] backdrop-blur transition-[box-shadow,transform,opacity] duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.72),0_16px_34px_rgb(31_41_55_/_0.075),0_8px_22px_rgb(99_102_241_/_0.055)] dark:bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.13),transparent_13rem),linear-gradient(145deg,rgb(24_32_43_/_0.58)_0%,rgb(18_24_33_/_0.52)_58%,rgb(21_20_42_/_0.46)_100%)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055),0_14px_34px_rgb(0_0_0_/_0.16)] sm:rounded-[1.35rem] sm:p-3.5";
+  "relative overflow-hidden rounded-[1.15rem] bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.060),transparent_12rem),linear-gradient(145deg,rgb(255_255_255_/_0.42)_0%,rgb(248_250_255_/_0.30)_100%)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.38)] backdrop-blur transition-[background,transform,opacity] duration-300 ease-out hover:-translate-y-0.5 dark:bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.12),transparent_13rem),linear-gradient(145deg,rgb(24_32_43_/_0.38)_0%,rgb(18_24_33_/_0.28)_100%)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.045)] sm:rounded-[1.2rem] sm:p-3.5";
 
 export const intelligenceCarouselTrackClass =
   "flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-4 sm:py-4";
@@ -95,7 +95,7 @@ export function IntelligenceSection({
   return (
     <section
       className={cn(
-        "ai-ambient relative isolate mb-6 overflow-hidden rounded-[1.75rem] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.62),0_18px_50px_rgb(15_23_42_/_0.06),0_8px_22px_rgb(99_102_241_/_0.055)] backdrop-blur-xl sm:mb-7 sm:rounded-[1.75rem] sm:p-4",
+        "ai-flow-layer relative mb-6 p-3 sm:mb-7 sm:p-4",
         className
       )}
     >
@@ -151,9 +151,7 @@ export function IntelligenceSection({
         </div>
       </div>
 
-      <div
-        className="relative z-10 overflow-hidden rounded-[1.3rem] bg-[rgb(255_255_255_/_0.32)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.48)] backdrop-blur-xl dark:bg-[rgb(8_13_22_/_0.24)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.045)]"
-      >
+      <div className="relative z-10 overflow-hidden">
         {children}
         {dots}
       </div>

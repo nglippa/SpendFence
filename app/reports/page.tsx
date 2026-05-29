@@ -7,7 +7,7 @@ import { CategoryCard } from "@/components/category-card";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
 import { SmartInsightsSection } from "@/components/insights/smart-insights-section";
 import { PremiumBadge } from "@/components/upgrade-modal";
-import { Card, EmptyState, PageHeader, Pill } from "@/components/ui";
+import { EmptyState, PageHeader, Pill } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle } from "@/lib/budget";
 import { selectSmartReportInsights } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
@@ -42,32 +42,24 @@ export default function ReportsPage() {
         }
       />
 
-      <div className="mb-5">
+      <div className="flow-canvas">
         <SmartInsightsSection insights={smartInsights} />
-      </div>
 
-      <section className="page-zone mb-6 grid grid-cols-1 gap-2.5 p-3 min-[430px]:grid-cols-2 md:grid-cols-4">
-        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Cycle spend</p>
-          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{formatMoney(cycleTotal)}</p>
-        </Card>
-        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Active categories</p>
-          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{activeCategories}</p>
-        </Card>
-        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Close to fence</p>
-          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{close.length}</p>
-        </Card>
-        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Purchases</p>
-          <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{cyclePurchases.length}</p>
-        </Card>
-      </section>
+        <section className="flow-zone p-4 sm:p-5">
+          <p className="section-kicker text-[var(--brand-primary)]">Cycle summary</p>
+          <div className="metric-ribbon mt-3 md:grid-cols-4">
+            <ReportMetric label="Cycle spend" value={formatMoney(cycleTotal)} />
+            <ReportMetric label="Active categories" value={String(activeCategories)} />
+            <ReportMetric label="Close to fence" value={String(close.length)} />
+            <ReportMetric label="Purchases" value={String(cyclePurchases.length)} />
+          </div>
+        </section>
 
-      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card>
-          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Spending by category</h2>
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="mb-4">
+            <h2 className="text-lg font-black sm:text-xl">Spending by category</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">One analytics canvas for category mix and monthly shape.</p>
+          </div>
           {cyclePurchases.length && state.categories.length ? (
             <SpendingByCategoryChart categories={state.categories} purchases={cyclePurchases} />
           ) : (
@@ -78,30 +70,39 @@ export default function ReportsPage() {
               body="Once purchases are logged against categories, this report will show where the cycle is going."
             />
           )}
-        </Card>
-        <Card>
-          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Month-to-date trend</h2>
+        </section>
+
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="mb-4">
+            <h2 className="text-lg font-black sm:text-xl">Month-to-date trend</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">Daily movement without another framed analytics tile.</p>
+          </div>
           {cyclePurchases.length ? (
             <MonthTrendChart purchases={cyclePurchases} />
           ) : (
             <EmptyState compact icon={TrendingUp} title="Your trend line starts with the first purchase" body="A few saved purchases will turn this into a simple running view of spending over time." />
           )}
-        </Card>
-      </div>
+        </section>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <Card>
-          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Remaining budget by category</h2>
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="mb-4">
+            <h2 className="text-lg font-black sm:text-xl">Remaining budget by category</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">Room left across the fences you watch.</p>
+          </div>
           {state.categories.length ? (
             <RemainingByCategoryChart categories={state.categories} purchases={cyclePurchases} />
           ) : (
             <EmptyState compact icon={WalletCards} title="Add categories to unlock limit comparisons" body="Once your budget areas are set, this view will show the room left in each one." />
           )}
-        </Card>
-        <Card>
-          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Biggest purchases</h2>
+        </section>
+
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="mb-3">
+            <h2 className="text-lg font-black sm:text-xl">Biggest purchases</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">A grouped list of the purchases shaping the report.</p>
+          </div>
           {biggest.length ? (
-            <div className="soft-divider">
+            <div className="flow-list">
               {biggest.map((purchase) => {
                 const category = state.categories.find((item) => item.id === purchase.categoryId);
                 return (
@@ -120,10 +121,9 @@ export default function ReportsPage() {
           ) : (
             <EmptyState compact icon={ReceiptText} title="Bigger purchases will surface here" body="This list will highlight the larger purchases in the current cycle once spending is logged." />
           )}
-        </Card>
-      </div>
+        </section>
 
-      <div className="page-zone mt-5 p-4 sm:p-5">
+        <section className="flow-zone p-4 sm:p-5">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-lg font-black sm:text-xl">Categories close to limit</h2>
           <Pill className="border-amber-100 bg-amber-50 text-amber-800">{close.length} active</Pill>
@@ -135,11 +135,19 @@ export default function ReportsPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.52)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] backdrop-blur dark:bg-white/[0.04]">
-            <EmptyState compact icon={WalletCards} title="Categories you watch will appear here" body="Add categories and limits, then SpendFence can surface the areas getting close to the fence." />
-          </div>
+          <EmptyState compact icon={WalletCards} title="Categories you watch will appear here" body="Add categories and limits, then SpendFence can surface the areas getting close to the fence." />
         )}
+        </section>
       </div>
     </>
+  );
+}
+
+function ReportMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{value}</p>
+    </div>
   );
 }

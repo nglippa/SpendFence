@@ -6,7 +6,7 @@ import { AdaptiveFenceSuggestions } from "@/components/adaptive-fence-suggestion
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
-import { Button, Card, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
+import { Button, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { useSpendFence } from "@/lib/store";
 import type { Category, CategoryInput } from "@/lib/types";
@@ -95,18 +95,18 @@ export default function CategoriesPage() {
     <>
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
       <SettingsFeedback message={feedback} />
-      <div className="mb-5">
+      <div className="flow-canvas">
         <AdaptiveFenceSuggestions onFeedback={showFeedback} />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">
-        <Card className="p-3.5 sm:p-4">
+
+        <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+        <section className="flow-zone p-3.5 sm:p-4">
           <section ref={formRef} className="scroll-mt-24">
             <StableCollapsible open={!formVisible}>
               <button
                 type="button"
                 onClick={openNewFence}
                 aria-expanded={formVisible}
-                className="native-row flex w-full items-center justify-between gap-3 rounded-[1.15rem] bg-[color:rgb(238_244_241_/_0.46)] p-3.5 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] dark:bg-white/[0.035] sm:p-4"
+                className="native-row flex w-full items-center justify-between gap-3 px-1 py-3.5 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] sm:px-2 sm:py-4"
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.16)] dark:text-[#0B1114]">
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
                     <Field label="Color">
                       <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-12 p-2 sm:h-14" />
                     </Field>
-                    <div className="rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.62)] p-3.5 dark:bg-white/[0.04]">
+                    <div className="rounded-[1.35rem] bg-white/26 p-3.5 dark:bg-white/[0.035]">
                       <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Live preview</p>
                       <div className="flex items-center gap-2">
                         <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-soft" style={{ background: form.color }}>
@@ -199,9 +199,13 @@ export default function CategoriesPage() {
               </div>
             </StableCollapsible>
           </section>
-        </Card>
+        </section>
 
-        <section className="page-zone grid content-start gap-2.5 p-3 sm:p-4">
+        <section className="flow-zone grid content-start gap-2.5 p-3 sm:p-4">
+          <div className="px-1 pb-1">
+            <h2 className="text-lg font-black text-[var(--app-text)] sm:text-xl">Fence list</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">Grouped budget rows with controls tucked into each fence.</p>
+          </div>
           {state.categories.length ? (
             state.categories.map((category) => (
               <CategoryCard
@@ -225,15 +229,14 @@ export default function CategoriesPage() {
               />
             ))
           ) : (
-            <div className="rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.52)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] backdrop-blur dark:bg-white/[0.04]">
-              <EmptyState
-                icon={WalletCards}
-                title="Start with a few simple fences"
-                body="Create a few simple fences for the spending areas you care about. You can adjust limits anytime."
-              />
-            </div>
+            <EmptyState
+              icon={WalletCards}
+              title="Start with a few simple fences"
+              body="Create a few simple fences for the spending areas you care about. You can adjust limits anytime."
+            />
           )}
         </section>
+        </div>
       </div>
       <ConfirmSheet
         open={Boolean(deleting)}

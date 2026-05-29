@@ -7,7 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import { Building2, CalendarClock, CheckCircle2, ChevronRight, Edit3, FileText, LockKeyhole, Plus, ReceiptText, Repeat2, ScanLine, Trash2, Upload, X } from "lucide-react";
 import { PurchaseForm } from "@/components/purchase-form";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
-import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
+import { Button, EmptyState, Field, Input, PageHeader, Pill, Select, Textarea } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
 import { useAuth } from "@/lib/auth";
 import { formatMoney } from "@/lib/budget";
@@ -220,8 +220,12 @@ export default function AddPurchasePage() {
       <PageHeader kicker="Add purchase" title="Log spending in seconds" body="Manual entry is always available. Receipt suggestions can be reviewed and edited before saving." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-6">
-        <div className="page-zone grid gap-1.5 p-2.5 sm:p-3">
+      <div className="flow-canvas">
+        <section className="flow-zone p-3 sm:p-4">
+          <div className="mb-2 px-1">
+            <p className="section-kicker text-[var(--brand-primary)]">Intake workflow</p>
+            <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">Choose the next input. Forms open into the flow instead of becoming separate pages.</p>
+          </div>
           <AddActionCard
             id="manual"
             title={editing ? `Editing ${editing.merchant}` : "Manual Purchase"}
@@ -333,12 +337,15 @@ export default function AddPurchasePage() {
           </AddActionCard>
 
           <BankSyncEntryCard tier={auth.effectiveTier} demoLocked={state.demoModeLocked} />
-        </div>
+        </section>
 
-        <Card className="p-4 sm:p-5">
-          <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Purchase history</h2>
+        <section className="flow-zone p-4 sm:p-5">
+          <div className="mb-3">
+            <h2 className="text-lg font-black sm:text-xl">Purchase history</h2>
+            <p className="mt-1 text-sm font-semibold text-slate-500">Captured purchases grouped as a native list.</p>
+          </div>
           {state.purchases.length ? (
-            <div className="soft-divider">
+            <div className="flow-list">
               {state.purchases.map((purchase) => {
                 const category = state.categories.find((item) => item.id === purchase.categoryId);
                 return (
@@ -373,7 +380,7 @@ export default function AddPurchasePage() {
               body="Start with a quick manual entry, or scan a receipt when you want SpendFence to suggest the split."
             />
           )}
-        </Card>
+        </section>
       </div>
       <ConfirmSheet
         open={Boolean(deleting)}
@@ -425,12 +432,12 @@ function AddActionCard({
   children: ReactNode;
 }) {
   return (
-    <div ref={sectionRef} className={cn("scroll-mt-24 overflow-hidden rounded-[1.25rem] bg-white/38 backdrop-blur transition-shadow dark:bg-white/[0.035]", expanded && "bg-white/58 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58),0_12px_30px_rgb(11_17_20_/_0.045)] dark:bg-white/[0.055]")}>
+    <div ref={sectionRef} className={cn("scroll-mt-24 border-t border-[rgb(15_23_42_/_0.055)] first:border-t-0 dark:border-white/[0.07]", expanded && "py-1")}>
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="native-row grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-3.5 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)] sm:p-4"
+        className="native-row grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 px-1 py-3.5 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)] sm:px-2 sm:py-4"
         onClick={onToggle}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -472,7 +479,7 @@ function AddActionCard({
       </div>
 
       <StableCollapsible open={expanded}>
-        <div className="grid gap-4 bg-[color:rgb(247_250_247_/_0.44)] p-4 pt-2 dark:bg-white/[0.02]">{children}</div>
+        <div className="grid gap-4 rounded-[1.35rem] bg-white/26 p-4 dark:bg-white/[0.03]">{children}</div>
       </StableCollapsible>
     </div>
   );
@@ -513,7 +520,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   );
 
   const className =
-    "native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[1.25rem] bg-[color:rgb(255_255_255_/_0.38)] p-3.5 text-left backdrop-blur-xl transition dark:bg-white/[0.035] sm:gap-3 sm:p-4";
+    "native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 border-t border-[rgb(15_23_42_/_0.055)] px-1 py-3.5 text-left transition dark:border-white/[0.07] sm:gap-3 sm:px-2 sm:py-4";
 
   if (demoLocked) {
     return (

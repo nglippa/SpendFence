@@ -130,7 +130,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         {sections.map((section, index) => (
           <SettingsGroup key={index}>
             {section.map((item) => (

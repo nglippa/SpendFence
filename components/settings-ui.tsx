@@ -22,7 +22,7 @@ export function SettingsGroup({ title, children }: { title?: string; children: R
   return (
     <section className="grid w-full min-w-0 gap-2">
       {title ? <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-secondary)]">{title}</h2> : null}
-      <div className="page-zone soft-divider w-full min-w-0 overflow-hidden rounded-[1.35rem] sm:rounded-[1.45rem]">{children}</div>
+      <div className="native-list w-full min-w-0 overflow-hidden">{children}</div>
     </section>
   );
 }
@@ -44,7 +44,7 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.12)] sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] text-white sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
         <Icon size={17} />
       </div>
       <div className="min-w-0">

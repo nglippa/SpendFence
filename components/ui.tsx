@@ -6,7 +6,7 @@ export function Card({ children, className }: { children: React.ReactNode; class
   return (
     <section
       className={cn(
-        "w-full min-w-0 rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.58)] p-[1.125rem] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.66),0_14px_38px_rgb(11_17_20_/_0.045)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] dark:bg-white/[0.055] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055),0_16px_42px_rgb(0_0_0_/_0.16)] sm:rounded-[1.4rem] sm:p-5",
+        "w-full min-w-0 rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.34)] p-[1.125rem] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.40)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] dark:bg-white/[0.04] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] sm:rounded-[1.55rem] sm:p-5",
         className
       )}
     >
@@ -135,8 +135,8 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.48)] px-4 text-center dark:bg-white/[0.035]", compact ? "py-4" : "py-8 sm:py-10")}>
-      <div className="grid h-11 w-11 place-items-center rounded-[1.05rem] bg-[color:rgb(255_255_255_/_0.62)] text-[var(--brand-primary)] shadow-[0_10px_24px_rgb(11_17_20_/_0.045)] dark:bg-white/[0.06]">
+    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.26)] px-4 text-center dark:bg-white/[0.03]", compact ? "py-4" : "py-8 sm:py-10")}>
+      <div className="grid h-11 w-11 place-items-center rounded-[1.05rem] bg-[color:rgb(255_255_255_/_0.48)] text-[var(--brand-primary)] dark:bg-white/[0.055]">
         <Icon size={20} />
       </div>
       <h2 className="mt-3 text-base font-black text-[var(--app-text)] sm:text-lg">{title}</h2>

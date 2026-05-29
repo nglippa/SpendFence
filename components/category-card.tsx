@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
 import { categoryProgress, formatMoney, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
 import type { BudgetMonth, Category, Purchase } from "@/lib/types";
 import { CategoryIcon } from "@/components/category-icons";
-import { Card, Pill, ProgressBar } from "@/components/ui";
+import { Pill, ProgressBar } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export function CategoryCard({
@@ -28,11 +28,11 @@ export function CategoryCard({
 
   if (variant === "compact") {
     return (
-      <Card
+      <div
         className={cn(
-          "relative flex min-h-[8.75rem] flex-col overflow-hidden p-3 transition hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.70),0_16px_34px_rgb(11_17_20_/_0.07)] sm:min-h-[9rem]",
-          progress.status === "locked" && "bg-rose-50/52 dark:bg-rose-500/[0.08]",
-          progress.status === "warning" && "bg-amber-50/50 dark:bg-amber-400/[0.08]"
+          "relative flex min-h-[8.1rem] flex-col overflow-hidden rounded-[1.25rem] bg-white/26 p-3 transition hover:bg-white/40 dark:bg-white/[0.035] sm:min-h-[8.4rem]",
+          progress.status === "locked" && "bg-rose-50/42 dark:bg-rose-500/[0.075]",
+          progress.status === "warning" && "bg-amber-50/38 dark:bg-amber-400/[0.075]"
         )}
       >
         <span className="absolute inset-x-4 top-0 h-px rounded-full opacity-80" style={{ background: stateColor }} />
@@ -61,12 +61,12 @@ export function CategoryCard({
             </p>
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.62)] sm:p-4">
+    <div className="rounded-[1.25rem] bg-white/26 p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.34)] backdrop-blur dark:bg-white/[0.035] sm:p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-start gap-2">
@@ -94,6 +94,6 @@ export function CategoryCard({
         <ProgressBar percent={progress.percent} color={stateColor} />
       </div>
       <p className="mt-2.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-3">{warningMessage(category, purchases, budgetMonth)}</p>
-    </Card>
+    </div>
   );
 }
