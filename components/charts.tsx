@@ -4,8 +4,8 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContaine
 import { categoryProgress, formatMoney, monthTrend } from "@/lib/budget";
 import type { Category, Purchase } from "@/lib/types";
 
-const grid = "rgba(95, 108, 118, 0.18)";
-const axis = "rgba(95, 108, 118, 0.78)";
+const grid = "rgba(182, 192, 196, 0.14)";
+const axis = "rgba(182, 192, 196, 0.74)";
 const tooltipStyle = {
   background: "var(--app-card)",
   border: "1px solid var(--app-border)",
@@ -48,7 +48,7 @@ export function RemainingByCategoryChart({ categories, purchases }: { categories
         <XAxis dataKey="name" stroke={axis} tickLine={false} axisLine={false} />
         <YAxis stroke={axis} tickLine={false} axisLine={false} />
         <Tooltip formatter={(value) => formatMoney(Number(value))} contentStyle={tooltipStyle} />
-        <Bar dataKey="remaining" fill="#18B889" radius={[12, 12, 4, 4]} />
+        <Bar dataKey="remaining" fill="#5BA98C" radius={[12, 12, 4, 4]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -60,15 +60,15 @@ export function MonthTrendChart({ purchases }: { purchases: Purchase[] }) {
       <AreaChart data={monthTrend(purchases)}>
         <defs>
           <linearGradient id="spendTrend" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#2ED3B7" stopOpacity={0.7} />
-            <stop offset="100%" stopColor="#18B889" stopOpacity={0.04} />
+            <stop offset="0%" stopColor="#6FB7A5" stopOpacity={0.55} />
+            <stop offset="100%" stopColor="#5BA98C" stopOpacity={0.04} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke={grid} vertical={false} />
         <XAxis dataKey="day" stroke={axis} tickLine={false} axisLine={false} />
         <YAxis stroke={axis} tickLine={false} axisLine={false} />
         <Tooltip formatter={(value) => formatMoney(Number(value))} contentStyle={tooltipStyle} />
-        <Area dataKey="spent" type="monotone" stroke="#18B889" strokeWidth={3} fill="url(#spendTrend)" />
+        <Area dataKey="spent" type="monotone" stroke="#5BA98C" strokeWidth={3} fill="url(#spendTrend)" />
       </AreaChart>
     </ResponsiveContainer>
   );

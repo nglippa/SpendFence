@@ -63,13 +63,13 @@ export default function CheckoutPage() {
       : "Choose a Premium plan to continue.";
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-[radial-gradient(circle_at_20%_0%,rgb(99_102_241_/_0.12),transparent_24rem),var(--app-bg)] px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)]">
-      <Card className="w-full max-w-md overflow-hidden border-[rgb(99_102_241_/_0.18)] bg-[radial-gradient(circle_at_10%_0%,rgb(124_58_237_/_0.12),transparent_16rem),var(--app-card)] p-5 text-center shadow-[0_24px_70px_rgb(15_23_42_/_0.12)] sm:p-6">
+    <main className="grid min-h-dvh place-items-center bg-[radial-gradient(circle_at_20%_0%,rgb(121_131_189_/_0.12),transparent_24rem),var(--app-bg)] px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)]">
+      <Card className="w-full max-w-md overflow-hidden border-[rgb(121_131_189_/_0.18)] bg-[radial-gradient(circle_at_10%_0%,rgb(121_131_189_/_0.12),transparent_16rem),var(--app-card)] p-5 text-center shadow-[0_24px_70px_rgb(0_0_0_/_0.22)] sm:p-6">
         <BrandLogo className="mx-auto h-14 w-auto" />
-        <Pill className="mt-5 border-[rgb(75_140_255_/_0.18)] bg-[rgb(75_140_255_/_0.08)] text-[var(--app-info)]">
+        <Pill className="mt-5 border-[rgb(127_151_189_/_0.18)] bg-[rgb(127_151_189_/_0.08)] text-[var(--app-info)]">
           <ShieldCheck size={13} /> Stripe secured
         </Pill>
-        <div className="mx-auto mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] text-white shadow-[0_16px_34px_rgb(79_70_229_/_0.22)]">
+        <div className="mx-auto mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-[linear-gradient(135deg,#20283A,#6F7FB0_52%,#7771A8)] text-white shadow-[0_16px_34px_rgb(0_0_0_/_0.22)]">
           {error ? <LockKeyhole size={21} /> : <RefreshCw size={21} className="animate-spin" />}
         </div>
         <h1 className="mt-5 text-2xl font-black tracking-tight text-[var(--app-text)]">{title}</h1>

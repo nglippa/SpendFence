@@ -6,7 +6,7 @@ export function Card({ children, className }: { children: React.ReactNode; class
   return (
     <section
       className={cn(
-        "w-full min-w-0 rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.34)] p-[1.125rem] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.40)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] dark:bg-white/[0.04] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] sm:rounded-[1.55rem] sm:p-5",
+        "w-full min-w-0 rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.055)] p-[1.125rem] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.060),0_16px_42px_rgb(0_0_0_/_0.12)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] sm:rounded-[1.55rem] sm:p-5",
         className
       )}
     >
@@ -32,10 +32,10 @@ export function Button({
     size === "sm" && "min-h-10 px-3 text-xs sm:text-sm",
     size === "md" && "px-3.5 py-2 text-sm sm:px-4",
     size === "lg" && "min-h-11 px-4 text-sm sm:min-h-14 sm:px-5 sm:text-base",
-    variant === "primary" && "bg-brand-gradient text-white shadow-[0_14px_30px_rgb(24_184_137_/_0.20)] hover:brightness-[1.03] dark:text-[#0B1114]",
-    variant === "secondary" && "bg-[color:rgb(24_184_137_/_0.085)] text-[var(--brand-primary)] hover:bg-[color:rgb(24_184_137_/_0.13)]",
+    variant === "primary" && "bg-brand-gradient text-[#06110d] shadow-[0_14px_30px_rgb(0_0_0_/_0.22)] hover:brightness-[1.06]",
+    variant === "secondary" && "border border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.055)] text-[var(--brand-secondary)] hover:bg-[color:rgb(255_255_255_/_0.085)]",
     variant === "ghost" && "text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)]",
-    variant === "danger" && "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-[rgb(255_107_107_/_0.13)] dark:text-[#FF6B6B]",
+    variant === "danger" && "bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)] hover:bg-[rgb(207_113_109_/_0.20)]",
     className
   );
 
@@ -54,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
   <input
     ref={ref}
     className={cn(
-      "min-h-11 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
+      "min-h-11 w-full rounded-[1.05rem] border border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.060)] px-3.5 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-12 sm:px-4",
       className
     )}
     {...props}
@@ -66,7 +66,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
   <textarea
     ref={ref}
     className={cn(
-      "min-h-20 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-24 sm:px-4",
+      "min-h-20 w-full rounded-[1.05rem] border border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.060)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-24 sm:px-4",
       className
     )}
     {...props}
@@ -78,7 +78,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "min-h-11 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 text-sm font-black text-[var(--app-text)] outline-none transition focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
+        "min-h-11 w-full rounded-[1.05rem] border border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.060)] px-3.5 text-sm font-black text-[var(--app-text)] outline-none transition focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-12 sm:px-4",
         className
       )}
       {...props}
@@ -112,7 +112,7 @@ export function PageHeader({ kicker, title, body, action }: { kicker: string; ti
   );
 }
 
-export function ProgressBar({ percent, color = "#18B889", compact = false }: { percent: number; color?: string; compact?: boolean }) {
+export function ProgressBar({ percent, color = "var(--app-success)", compact = false }: { percent: number; color?: string; compact?: boolean }) {
   const width = Number.isFinite(percent) ? Math.min(Math.max(percent, 0), 125) : 0;
   return (
     <div className={cn("overflow-hidden rounded-full bg-[var(--app-secondary)]", compact ? "h-1.5 sm:h-2" : "h-2.5 sm:h-3")}>
@@ -135,8 +135,8 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.26)] px-4 text-center dark:bg-white/[0.03]", compact ? "py-4" : "py-8 sm:py-10")}>
-      <div className="grid h-11 w-11 place-items-center rounded-[1.05rem] bg-[color:rgb(255_255_255_/_0.48)] text-[var(--brand-primary)] dark:bg-white/[0.055]">
+    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.045)] px-4 text-center", compact ? "py-4" : "py-8 sm:py-10")}>
+      <div className="grid h-11 w-11 place-items-center rounded-[1.05rem] bg-[color:rgb(255_255_255_/_0.070)] text-[var(--brand-secondary)]">
         <Icon size={20} />
       </div>
       <h2 className="mt-3 text-base font-black text-[var(--app-text)] sm:text-lg">{title}</h2>

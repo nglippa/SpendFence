@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button, Pill } from "@/components/ui";
 
 export function PremiumBadge() {
-  return <Pill className="border-[rgb(75_140_255_/_0.18)] bg-[rgb(75_140_255_/_0.08)] text-[var(--app-info)]">Premium</Pill>;
+  return <Pill className="border-[rgb(127_151_189_/_0.18)] bg-[rgb(127_151_189_/_0.08)] text-[var(--app-info)]">Premium</Pill>;
 }
 
 export function ProBadge() {

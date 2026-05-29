@@ -8,8 +8,8 @@ import { useAppearance } from "@/lib/appearance";
 import { cn } from "@/lib/utils";
 
 const options = [
-  { key: "light", label: "Light", body: "Use the clean light interface.", icon: Sun },
-  { key: "dark", label: "Dark", body: "Use the premium dark interface.", icon: Moon },
+  { key: "dark", label: "Graphite", body: "Use the premium graphite interface.", icon: Moon },
+  { key: "light", label: "Slate", body: "Use a slightly lighter slate interface.", icon: Sun },
   { key: "system", label: "Follow System", body: "Follow this device automatically.", icon: Smartphone }
 ] satisfies Array<{ key: AppearancePreference; label: string; body: string; icon: typeof Sun }>;
 
@@ -36,7 +36,7 @@ export default function AppearanceSettingsPage() {
             className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
             aria-pressed={preference === key}
           >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-[#06110d] sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
               <Icon size={17} />
             </div>
             <span className="min-w-0">

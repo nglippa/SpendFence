@@ -120,17 +120,17 @@ export function statusCopy(status: BudgetStatus) {
 
 export function statusClasses(status: BudgetStatus) {
   return {
-    safe: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    warning: "bg-amber-50 text-amber-800 border-amber-100",
-    locked: "bg-rose-50 text-rose-700 border-rose-100"
+    safe: "border-[rgb(91_169_140_/_0.22)] bg-[rgb(91_169_140_/_0.13)] text-[var(--app-success)]",
+    warning: "border-[rgb(200_155_83_/_0.22)] bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)]",
+    locked: "border-[rgb(207_113_109_/_0.22)] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)]"
   }[status];
 }
 
 export function statusColor(status: BudgetStatus) {
   return {
-    safe: "#18B889",
-    warning: "#F5B942",
-    locked: "#F05D5E"
+    safe: "#5BA98C",
+    warning: "#C89B53",
+    locked: "#CF716D"
   }[status];
 }
 

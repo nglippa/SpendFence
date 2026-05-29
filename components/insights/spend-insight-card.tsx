@@ -20,15 +20,15 @@ const iconByType = {
 const iconStylesBySeverity = {
   calm: intelligenceIconSurfaceClass,
   positive: intelligenceIconSurfaceClass,
-  watch: "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#312E81,#4F46E5_52%,#F59E0B)] text-white shadow-[0_10px_24px_rgb(99_102_241_/_0.20)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10",
-  limit: "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#312E81,#7C3AED_50%,#E11D48)] text-white shadow-[0_10px_24px_rgb(124_58_237_/_0.20)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10"
+  watch: "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)] ring-1 ring-[rgb(200_155_83_/_0.18)]",
+  limit: "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)] ring-1 ring-[rgb(207_113_109_/_0.18)]"
 };
 
 const accentBySeverity = {
   calm: intelligenceAccentRailClass,
   positive: intelligenceAccentRailClass,
-  watch: "pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#93C5FD] via-[#6366F1] to-[#F59E0B] shadow-[0_0_24px_rgb(99_102_241_/_0.28)]",
-  limit: "pointer-events-none absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#93C5FD] via-[#7C3AED] to-[#E11D48] shadow-[0_0_24px_rgb(124_58_237_/_0.30)]"
+  watch: "pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-r-full bg-[rgb(200_155_83_/_0.72)]",
+  limit: "pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-r-full bg-[rgb(207_113_109_/_0.76)]"
 };
 
 export function SpendInsightCard({
@@ -64,30 +64,29 @@ export function SpendInsightCard({
       {...articleProps}
       className={cn(
         intelligenceCardSurfaceClass,
-        "backdrop-blur",
+        "py-3.5",
         className
       )}
     >
       <span className={accentBySeverity[insight.severity]} aria-hidden="true" />
-      <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.12)] blur-2xl" />
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 pl-1">
         <div className={iconStylesBySeverity[insight.severity]}>
           <Icon size={17} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            <h2 className="min-w-0 text-sm font-black leading-5 text-[#10201c] dark:text-[#F4F7F6] sm:text-base sm:leading-6">{insight.title}</h2>
+            <h2 className="min-w-0 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base sm:leading-6">{insight.title}</h2>
             {insight.categoryLabel ? <InsightChip>{insight.categoryLabel}</InsightChip> : null}
             {insight.supportingMetric ? <InsightChip>{insight.supportingMetric}</InsightChip> : null}
           </div>
-          <p className="mt-1 text-sm font-semibold leading-5 text-[#536173] dark:text-[#A7B3BC]">{insight.message}</p>
+          <p className={cn("mt-1 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]", compact && "line-clamp-3")}>{insight.message}</p>
         </div>
         {dismissible ? (
           <button
             type="button"
             onClick={dismiss}
             aria-label="Dismiss insight"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-white/70 hover:text-slate-600 dark:text-[#6F7D87] dark:hover:bg-white/[0.06] dark:hover:text-[#F4F7F6]"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[var(--app-text-muted)] transition hover:bg-[rgb(255_255_255_/_0.075)] hover:text-[var(--app-text)]"
           >
             <X size={15} />
           </button>
@@ -103,7 +102,7 @@ function storageKey(id: string) {
 
 function InsightChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="shrink-0 rounded-full border border-[rgb(99_102_241_/_0.16)] bg-white/70 px-2 py-0.5 text-[0.68rem] font-black leading-5 text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#A7B3BC]">
+    <span className="shrink-0 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(121_131_189_/_0.075)] px-2 py-0.5 text-[0.66rem] font-black leading-5 text-[var(--app-text-secondary)]">
       {children}
     </span>
   );

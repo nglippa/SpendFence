@@ -23,7 +23,7 @@ function emptyForm(): CategoryFormState {
     limit: "300",
     warningThreshold: "80",
     hardStopThreshold: "100",
-    color: "#18B889",
+    color: "#5BA98C",
     icon: "tag"
   };
 }
@@ -106,10 +106,10 @@ export default function CategoriesPage() {
                 type="button"
                 onClick={openNewFence}
                 aria-expanded={formVisible}
-                className="native-row flex w-full items-center justify-between gap-3 px-1 py-3.5 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] sm:px-2 sm:py-4"
+                className="native-row flex w-full items-center justify-between gap-3 px-1 py-3.5 text-left transition hover:bg-[rgb(95_164_142_/_0.075)] sm:px-2 sm:py-4"
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.16)] dark:text-[#0B1114]">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-[#06110d] shadow-[0_10px_24px_rgb(0_0_0_/_0.18)] ">
                     <Plus size={18} />
                   </span>
                   <span className="min-w-0">
@@ -155,8 +155,8 @@ export default function CategoriesPage() {
                               onClick={() => setForm({ ...form, icon: key })}
                               className={`flex min-h-11 items-center gap-2 rounded-2xl px-3 text-left text-xs font-black transition sm:text-sm ${
                                 active
-                                  ? "bg-[rgb(46_211_183_/_0.13)] text-[var(--app-text)] shadow-[inset_0_0_0_1px_rgb(24_184_137_/_0.22)]"
-                                  : "bg-[color:rgb(255_255_255_/_0.58)] text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)] dark:bg-white/[0.04]"
+                                  ? "bg-[rgb(95_164_142_/_0.14)] text-[var(--app-text)] shadow-[inset_0_0_0_1px_rgb(95_164_142_/_0.24)]"
+                                  : "bg-[color:rgb(255_255_255_/_0.050)] text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)]"
                               }`}
                             >
                               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-white" style={{ background: form.color }}>
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
                     <Field label="Color">
                       <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-12 p-2 sm:h-14" />
                     </Field>
-                    <div className="rounded-[1.35rem] bg-white/26 p-3.5 dark:bg-white/[0.035]">
+                    <div className="rounded-[1.35rem] bg-[rgb(255_255_255_/_0.045)] p-3.5">
                       <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Live preview</p>
                       <div className="flex items-center gap-2">
                         <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-soft" style={{ background: form.color }}>

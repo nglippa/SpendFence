@@ -224,7 +224,7 @@ export function BankSyncCard() {
             <p className="mt-1.5 text-xs font-bold leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">
               Connect accounts and import transactions. {upgradeLimitCopy}{" "}
               {auth.effectiveTier === "free" ? (
-                <Link href="/premium" className="font-black text-[var(--app-info)] underline decoration-[rgb(75_140_255_/_0.28)] underline-offset-4">
+                <Link href="/premium" className="font-black text-[var(--app-info)] underline decoration-[rgb(127_151_189_/_0.28)] underline-offset-4">
                   Premium unlocks unlimited syncing.
                 </Link>
               ) : null}

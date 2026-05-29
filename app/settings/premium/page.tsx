@@ -75,7 +75,7 @@ export default function PremiumSettingsPage() {
           </Card>
         ) : null}
 
-        <Card className="overflow-hidden border-[rgb(79_70_229_/_0.18)] bg-[radial-gradient(circle_at_10%_0%,rgb(124_58_237_/_0.12),transparent_18rem),linear-gradient(145deg,#FFFFFF,#F6F8FF)] shadow-[0_22px_64px_rgb(15_23_42_/_0.10)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_10%_0%,rgb(99_102_241_/_0.16),transparent_20rem),linear-gradient(145deg,#151B26,#0F141D)]">
+        <Card className="overflow-hidden border-[rgb(121_131_189_/_0.18)] bg-[radial-gradient(circle_at_10%_0%,rgb(121_131_189_/_0.12),transparent_18rem),linear-gradient(145deg,rgb(255_255_255_/_0.070),rgb(255_255_255_/_0.030))] shadow-[0_22px_64px_rgb(0_0_0_/_0.22)]">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -121,13 +121,13 @@ export default function PremiumSettingsPage() {
 
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <Crown size={18} className="text-[#4F46E5]" />
+            <Crown size={18} className="text-[var(--app-intelligence)]" />
             <h2 className="text-base font-black sm:text-xl">Premium includes</h2>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {premiumPlanFeatures.map((feature) => (
               <div key={feature} className="flex items-center gap-2 rounded-2xl bg-[var(--app-secondary)] p-3 text-sm font-black text-[var(--app-text)]">
-                <CheckCircle2 size={16} className="text-[#4F46E5]" />
+                <CheckCircle2 size={16} className="text-[var(--app-intelligence)]" />
                 {feature}
               </div>
             ))}
@@ -180,7 +180,7 @@ function PricingCard({
   onClick: () => void;
 }) {
   return (
-    <Card className={cn("border-[rgb(99_102_241_/_0.14)]", active && "border-sky-200 bg-sky-50/70")}>
+    <Card className={cn("border-[rgb(121_131_189_/_0.14)]", active && "border-sky-200 bg-sky-50/70")}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -201,14 +201,14 @@ function PricingCard({
 }
 
 function ComparisonValue({ value, premium = false }: { value: boolean | string; premium?: boolean }) {
-  if (typeof value === "string") return <span className={premium ? "font-black text-[#4F46E5]" : "text-[var(--app-text-secondary)]"}>{value}</span>;
-  return value ? <CheckCircle2 size={17} className={premium ? "text-[#4F46E5]" : "text-[var(--app-success)]"} /> : <span className="text-[var(--app-text-muted)]">-</span>;
+  if (typeof value === "string") return <span className={premium ? "font-black text-[var(--app-intelligence)]" : "text-[var(--app-text-secondary)]"}>{value}</span>;
+  return value ? <CheckCircle2 size={17} className={premium ? "text-[var(--app-intelligence)]" : "text-[var(--app-success)]"} /> : <span className="text-[var(--app-text-muted)]">-</span>;
 }
 
 function PremiumFeature({ icon: Icon, title, body }: { icon: typeof Building2; title: string; body: string }) {
   return (
     <div className="rounded-2xl bg-[var(--app-secondary)] p-3">
-      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-[#4F46E5] shadow-soft dark:bg-white/[0.08]">
+      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[rgb(255_255_255_/_0.060)] text-[var(--app-intelligence)] shadow-soft">
         <Icon size={18} />
       </div>
       <h3 className="mt-3 text-sm font-black text-[var(--app-text)]">{title}</h3>

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.45rem] border-b border-[color:rgb(15_23_42_/_0.035)] bg-[color:rgb(246_248_247_/_0.82)] px-5 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-2xl dark:border-white/[0.06] dark:bg-[color:rgb(11_17_20_/_0.82)] sm:-top-5 sm:mb-6 sm:rounded-b-[1.75rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
+    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.45rem] border-b border-[var(--app-border)] bg-[color:rgb(12_17_21_/_0.84)] px-5 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-2xl sm:-top-5 sm:mb-6 sm:rounded-b-[1.75rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
       <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-xs font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6 sm:min-h-10 sm:text-sm">
         <ArrowLeft size={17} /> Settings
       </Link>
@@ -44,7 +44,7 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] text-white sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] text-[#06110d] sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)] text-[#180708]" : "bg-brand-gradient")}>
         <Icon size={17} />
       </div>
       <div className="min-w-0">
@@ -57,7 +57,7 @@ export function SettingsRow({
     </>
   );
 
-  const className = "native-row grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(24_184_137_/_0.055)] sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
+  const className = "native-row grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(95_164_142_/_0.065)] sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -89,9 +89,9 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="native-row grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(24_184_137_/_0.055)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
+      className="native-row grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(95_164_142_/_0.065)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
     >
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] bg-brand-gradient text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.12)] sm:h-10 sm:w-10">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] bg-brand-gradient text-[#06110d] shadow-[0_10px_22px_rgb(0_0_0_/_0.16)] sm:h-10 sm:w-10">
         <Icon size={17} />
       </div>
       <span className="min-w-0">
@@ -114,7 +114,7 @@ export function SettingsFeedback({ message }: { message: string }) {
     <div
       role="status"
       aria-live="polite"
-      className="fixed left-1/2 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[90] flex w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 items-center gap-2 rounded-2xl border border-[rgb(31_209_165_/_0.2)] bg-[color:rgb(255_255_255_/_0.96)] px-3 py-2.5 text-sm font-black text-[var(--app-success)] shadow-float backdrop-blur-xl dark:bg-[color:rgb(18_26_31_/_0.96)]"
+      className="fixed left-1/2 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[90] flex w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 items-center gap-2 rounded-2xl border border-[rgb(91_169_140_/_0.24)] bg-[color:rgb(20_28_34_/_0.96)] px-3 py-2.5 text-sm font-black text-[var(--app-success)] shadow-float backdrop-blur-xl"
     >
       <CheckCircle2 size={17} /> {message}
     </div>

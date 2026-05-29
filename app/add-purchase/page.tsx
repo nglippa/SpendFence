@@ -269,7 +269,7 @@ export default function AddPurchasePage() {
           >
             <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
               <div className="grid gap-3">
-                <label className="grid min-h-28 cursor-pointer place-items-center rounded-[1.35rem] border border-dashed border-[color:rgb(15_23_42_/_0.10)] bg-[color:rgb(255_255_255_/_0.58)] p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[#58c6a8] hover:text-[#183f36] dark:border-white/10 dark:bg-white/[0.04]">
+                <label className="grid min-h-28 cursor-pointer place-items-center rounded-[1.35rem] border border-dashed border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.050)] p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[var(--brand-secondary)] hover:text-[var(--brand-secondary)]  ">
                   <span>
                     <Upload size={22} className="mx-auto mb-2" />
                     Upload or take receipt photo
@@ -432,12 +432,12 @@ function AddActionCard({
   children: ReactNode;
 }) {
   return (
-    <div ref={sectionRef} className={cn("scroll-mt-24 border-t border-[rgb(15_23_42_/_0.055)] first:border-t-0 dark:border-white/[0.07]", expanded && "py-1")}>
+    <div ref={sectionRef} className={cn("scroll-mt-24 border-t border-[var(--app-border)] first:border-t-0 dark:border-white/[0.07]", expanded && "py-1")}>
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="native-row grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 px-1 py-3.5 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)] sm:px-2 sm:py-4"
+        className="native-row grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 px-1 py-3.5 text-left transition hover:bg-[color:rgb(95_164_142_/_0.060)] sm:px-2 sm:py-4"
         onClick={onToggle}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -446,7 +446,7 @@ function AddActionCard({
           }
         }}
       >
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[1rem] bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] dark:text-[#7EF2D4]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[1rem] bg-[color:rgb(95_164_142_/_0.12)] text-[var(--brand-secondary)] ">
           <Icon size={20} />
         </div>
         <div className="min-w-0">
@@ -479,7 +479,7 @@ function AddActionCard({
       </div>
 
       <StableCollapsible open={expanded}>
-        <div className="grid gap-4 rounded-[1.35rem] bg-white/26 p-4 dark:bg-white/[0.03]">{children}</div>
+        <div className="grid gap-4 rounded-[1.35rem] bg-white/26 p-4 ">{children}</div>
       </StableCollapsible>
     </div>
   );
@@ -490,7 +490,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   const tierNote = demoLocked ? "Disabled in demo" : tier === "premium" ? "Premium active" : "Unlimited with Premium";
   const content = (
     <>
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.45)] dark:text-[#7EF2D4] sm:h-10 sm:w-10">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(95_164_142_/_0.12)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.45)]  sm:h-10 sm:w-10">
         {demoLocked ? <LockKeyhole size={18} /> : <Building2 size={18} />}
       </div>
       <div className="min-w-0">
@@ -508,7 +508,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
       <div className="flex items-center justify-end gap-1.5 self-center">
         <span
           className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 text-xs font-black shadow-sm sm:min-h-10 sm:px-3 sm:text-sm ${
-            demoLocked ? "bg-[var(--app-secondary)] text-[var(--app-text-muted)]" : "bg-brand-gradient text-white shadow-float dark:text-[#0B1114]"
+            demoLocked ? "bg-[var(--app-secondary)] text-[var(--app-text-muted)]" : "bg-brand-gradient text-white shadow-float "
           }`}
         >
           {demoLocked ? <LockKeyhole size={14} /> : <Building2 size={14} />}
@@ -520,7 +520,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   );
 
   const className =
-    "native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 border-t border-[rgb(15_23_42_/_0.055)] px-1 py-3.5 text-left transition dark:border-white/[0.07] sm:gap-3 sm:px-2 sm:py-4";
+    "native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 border-t border-[var(--app-border)] px-1 py-3.5 text-left transition dark:border-white/[0.07] sm:gap-3 sm:px-2 sm:py-4";
 
   if (demoLocked) {
     return (
@@ -531,7 +531,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   }
 
   return (
-    <Link href="/settings/bank-sync" className={`${className} hover:bg-[color:rgb(24_184_137_/_0.045)] active:scale-[0.99]`}>
+    <Link href="/settings/bank-sync" className={`${className} hover:bg-[color:rgb(95_164_142_/_0.060)] active:scale-[0.99]`}>
       {content}
     </Link>
   );
@@ -602,21 +602,21 @@ function RecurringManagementCard({
   return (
     <div className="grid gap-4">
       <div className="grid gap-2.5 sm:grid-cols-3">
-        <div className="rounded-2xl bg-[color:rgb(238_244_241_/_0.62)] p-3 dark:bg-white/[0.04]">
+        <div className="rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 ">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Monthly charges</p>
           <p className="mt-1 text-xl font-black text-[#10201c]">{formatMoney(totals.charges)}</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50/70 p-3 dark:bg-emerald-400/[0.08]">
+        <div className="rounded-2xl bg-emerald-50/70 p-3 dark:bg-[rgb(91_169_140_/_0.10)]">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700/70">Monthly income</p>
           <p className="mt-1 text-xl font-black text-emerald-800">{formatMoney(totals.income)}</p>
         </div>
-        <div className="rounded-2xl bg-slate-50/72 p-3 dark:bg-white/[0.04]">
+        <div className="rounded-2xl bg-slate-50/72 p-3 ">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Net impact</p>
           <p className={`mt-1 text-xl font-black ${totals.net >= 0 ? "text-emerald-800" : "text-rose-700"}`}>{formatMoney(totals.net)}</p>
         </div>
       </div>
 
-      <form className="grid gap-3 rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.58)] p-4 dark:bg-white/[0.04]" onSubmit={submit}>
+      <form className="grid gap-3 rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-4 " onSubmit={submit}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Name">
             <Input ref={firstInputRef} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
@@ -686,7 +686,7 @@ function RecurringManagementCard({
           <h3 className="mb-2 text-sm font-black text-[#10201c]">Detected recurring purchases</h3>
           <div className="grid gap-2">
             {candidates.map((candidate) => (
-              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045] sm:flex-row sm:items-center sm:justify-between">
+              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur  sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-black text-[#10201c]">{candidate.merchant}</p>
                   <p className="text-xs font-bold text-slate-500">
@@ -707,7 +707,7 @@ function RecurringManagementCard({
           recurringItems.map((item) => {
             const category = categories.find((categoryItem) => categoryItem.id === item.categoryId);
             return (
-              <div key={item.id} className="rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045]">
+              <div key={item.id} className="rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur ">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -802,7 +802,7 @@ function ReceiptReviewCard({
   const totalMatches = Math.abs(allocationTotal - analysisTotal) < 0.02;
 
   return (
-    <div className="rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.58)] p-4 dark:bg-white/[0.04]">
+    <div className="rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-4 ">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-base font-black sm:text-lg">Review receipt</h3>
         <Pill className="border-slate-200 bg-white text-slate-600">{Math.round(analysis.confidence * 100)}% confidence</Pill>
@@ -828,7 +828,7 @@ function ReceiptReviewCard({
         </div>
         <div className="grid gap-2">
           {analysis.allocations.map((allocation) => (
-            <div key={allocation.id} className="grid gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045] sm:grid-cols-[1fr_0.55fr_auto] sm:items-end">
+            <div key={allocation.id} className="grid gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur  sm:grid-cols-[1fr_0.55fr_auto] sm:items-end">
               <Field label="Category">
                 <Select value={allocation.categoryId} onChange={(event) => onPatchAllocation(allocation.id, { categoryId: event.target.value })}>
                   {categories.map((category) => (
@@ -853,7 +853,7 @@ function ReceiptReviewCard({
         </Button>
       </div>
 
-      <div className="mt-3 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045]">
+      <div className="mt-3 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur ">
         <p className="mb-2 text-sm font-black text-slate-600">Line items</p>
         <div className="grid gap-2">
           {analysis.lineItems.map((item) => (

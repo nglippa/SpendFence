@@ -30,9 +30,9 @@ export function CategoryCard({
     return (
       <div
         className={cn(
-          "relative flex min-h-[8.1rem] flex-col overflow-hidden rounded-[1.25rem] bg-white/26 p-3 transition hover:bg-white/40 dark:bg-white/[0.035] sm:min-h-[8.4rem]",
-          progress.status === "locked" && "bg-rose-50/42 dark:bg-rose-500/[0.075]",
-          progress.status === "warning" && "bg-amber-50/38 dark:bg-amber-400/[0.075]"
+          "relative flex min-h-[8.1rem] flex-col overflow-hidden rounded-[1.25rem] bg-[rgb(255_255_255_/_0.045)] p-3 transition hover:bg-[rgb(255_255_255_/_0.070)] sm:min-h-[8.4rem]",
+          progress.status === "locked" && "bg-[rgb(207_113_109_/_0.10)]",
+          progress.status === "warning" && "bg-[rgb(200_155_83_/_0.10)]"
         )}
       >
         <span className="absolute inset-x-4 top-0 h-px rounded-full opacity-80" style={{ background: stateColor }} />
@@ -40,7 +40,7 @@ export function CategoryCard({
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-white shadow-soft sm:h-9 sm:w-9" style={{ background: category.color }}>
             <CategoryIcon icon={category.icon} size={16} />
           </span>
-          <span className="mt-0.5 flex min-h-6 items-center gap-1 rounded-full bg-white/54 px-2 text-[0.64rem] font-black text-slate-600 shadow-[0_8px_18px_rgb(11_17_20_/_0.035)] backdrop-blur dark:bg-white/[0.065]">
+          <span className="mt-0.5 flex min-h-6 items-center gap-1 rounded-full border border-[var(--app-border)] bg-[rgb(255_255_255_/_0.060)] px-2 text-[0.64rem] font-black text-[var(--app-text-secondary)] backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: stateColor }} />
             {compactStatus}
           </span>
@@ -66,7 +66,7 @@ export function CategoryCard({
   }
 
   return (
-    <div className="rounded-[1.25rem] bg-white/26 p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.34)] backdrop-blur dark:bg-white/[0.035] sm:p-4">
+    <div className="rounded-[1.25rem] bg-[rgb(255_255_255_/_0.045)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] backdrop-blur sm:p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-start gap-2">

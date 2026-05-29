@@ -9,19 +9,16 @@ import { PremiumBadge } from "@/components/upgrade-modal";
 import { cn } from "@/lib/utils";
 
 export const intelligenceCardSurfaceClass =
-  "relative overflow-hidden rounded-[1.15rem] bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.060),transparent_12rem),linear-gradient(145deg,rgb(255_255_255_/_0.42)_0%,rgb(248_250_255_/_0.30)_100%)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.38)] backdrop-blur transition-[background,transform,opacity] duration-300 ease-out hover:-translate-y-0.5 dark:bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.12),transparent_13rem),linear-gradient(145deg,rgb(24_32_43_/_0.38)_0%,rgb(18_24_33_/_0.28)_100%)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.045)] sm:rounded-[1.2rem] sm:p-3.5";
-
-export const intelligenceCarouselTrackClass =
-  "flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-4 sm:py-4";
+  "relative overflow-hidden rounded-2xl bg-[rgb(255_255_255_/_0.050)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] transition-[background,opacity] duration-200 ease-out sm:p-3.5";
 
 export const intelligenceIconSurfaceClass =
-  "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] text-white shadow-[0_10px_24px_rgb(79_70_229_/_0.24)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10";
+  "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(121_131_189_/_0.12)] text-[var(--app-intelligence)] ring-1 ring-[rgb(121_131_189_/_0.16)]";
 
 export const intelligenceAccentRailClass =
-  "pointer-events-none absolute inset-y-5 left-0 w-0.5 rounded-r-full bg-gradient-to-b from-[#93C5FD] via-[#6366F1] to-[#8B5CF6] shadow-[0_0_20px_rgb(99_102_241_/_0.28)]";
+  "pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-r-full bg-[var(--app-intelligence)] opacity-65";
 
 const intelligenceTagClass =
-  "border-[rgb(99_102_241_/_0.28)] bg-[rgb(99_102_241_/_0.09)] text-[#4F46E5] shadow-[0_6px_18px_rgb(99_102_241_/_0.10)] dark:text-[#C4B5FD]";
+  "border-[rgb(121_131_189_/_0.16)] bg-[rgb(121_131_189_/_0.085)] text-[var(--app-intelligence)]";
 
 export function IntelligenceSection({
   title,
@@ -34,7 +31,6 @@ export function IntelligenceSection({
   onRefresh,
   refreshDisabled = false,
   children,
-  dots,
   className,
   variant = "default",
   premiumHref = "/premium"
@@ -49,7 +45,6 @@ export function IntelligenceSection({
   onRefresh?: () => void;
   refreshDisabled?: boolean;
   children: ReactNode;
-  dots?: ReactNode;
   className?: string;
   variant?: "default" | "flagship";
   premiumHref?: string;
@@ -95,28 +90,25 @@ export function IntelligenceSection({
   return (
     <section
       className={cn(
-        "ai-flow-layer relative mb-6 p-3 sm:mb-7 sm:p-4",
+        "ai-flow-layer relative mb-5 p-4 sm:mb-6 sm:p-5",
         className
       )}
     >
-      <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[rgb(99_102_241_/_0.17)] blur-3xl motion-safe:animate-[adaptive-glow_5s_ease-in-out_infinite]" />
-      <div className="pointer-events-none absolute -bottom-24 left-1/4 h-44 w-72 rounded-full bg-[rgb(59_130_246_/_0.12)] blur-3xl" />
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/85 to-transparent dark:via-white/16" />
-      <div className={cn("relative z-10 mb-2.5 flex flex-wrap items-end justify-between gap-2 px-0.5 pb-1 pt-0.5 sm:mb-3 sm:px-1 sm:pb-2", !flagship && "sm:pb-1.5")}>
+      <div className={cn("relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2", !flagship && "sm:mb-2.5")}>
         <div className="min-w-0">
-          <h2 className="text-xl font-black tracking-tight text-[#0B1114] [text-shadow:0_1px_0_rgb(255_255_255_/_0.7)] dark:text-white dark:[text-shadow:0_1px_12px_rgb(147_197_253_/_0.14)] sm:text-2xl">
+          <h2 className="text-lg font-black tracking-tight text-[var(--app-text)] sm:text-xl">
             {title}
           </h2>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <IntelligencePill tone="accent">
               <TierIcon size={12} /> {tierLabel}
             </IntelligencePill>
           </div>
           {tierDescription ? (
-            <p className="mt-1.5 max-w-md text-xs font-bold leading-5 text-[#475569] dark:text-[#C9D4E4]">
+            <p className="mt-1.5 max-w-lg text-xs font-semibold leading-5 text-[var(--app-text-secondary)]">
               {tierDescription}{" "}
               {premiumLabel ? (
-                <Link href={premiumHref} className="inline-flex align-baseline transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-[rgb(75_140_255_/_0.16)]">
+                <Link href={premiumHref} className="inline-flex align-baseline transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-[rgb(127_151_189_/_0.16)]">
                   <PremiumBadge />
                 </Link>
               ) : null}
@@ -137,10 +129,10 @@ export function IntelligenceSection({
                 onClick={handleRefresh}
                 disabled={refreshDisabled}
                 className={cn(
-                  "inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[0.68rem] font-black transition-[background,border-color,box-shadow,color,opacity,transform] duration-500 ease-out hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed sm:text-xs",
-                  "border-[rgb(99_102_241_/_0.28)] bg-[rgb(99_102_241_/_0.09)] text-[#4F46E5] shadow-[0_6px_18px_rgb(99_102_241_/_0.10)] hover:border-[rgb(99_102_241_/_0.42)] hover:bg-[rgb(99_102_241_/_0.13)] dark:text-[#C4B5FD]",
-                  refreshIsProcessing && "border-[rgb(99_102_241_/_0.48)] bg-[rgb(99_102_241_/_0.16)] text-[#4338CA] shadow-[0_8px_24px_rgb(99_102_241_/_0.16)] dark:text-[#DDD6FE]",
-                  refreshDisabled && !refreshIsProcessing && "opacity-55 hover:translate-y-0"
+                  "inline-flex h-8 items-center gap-1 rounded-full border px-2.5 text-[0.68rem] font-black transition-[background,border-color,color,opacity] disabled:cursor-not-allowed sm:text-xs",
+                  "border-[rgb(121_131_189_/_0.16)] bg-[rgb(255_255_255_/_0.055)] text-[var(--app-intelligence)] hover:bg-[rgb(255_255_255_/_0.085)]",
+                  refreshIsProcessing && "bg-[rgb(121_131_189_/_0.12)]",
+                  refreshDisabled && !refreshIsProcessing && "opacity-55"
                 )}
               >
                 <RefreshCw size={11} className={cn(refreshIsProcessing && "animate-spin")} />
@@ -153,7 +145,6 @@ export function IntelligenceSection({
 
       <div className="relative z-10 overflow-hidden">
         {children}
-        {dots}
       </div>
     </section>
   );
@@ -161,30 +152,16 @@ export function IntelligenceSection({
 
 export function IntelligenceEmptyState({ title, body, loading = false }: { title: string; body: string; loading?: boolean }) {
   return (
-    <div className="p-3.5 sm:p-5">
-      <div className="relative overflow-hidden rounded-[1.2rem] bg-[radial-gradient(circle_at_10%_0%,rgb(124_58_237_/_0.08),transparent_13rem),linear-gradient(145deg,rgb(255_255_255_/_0.52),rgb(245_247_255_/_0.42))] p-3.5 dark:bg-[radial-gradient(circle_at_10%_0%,rgb(99_102_241_/_0.12),transparent_13rem),linear-gradient(145deg,rgb(24_32_43_/_0.44),rgb(17_23_34_/_0.34))] sm:p-4">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-32 w-32 rounded-full bg-[rgb(99_102_241_/_0.14)] blur-2xl" />
-        <div className="relative flex gap-3">
-          <div className={cn(intelligenceIconSurfaceClass, "h-10 w-10")}>
-            <Brain size={18} className={cn(loading && "motion-safe:animate-pulse")} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-black text-[var(--app-text)]">{title}</p>
-            <p className="mt-1 text-xs font-bold leading-5 text-[#536173] dark:text-[#C9D4E4]">{body}</p>
-          </div>
+    <div className="rounded-2xl bg-[rgb(255_255_255_/_0.045)] p-3.5 sm:p-4">
+      <div className="flex gap-3">
+        <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9")}>
+          <Brain size={18} className={cn(loading && "motion-safe:animate-pulse")} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-black text-[var(--app-text)]">{title}</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-secondary)]">{body}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-export function IntelligenceCarouselDots({ count, activeIndex, className }: { count: number; activeIndex: number; className?: string }) {
-  if (count < 2) return null;
-  return (
-    <div className={cn("flex items-center justify-center gap-1.5 px-3 pb-3 sm:pb-4", className)} aria-hidden="true">
-      {Array.from({ length: count }).map((_, index) => (
-        <span key={index} className={cn("h-1.5 rounded-full transition-all duration-200", index === activeIndex ? "w-5 bg-[#6366F1]" : "w-1.5 bg-[rgb(99_102_241_/_0.20)] dark:bg-white/[0.14]")} />
-      ))}
     </div>
   );
 }
@@ -193,10 +170,10 @@ function IntelligencePill({ children, tone = "neutral" }: { children: ReactNode;
   return (
     <span
       className={cn(
-        "inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[0.68rem] font-black leading-none sm:text-xs",
+        "inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[0.64rem] font-black leading-none sm:text-[0.68rem]",
         tone === "neutral" && "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)] dark:bg-[#121A1F]",
         tone === "accent" && intelligenceTagClass,
-        tone === "premium" && "border-[rgb(75_140_255_/_0.18)] bg-[rgb(75_140_255_/_0.08)] text-[var(--app-info)] shadow-[0_6px_18px_rgb(75_140_255_/_0.10)]"
+        tone === "premium" && "border-[rgb(127_151_189_/_0.18)] bg-[rgb(127_151_189_/_0.08)] text-[var(--app-info)] shadow-[0_6px_18px_rgb(127_151_189_/_0.10)]"
       )}
     >
       {children}

@@ -12,16 +12,16 @@ import type { CategoryInput, InsightSettings, OnboardingProfile } from "@/lib/ty
 const draftKey = "spendfence-onboarding-draft-v1";
 
 const starterCategories = [
-  { id: "groceries", name: "Groceries", icon: "basket", color: "#18B889", percent: 0.12 },
-  { id: "dining", name: "Dining", icon: "utensils", color: "#F5B942", percent: 0.06 },
-  { id: "gas", name: "Gas", icon: "fuel", color: "#4B8CFF", percent: 0.05 },
-  { id: "shopping", name: "Shopping", icon: "tag", color: "#2ED3B7", percent: 0.06 },
-  { id: "bills", name: "Bills", icon: "receipt", color: "#8A98A5", percent: 0.28 },
-  { id: "entertainment", name: "Entertainment", icon: "sparkles", color: "#5EA1FF", percent: 0.04 },
-  { id: "health", name: "Health", icon: "heart", color: "#1FD1A5", percent: 0.05 },
-  { id: "family", name: "Kids/Family", icon: "heart", color: "#7EF2D4", percent: 0.07 },
-  { id: "travel", name: "Travel", icon: "home", color: "#2ED3B7", percent: 0.04 },
-  { id: "savings", name: "Savings", icon: "repeat", color: "#18B889", percent: 0.1 }
+  { id: "groceries", name: "Groceries", icon: "basket", color: "#5BA98C", percent: 0.12 },
+  { id: "dining", name: "Dining", icon: "utensils", color: "#C89B53", percent: 0.06 },
+  { id: "gas", name: "Gas", icon: "fuel", color: "#7894B6", percent: 0.05 },
+  { id: "shopping", name: "Shopping", icon: "tag", color: "#6FB7A5", percent: 0.06 },
+  { id: "bills", name: "Bills", icon: "receipt", color: "#7C8991", percent: 0.28 },
+  { id: "entertainment", name: "Entertainment", icon: "sparkles", color: "#7B84BD", percent: 0.04 },
+  { id: "health", name: "Health", icon: "heart", color: "#5FA48E", percent: 0.05 },
+  { id: "family", name: "Kids/Family", icon: "heart", color: "#87C7BB", percent: 0.07 },
+  { id: "travel", name: "Travel", icon: "home", color: "#6FB7A5", percent: 0.04 },
+  { id: "savings", name: "Savings", icon: "repeat", color: "#5BA98C", percent: 0.1 }
 ] as const;
 
 const defaultSelected = ["groceries", "dining", "gas", "bills", "shopping"];
@@ -381,7 +381,7 @@ function PreferencesStep({ draft, setDraft, onNext }: StepProps) {
               type="checkbox"
               checked={Boolean(draft[key as keyof Draft])}
               onChange={(event) => setDraft({ ...draft, [key]: event.target.checked })}
-              className="h-5 w-5 accent-[#183f36]"
+              className="h-5 w-5 accent-[var(--brand-primary)]"
             />
           </label>
         ))}
@@ -520,7 +520,7 @@ function buildCategoryDrafts(draft: Draft, monthlyIncome: number) {
     limit: parseMoney(draft.limits[`custom-${index}-${name}`]) || suggestedLimit(monthlyIncome, 0.05),
     warningThreshold: thresholds(draft.guardrailMode).warning,
     hardStopThreshold: thresholds(draft.guardrailMode).hardStop,
-    color: ["#18B889", "#2ED3B7", "#4B8CFF"][index % 3],
+    color: ["#5BA98C", "#6FB7A5", "#7894B6"][index % 3],
     icon: "tag",
     percent: 0.05
   }));

@@ -113,7 +113,7 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
   return (
     <div className="min-h-dvh overflow-x-clip bg-[var(--marketing-bg)] text-[var(--marketing-text)]">
       <div className="landing-bg pointer-events-none fixed inset-0" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-12%,rgb(31_209_165_/_0.16),transparent_34rem)] opacity-90 dark:opacity-100" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-12%,rgb(95_164_142_/_0.16),transparent_34rem)] opacity-90 dark:opacity-100" />
       <header
         className={cn(
           "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] transition-all duration-300",
@@ -155,7 +155,7 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
             </button>
             <Link
               href="/demo"
-              className="hidden min-h-10 items-center justify-center rounded-2xl border border-[rgb(31_209_165_/_0.26)] bg-[rgb(31_209_165_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(31_209_165_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(31_209_165_/_0.16)] sm:inline-flex"
+              className="hidden min-h-10 items-center justify-center rounded-2xl border border-[rgb(95_164_142_/_0.26)] bg-[rgb(95_164_142_/_0.10)] px-4 text-sm font-black text-[var(--marketing-accent)] shadow-[0_18px_44px_rgb(95_164_142_/_0.12)] transition hover:-translate-y-0.5 hover:bg-[rgb(95_164_142_/_0.16)] sm:inline-flex"
             >
               Try Demo
             </Link>
@@ -168,7 +168,7 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
               href={item.href}
               className={cn(
                 "shrink-0 rounded-full border px-3 py-1.5 transition",
-                pathname === item.href ? "border-[rgb(31_209_165_/_0.32)] bg-[rgb(31_209_165_/_0.12)] text-[var(--marketing-accent)]" : "border-[var(--marketing-border)] bg-[var(--marketing-pill)]"
+                pathname === item.href ? "border-[rgb(95_164_142_/_0.32)] bg-[rgb(95_164_142_/_0.12)] text-[var(--marketing-accent)]" : "border-[var(--marketing-border)] bg-[var(--marketing-pill)]"
               )}
             >
               {item.label}
@@ -250,7 +250,7 @@ export function AdaptiveAiMarketingPage() {
             {steps.map(([title, body], index) => (
               <MotionCard key={title} className="p-4">
                 <div className="flex gap-4">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.12)] text-sm font-black text-[var(--marketing-accent)]">{index + 1}</span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[rgb(95_164_142_/_0.12)] text-sm font-black text-[var(--marketing-accent)]">{index + 1}</span>
                   <div>
                     <h2 className="font-black text-[var(--marketing-text)]">{title}</h2>
                     <p className="mt-1 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
@@ -300,7 +300,7 @@ export function SecurityMarketingPage() {
         <motion.div variants={stagger} className="grid gap-4 md:grid-cols-2">
           {items.map(([title, body]) => (
             <MotionCard key={title}>
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[rgb(95_164_142_/_0.10)] text-[var(--marketing-accent)]">
                 <LockKeyhole size={20} />
               </div>
               <h2 className="mt-5 text-xl font-black text-[var(--marketing-text)]">{title}</h2>
@@ -394,7 +394,7 @@ export function PricingMarketingPage() {
         </div>
         <PricingComparison />
         {message || checkoutCanceled ? (
-          <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4 text-center text-sm font-black text-amber-500">
+          <div className="mt-5 rounded-2xl border border-[rgb(200_155_83_/_0.28)] bg-[rgb(200_155_83_/_0.10)] p-4 text-center text-sm font-black text-[var(--app-warning)]">
             {message || "Checkout canceled. Nothing changed on your account."}
           </div>
         ) : null}
@@ -409,7 +409,7 @@ export function PricingMarketingPage() {
 function HeroSection() {
   return (
     <section className="relative isolate overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-[45rem] bg-[radial-gradient(circle_at_18%_14%,rgb(31_209_165_/_0.18),transparent_28rem),radial-gradient(circle_at_86%_20%,rgb(94_161_255_/_0.10),transparent_30rem)]" />
+      <div className="absolute inset-x-0 top-0 h-[45rem] bg-[radial-gradient(circle_at_18%_14%,rgb(95_164_142_/_0.18),transparent_28rem),radial-gradient(circle_at_86%_20%,rgb(111_143_183_/_0.10),transparent_30rem)]" />
       <div className="relative mx-auto grid min-h-[88svh] max-w-7xl gap-11 px-5 pb-16 pt-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-20">
         <motion.div variants={fadeUp} className="max-w-3xl text-center lg:text-left">
           <Badge>Adaptive AI-assisted spending intelligence</Badge>
@@ -474,13 +474,13 @@ function AdaptiveCenterpiece() {
       ctaHref="/adaptive-ai"
       ctaLabel="Explore Adaptive AI"
     >
-      <div className="relative overflow-hidden rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(145deg,var(--marketing-panel),var(--marketing-panel-strong))] p-4 shadow-[var(--marketing-shadow)] sm:p-5">
-        <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[rgb(31_209_165_/_0.14)] blur-3xl" />
+      <div className="relative overflow-hidden rounded-[2rem] border border-[rgb(95_164_142_/_0.20)] bg-[linear-gradient(145deg,var(--marketing-panel),var(--marketing-panel-strong))] p-4 shadow-[var(--marketing-shadow)] sm:p-5">
+        <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[rgb(95_164_142_/_0.14)] blur-3xl" />
         <div className="relative grid gap-3">
           {[
-            ["Eating out", "Pacing 18% faster than usual", 82, "#F5B942"],
-            ["Groceries", "Stable against monthly rhythm", 58, "#1FD1A5"],
-            ["Subscriptions", "Recurring charges detected", 42, "#5EA1FF"]
+            ["Eating out", "Pacing 18% faster than usual", 82, "#C89B53"],
+            ["Groceries", "Stable against monthly rhythm", 58, "#5BA98C"],
+            ["Subscriptions", "Recurring charges detected", 42, "#7894B6"]
           ].map(([name, note, percent, color]) => (
             <motion.div
               key={name}
@@ -522,7 +522,7 @@ function AiPreview() {
         ] satisfies Array<[string, string, LucideIcon]>).map(([title, body, Icon]) => (
           <MotionCard key={String(title)} className="p-4">
             <div className="flex items-start gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(95_164_142_/_0.10)] text-[var(--marketing-accent)]">
                 <Icon size={18} />
               </div>
               <div>
@@ -563,7 +563,7 @@ function AnimatedDashboardMockup() {
   return (
     <motion.div variants={fadeUp} className="relative mx-auto w-full max-w-[43rem]">
       <motion.div
-        className="absolute -inset-4 rounded-[2.75rem] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.26),rgb(75_140_255_/_0.10),transparent)] blur-2xl"
+        className="absolute -inset-4 rounded-[2.75rem] bg-[linear-gradient(135deg,rgb(95_164_142_/_0.26),rgb(111_143_183_/_0.10),transparent)] blur-2xl"
         animate={{ opacity: [0.5, 0.88, 0.5], scale: [0.98, 1.02, 0.98] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -579,13 +579,13 @@ function AnimatedDashboardMockup() {
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">SpendFence Live</p>
               <h2 className="mt-1 text-2xl font-black text-[var(--marketing-text)]">Adaptive dashboard</h2>
             </div>
-            <span className="rounded-full border border-[rgb(31_209_165_/_0.22)] bg-[rgb(31_209_165_/_0.10)] px-3 py-1 text-xs font-black text-[var(--marketing-accent)]">Demo ready</span>
+            <span className="rounded-full border border-[rgb(95_164_142_/_0.22)] bg-[rgb(95_164_142_/_0.10)] px-3 py-1 text-xs font-black text-[var(--marketing-accent)]">Demo ready</span>
           </div>
           <div className="mt-5 grid gap-3">
             {[
-              ["Dining", 83, "#F5B942", "$302 of $360"],
-              ["Groceries", 58, "#1FD1A5", "$418 of $720"],
-              ["Subscriptions", 42, "#5EA1FF", "$51 of $120"]
+              ["Dining", 83, "#C89B53", "$302 of $360"],
+              ["Groceries", 58, "#5BA98C", "$418 of $720"],
+              ["Subscriptions", 42, "#7894B6", "$51 of $120"]
             ].map(([name, percent, color, caption]) => (
               <div key={name} className="rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
                 <div className="mb-2 flex items-center justify-between gap-3">
@@ -620,12 +620,12 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
 function FloatingInsight() {
   return (
     <motion.div
-      className="absolute -right-1 top-20 w-[min(17rem,78vw)] rounded-3xl border border-[rgb(31_209_165_/_0.22)] bg-[var(--marketing-float)] p-4 shadow-[0_24px_70px_rgb(0_0_0_/_0.26)] backdrop-blur-xl sm:-right-8"
+      className="absolute -right-1 top-20 w-[min(17rem,78vw)] rounded-3xl border border-[rgb(95_164_142_/_0.22)] bg-[var(--marketing-float)] p-4 shadow-[0_24px_70px_rgb(0_0_0_/_0.26)] backdrop-blur-xl sm:-right-8"
       animate={{ y: [0, -10, 0] }}
       transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="flex items-start gap-3">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.12)] text-[var(--marketing-accent)]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[rgb(95_164_142_/_0.12)] text-[var(--marketing-accent)]">
           <Brain size={19} />
         </div>
         <div>
@@ -646,10 +646,10 @@ function FloatingApproval() {
     >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-[#327D6D]">Suggested fence</p>
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-[#4F9D83]">Suggested fence</p>
           <p className="mt-1 text-lg font-black">Dining: $390</p>
         </div>
-        <span className="rounded-full bg-[#E4F8F0] px-3 py-1 text-xs font-black text-[#327D6D]">Approve</span>
+        <span className="rounded-full bg-[#D9EDE5] px-3 py-1 text-xs font-black text-[#4F9D83]">Approve</span>
       </div>
     </motion.div>
   );
@@ -667,8 +667,8 @@ function FeatureGrid() {
 
 function FeatureCard({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <MotionCard className="transition hover:-translate-y-1 hover:border-[rgb(31_209_165_/_0.28)] hover:bg-[var(--marketing-panel-strong)]">
-      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgb(31_209_165_/_0.10)] text-[var(--marketing-accent)]">
+    <MotionCard className="transition hover:-translate-y-1 hover:border-[rgb(95_164_142_/_0.28)] hover:bg-[var(--marketing-panel-strong)]">
+      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgb(95_164_142_/_0.10)] text-[var(--marketing-accent)]">
         <Icon size={21} />
       </div>
       <h3 className="mt-5 text-lg font-black leading-6 text-[var(--marketing-text)]">{title}</h3>
@@ -690,11 +690,11 @@ function MockupStrip() {
       {screens.map((screen) => {
         const Icon = screen.icon;
         return (
-          <MotionCard key={screen.title} className="group relative overflow-hidden p-4 transition hover:border-[rgb(99_102_241_/_0.28)] hover:shadow-[0_26px_80px_rgb(79_70_229_/_0.14)]">
-            <div className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[rgb(99_102_241_/_0.14)] blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+          <MotionCard key={screen.title} className="group relative overflow-hidden p-4 transition hover:border-[rgb(121_131_189_/_0.28)] hover:shadow-[0_26px_80px_rgb(121_131_189_/_0.14)]">
+            <div className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[rgb(121_131_189_/_0.14)] blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative rounded-[1.35rem] border border-[var(--marketing-border)] bg-[var(--marketing-device)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)]">
               <div className="mb-4 flex items-center justify-between">
-                <span className="rounded-full border border-[rgb(99_102_241_/_0.18)] bg-[rgb(99_102_241_/_0.10)] px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] text-[#8EA2FF]">
+                <span className="rounded-full border border-[rgb(121_131_189_/_0.18)] bg-[rgb(121_131_189_/_0.10)] px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] text-[#9DA8D0]">
                   Live view
                 </span>
                 <Icon size={18} className="text-[var(--marketing-accent)]" />
@@ -715,8 +715,8 @@ function DashboardPreview() {
       <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">$3,820</p>
       <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">available this cycle</p>
       <div className="mt-4 grid gap-2.5">
-        <PreviewProgress label="Groceries" note="inside fence" value="$418 / $720" percent={58} color="#6366F1" />
-        <PreviewProgress label="Dining" note="pacing high" value="$302 / $360" percent={84} color="#F5B942" />
+        <PreviewProgress label="Groceries" note="inside fence" value="$418 / $720" percent={58} color="#7B84BD" />
+        <PreviewProgress label="Dining" note="pacing high" value="$302 / $360" percent={84} color="#C89B53" />
       </div>
       <AiChip className="mt-3">AI: Dining is 18% faster than rhythm</AiChip>
     </div>
@@ -726,9 +726,9 @@ function DashboardPreview() {
 function BudgetsPreview() {
   return (
     <div className="grid gap-2.5">
-      <PreviewCategory name="Groceries" meta="$412 left" status="Safe" percent={58} color="#6366F1" />
-      <PreviewCategory name="Dining" meta="78% used" status="Watch" percent={78} color="#F5B942" />
-      <PreviewCategory name="Fuel" meta="$96 left" status="Safe" percent={44} color="#5EA1FF" />
+      <PreviewCategory name="Groceries" meta="$412 left" status="Safe" percent={58} color="#7B84BD" />
+      <PreviewCategory name="Dining" meta="78% used" status="Watch" percent={78} color="#C89B53" />
+      <PreviewCategory name="Fuel" meta="$96 left" status="Safe" percent={44} color="#7894B6" />
     </div>
   );
 }
@@ -739,7 +739,7 @@ function ReportsPreview() {
       <AiChip>Smart insight ready</AiChip>
       <p className="mt-3 text-sm font-black leading-5 text-[var(--marketing-text)]">Weekend dining is driving most variance.</p>
       <MiniBars values={[34, 48, 42, 64, 58, 72, 61]} />
-      <p className="mt-3 rounded-2xl border border-[rgb(99_102_241_/_0.16)] bg-[rgb(99_102_241_/_0.08)] px-3 py-2 text-xs font-bold leading-5 text-[var(--marketing-muted)]">
+      <p className="mt-3 rounded-2xl border border-[rgb(121_131_189_/_0.16)] bg-[rgb(121_131_189_/_0.08)] px-3 py-2 text-xs font-bold leading-5 text-[var(--marketing-muted)]">
         Adaptive insight: keep Dining fence stable, watch Friday pacing.
       </p>
     </div>
@@ -754,7 +754,7 @@ function PacingPreview() {
           <p className="text-3xl font-black tracking-tight text-[var(--marketing-text)]">18%</p>
           <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--marketing-muted)]">ahead of rhythm</p>
         </div>
-        <span className="rounded-full border border-amber-200/50 bg-amber-400/10 px-2.5 py-1 text-[0.65rem] font-black text-amber-500">Watch</span>
+        <span className="rounded-full border border-[rgb(200_155_83_/_0.28)] bg-[rgb(200_155_83_/_0.10)] px-2.5 py-1 text-[0.65rem] font-black text-[var(--app-warning)]">Watch</span>
       </div>
       <MiniLine />
       <div className="mt-3 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
@@ -788,7 +788,7 @@ function PreviewCategory({ name, meta, status, percent, color }: { name: string;
           <p className="text-xs font-black text-[var(--marketing-text)]">{name}</p>
           <p className="text-[0.65rem] font-bold text-[var(--marketing-muted)]">{meta}</p>
         </div>
-        <span className={cn("rounded-full px-2 py-0.5 text-[0.62rem] font-black", status === "Watch" ? "bg-amber-400/12 text-amber-500" : "bg-[rgb(99_102_241_/_0.10)] text-[#8EA2FF]")}>{status}</span>
+        <span className={cn("rounded-full px-2 py-0.5 text-[0.62rem] font-black", status === "Watch" ? "bg-[rgb(200_155_83_/_0.12)] text-[var(--app-warning)]" : "bg-[rgb(121_131_189_/_0.10)] text-[#9DA8D0]")}>{status}</span>
       </div>
       <ProgressBar percent={percent} color={color} compact />
     </div>
@@ -797,7 +797,7 @@ function PreviewCategory({ name, meta, status, percent, color }: { name: string;
 
 function AiChip({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-[rgb(99_102_241_/_0.20)] bg-[rgb(99_102_241_/_0.10)] px-2.5 py-1 text-[0.68rem] font-black text-[#A5B4FC]", className)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-[rgb(121_131_189_/_0.20)] bg-[rgb(121_131_189_/_0.10)] px-2.5 py-1 text-[0.68rem] font-black text-[#AAB3D7]", className)}>
       <Sparkles size={12} /> {children}
     </span>
   );
@@ -807,7 +807,7 @@ function MiniBars({ values }: { values: number[] }) {
   return (
     <div className="mt-4 flex h-16 items-end gap-1.5 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-3">
       {values.map((value, index) => (
-        <span key={`${value}-${index}`} className="flex-1 rounded-full bg-[linear-gradient(180deg,#A5B4FC,#6366F1)] opacity-90" style={{ height: `${value}%` }} />
+        <span key={`${value}-${index}`} className="flex-1 rounded-full bg-[linear-gradient(180deg,#AAB3D7,#7B84BD)] opacity-90" style={{ height: `${value}%` }} />
       ))}
     </div>
   );
@@ -817,8 +817,8 @@ function MiniLine() {
   return (
     <div className="mt-4 h-20 rounded-2xl border border-[var(--marketing-border)] bg-[var(--marketing-card)] p-2">
       <svg viewBox="0 0 180 64" className="h-full w-full overflow-visible" aria-hidden="true">
-        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(165 180 252 / 0.28)" strokeWidth="10" strokeLinecap="round" />
-        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(99 102 241)" strokeWidth="4" strokeLinecap="round" />
+        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(170 179 215 / 0.24)" strokeWidth="10" strokeLinecap="round" />
+        <path d="M4 48 C28 38, 42 42, 62 30 S100 20, 124 28 S154 46, 176 18" fill="none" stroke="rgb(121 131 189)" strokeWidth="4" strokeLinecap="round" />
       </svg>
     </div>
   );
@@ -847,7 +847,7 @@ function PricingComparison() {
         <div key={feature} className={cn("grid grid-cols-[1.1fr_0.8fr_0.9fr] gap-2 px-4 py-3 text-sm font-bold", index % 2 === 0 ? "bg-[var(--marketing-card)]" : "bg-[var(--marketing-panel)]")}>
           <span className="font-black text-[var(--marketing-text)]">{feature}</span>
           <span className="text-[var(--marketing-muted)]">{free}</span>
-          <span className="font-black text-[#A5B4FC]">{premium}</span>
+          <span className="font-black text-[#AAB3D7]">{premium}</span>
         </div>
       ))}
     </MotionCard>
@@ -855,11 +855,11 @@ function PricingComparison() {
 }
 
 function PricingCard({ title, price, cadence, body, features, href, onClick, cta, badge, highlighted = false, disabled = false }: { title: string; price: string; cadence?: string; body: string; features: string[]; href?: string; onClick?: () => void; cta: string; badge?: string; highlighted?: boolean; disabled?: boolean }) {
-  const ctaClassName = cn("relative mt-7 w-full", highlighted && "bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] shadow-[0_18px_44px_rgb(79_70_229_/_0.22)] text-white");
+  const ctaClassName = cn("relative mt-7 w-full", highlighted && "bg-[linear-gradient(135deg,#202a31,#5f6f9e_52%,#6c668f)] shadow-[0_18px_44px_rgb(121_131_189_/_0.22)] text-white");
 
   return (
-    <MotionCard className={cn("relative overflow-hidden p-6 transition hover:shadow-[0_28px_90px_rgb(79_70_229_/_0.14)]", highlighted && "border-[rgb(99_102_241_/_0.28)] bg-[radial-gradient(circle_at_12%_0%,rgb(99_102_241_/_0.13),transparent_16rem),var(--marketing-card)]")}>
-      {highlighted ? <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgb(99_102_241_/_0.16)] blur-3xl" /> : null}
+    <MotionCard className={cn("relative overflow-hidden p-6 transition hover:shadow-[0_28px_90px_rgb(121_131_189_/_0.14)]", highlighted && "border-[rgb(121_131_189_/_0.28)] bg-[radial-gradient(circle_at_12%_0%,rgb(121_131_189_/_0.13),transparent_16rem),var(--marketing-card)]")}>
+      {highlighted ? <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgb(121_131_189_/_0.16)] blur-3xl" /> : null}
       <div className="flex items-start justify-between gap-4">
         <div className="relative">
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">{title}</p>
@@ -868,13 +868,13 @@ function PricingCard({ title, price, cadence, body, features, href, onClick, cta
             {cadence ? <span className="ml-1 text-sm font-black text-[var(--marketing-muted)]">{cadence}</span> : null}
           </h2>
         </div>
-        {badge ? <span className="relative rounded-full border border-[rgb(99_102_241_/_0.22)] bg-[rgb(99_102_241_/_0.10)] px-3 py-1 text-xs font-black text-[#A5B4FC]">{badge}</span> : highlighted ? <span className="relative rounded-full border border-[rgb(99_102_241_/_0.22)] bg-[rgb(99_102_241_/_0.10)] px-3 py-1 text-xs font-black text-[#A5B4FC]">Premium</span> : null}
+        {badge ? <span className="relative rounded-full border border-[rgb(121_131_189_/_0.22)] bg-[rgb(121_131_189_/_0.10)] px-3 py-1 text-xs font-black text-[#AAB3D7]">{badge}</span> : highlighted ? <span className="relative rounded-full border border-[rgb(121_131_189_/_0.22)] bg-[rgb(121_131_189_/_0.10)] px-3 py-1 text-xs font-black text-[#AAB3D7]">Premium</span> : null}
       </div>
       <p className="relative mt-4 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">{body}</p>
       <div className="relative mt-6 grid gap-3">
         {features.map((feature) => (
           <div key={feature} className="flex items-center gap-2 text-sm font-black text-[var(--marketing-text)]">
-            <CheckCircle2 size={17} className={highlighted ? "text-[#A5B4FC]" : "text-[var(--marketing-accent)]"} /> {feature}
+            <CheckCircle2 size={17} className={highlighted ? "text-[#AAB3D7]" : "text-[var(--marketing-accent)]"} /> {feature}
           </div>
         ))}
       </div>
@@ -934,8 +934,8 @@ function SplitSection({ eyebrow, title, body, ctaHref, ctaLabel, reverse = false
 function StatementBand({ title, body }: { title: string; body: string }) {
   return (
     <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
-      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.13),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] sm:p-8 lg:p-10">
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[rgb(31_209_165_/_0.14)] blur-3xl" />
+      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-[2rem] border border-[rgb(95_164_142_/_0.20)] bg-[linear-gradient(135deg,rgb(95_164_142_/_0.13),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] sm:p-8 lg:p-10">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[rgb(95_164_142_/_0.14)] blur-3xl" />
         <div className="relative">
           <h2 className="max-w-4xl text-3xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">{title}</h2>
           <p className="mt-4 max-w-3xl text-base font-semibold leading-8 text-[var(--marketing-muted)]">{body}</p>
@@ -974,7 +974,7 @@ function PrimaryCta({ href, children, className }: { href: string; children: Rea
 }
 
 const primaryCtaClassName =
-  "inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--marketing-primary-button)] px-6 text-sm font-black text-[var(--marketing-primary-button-text)] shadow-[0_18px_44px_rgb(31_209_165_/_0.20)] transition hover:-translate-y-1 hover:brightness-105 active:translate-y-0";
+  "inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--marketing-primary-button)] px-6 text-sm font-black text-[var(--marketing-primary-button-text)] shadow-[0_18px_44px_rgb(95_164_142_/_0.20)] transition hover:-translate-y-1 hover:brightness-105 active:translate-y-0";
 
 function SecondaryCta({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
@@ -987,7 +987,7 @@ function SecondaryCta({ href, children, className }: { href: string; children: R
 function FinalCta() {
   return (
     <section className="relative overflow-hidden px-5 py-16 pb-[calc(env(safe-area-inset-bottom)+2rem)] sm:px-6 lg:px-8 lg:py-24">
-      <motion.div variants={fadeUp} className="mx-auto max-w-5xl rounded-[2rem] border border-[rgb(31_209_165_/_0.20)] bg-[linear-gradient(135deg,rgb(31_209_165_/_0.14),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] backdrop-blur sm:p-8 lg:p-10">
+      <motion.div variants={fadeUp} className="mx-auto max-w-5xl rounded-[2rem] border border-[rgb(95_164_142_/_0.20)] bg-[linear-gradient(135deg,rgb(95_164_142_/_0.14),var(--marketing-panel))] p-6 shadow-[var(--marketing-shadow)] backdrop-blur sm:p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">SpendFence</p>

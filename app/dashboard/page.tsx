@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AlertTriangle, Brain, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
-import { IntelligenceEmptyState, IntelligenceSection, intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
+import { IntelligenceEmptyState, IntelligenceSection } from "@/components/insights/intelligence-section";
 import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const warnings = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "warning").length;
   const safe = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "safe").length;
   const budgetPercent = available > 0 ? (spent / available) * 100 : 0;
-  const budgetColor = budgetPercent >= 100 ? "#F05D5E" : budgetPercent >= 80 ? "#F5B942" : "#18B889";
+  const budgetColor = budgetPercent >= 100 ? "var(--app-danger)" : budgetPercent >= 80 ? "var(--app-warning)" : "var(--app-success)";
 
   return (
     <>
@@ -62,9 +62,9 @@ export default function DashboardPage() {
                 <ProgressBar percent={budgetPercent} color={budgetColor} />
               </div>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
-                <Pill className="border-amber-100 bg-amber-50 text-amber-800"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
-                <Pill className="border-rose-100 bg-rose-50 text-rose-700"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
+                <Pill className="border-[rgb(91_169_140_/_0.22)] bg-[rgb(91_169_140_/_0.13)] text-[var(--app-success)]"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
+                <Pill className="border-[rgb(200_155_83_/_0.22)] bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)]"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
+                <Pill className="border-[rgb(207_113_109_/_0.22)] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)]"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
               </div>
             </div>
           </div>
@@ -72,9 +72,9 @@ export default function DashboardPage() {
 
         {dashboardInsight ? (
           <section className="ai-flow-layer p-4 sm:p-5">
-            <p className="section-kicker pl-2 text-[#4F46E5]">AI insight</p>
+            <p className="section-kicker text-[var(--app-intelligence)]">Observation</p>
             <div className="mt-3">
-              <SpendInsightCard insight={dashboardInsight} className="bg-transparent shadow-none" />
+              <SpendInsightCard insight={dashboardInsight} className="bg-[rgb(255_255_255_/_0.045)] shadow-none" />
             </div>
           </section>
         ) : null}
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="mt-3 rounded-2xl bg-white/24 p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)] dark:bg-white/[0.035]">
+              <p className="mt-3 rounded-2xl bg-[rgb(255_255_255_/_0.045)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
                 Mark recurring purchases or paycheck income to see upcoming dates.
               </p>
             )}
@@ -180,28 +180,28 @@ export default function DashboardPage() {
 function SmartPromptsPanel({ prompts, isPro }: { prompts: Prompt[]; isPro: boolean }) {
   return (
     <IntelligenceSection
-      title="Smart Prompts"
-      tierLabel={isPro ? "Advanced Intelligence" : "Basic Intelligence"}
+      title="Helpful questions"
+      tierLabel={isPro ? "Advanced" : "Basic"}
       tierIcon={Brain}
       premiumLabel={isPro ? undefined : "Premium"}
-      tierDescription={isPro ? "Advanced pattern recognition and deeper insights are active." : "Short adaptive nudges for this cycle. Advanced analytics and deeper insights included with Premium."}
+      tierDescription={isPro ? "Shortcuts for the questions this cycle is likely to raise." : "Shortcuts for this cycle. Deeper guidance is included with Premium."}
       sourceLabel={prompts.length > 2 ? "Reports ready" : undefined}
       className="mb-0 h-full sm:mb-0"
       variant="flagship"
     >
       {prompts.length ? (
-        <div className="grid gap-3 p-3.5 sm:p-4">
+        <div className="flex flex-wrap gap-2">
           {prompts.slice(0, 2).map((prompt, index) => (
-            <PromptCard key={prompt.id} prompt={prompt} index={index} />
+            <PromptChip key={prompt.id} prompt={prompt} index={index} />
           ))}
           {prompts.length > 2 ? (
-            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-[rgb(99_102_241_/_0.16)] bg-white/72 px-3 text-xs font-black text-[#4F46E5] shadow-[0_10px_24px_rgb(99_102_241_/_0.08)] transition hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#C4B5FD]">
-              View all insights <ChevronRight size={14} />
+            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(255_255_255_/_0.050)] px-3 text-xs font-black text-[var(--app-intelligence)] transition hover:bg-[rgb(255_255_255_/_0.080)]">
+              More <ChevronRight size={14} />
             </Link>
           ) : null}
         </div>
       ) : (
-        <IntelligenceEmptyState title="No smart prompts yet." body="SpendFence will surface short setup notes once categories and purchases exist." />
+        <IntelligenceEmptyState title="No questions yet." body="SpendFence will surface short setup notes once categories and purchases exist." />
       )}
     </IntelligenceSection>
   );
@@ -219,31 +219,19 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle: 
   );
 }
 
-function PromptCard({ prompt, index }: { prompt: Prompt; index: number }) {
+function PromptChip({ prompt, index }: { prompt: Prompt; index: number }) {
   return (
     <article
       className={cn(
-        intelligenceCardSurfaceClass,
-        "group min-h-[6.75rem] p-3.5 motion-safe:animate-[fade-up_420ms_ease-out_both]",
+        "inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(255_255_255_/_0.050)] px-3 py-1.5 text-left text-xs font-black leading-5 text-[var(--app-text)] transition hover:bg-[rgb(255_255_255_/_0.080)] sm:text-sm",
         index === 1 && "motion-safe:[animation-delay:90ms]"
       )}
     >
-      <div className={intelligenceAccentRailClass} />
-      <div className="pointer-events-none absolute -right-14 -top-16 h-28 w-28 rounded-full bg-[rgb(99_102_241_/_0.13)] blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
-      <div className="relative flex items-start gap-3">
-        <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9 sm:h-9 sm:w-9")}>
-          <Sparkles size={15} className="motion-safe:animate-pulse" />
-        </div>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="text-sm font-black leading-5 text-[#10201c] dark:text-[#F4F7F6]">Adaptive prompt</h3>
-            <Pill className="border-[rgb(99_102_241_/_0.16)] bg-white/70 px-2 py-0 text-[0.65rem] capitalize text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-[#A7B3BC]">
-              {prompt.type}
-            </Pill>
-          </div>
-          <p className="mt-1.5 text-xs font-semibold leading-5 text-[#536173] dark:text-[#A7B3BC] sm:text-sm">{prompt.message}</p>
-        </div>
-      </div>
+      <Sparkles size={14} className="shrink-0 text-[var(--app-intelligence)]" />
+      <span className="min-w-0 truncate">{prompt.message}</span>
+      <Pill className="hidden border-transparent bg-transparent px-0 py-0 text-[0.62rem] capitalize text-[var(--app-text-muted)] sm:inline-flex">
+        {prompt.type}
+      </Pill>
     </article>
   );
 }

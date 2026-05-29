@@ -271,7 +271,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                         <button
                           className={`flex min-h-11 items-center justify-between rounded-2xl border px-3 text-left text-sm font-black transition ${
                             factor.id === mfaChallenge.factorId
-                              ? "border-[#58c6a8] bg-white text-[#183f36]"
+                              ? "border-[rgb(95_164_142_/_0.38)] bg-white text-[#183f36]"
                               : "border-slate-200 bg-white/70 text-slate-600 hover:bg-white"
                           }`}
                           disabled={submitting || factor.id === mfaChallenge.factorId}
@@ -321,7 +321,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
                 {mode === "login" ? (
                   <label className="flex items-start gap-3 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-700">
                     <input
-                      className="mt-1 h-4 w-4 accent-[#183f36]"
+                      className="mt-1 h-4 w-4 accent-[var(--brand-primary)]"
                       type="checkbox"
                       checked={rememberEmail}
                       onChange={(event) => {
@@ -428,10 +428,10 @@ function getPasswordChecks(password: string): PasswordCheck[] {
 
 function getPasswordStrength(password: string, score: number) {
   if (!password) return { label: "Weak", percent: 8, className: "bg-slate-300 text-slate-600" };
-  if (score <= 2) return { label: "Weak", percent: 25, className: "bg-rose-500 text-rose-700" };
-  if (score === 3) return { label: "Fair", percent: 50, className: "bg-amber-500 text-amber-700" };
-  if (score === 4) return { label: "Strong", percent: 75, className: "bg-emerald-500 text-emerald-700" };
-  return { label: "Excellent", percent: 100, className: "bg-[#183f36] text-[#183f36]" };
+  if (score <= 2) return { label: "Weak", percent: 25, className: "bg-[var(--app-danger)] text-rose-700" };
+  if (score === 3) return { label: "Fair", percent: 50, className: "bg-[var(--app-warning)] text-amber-700" };
+  if (score === 4) return { label: "Strong", percent: 75, className: "bg-[var(--app-success)] text-emerald-700" };
+  return { label: "Excellent", percent: 100, className: "bg-[var(--brand-primary)] text-[#183f36]" };
 }
 
 function PasswordStrengthPanel({

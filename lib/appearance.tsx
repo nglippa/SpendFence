@@ -6,8 +6,8 @@ export type AppearancePreference = "light" | "dark" | "system";
 
 const STORAGE_KEY = "spendfence-theme-v1";
 const DARK_QUERY = "(prefers-color-scheme: dark)";
-const LIGHT_THEME_COLOR = "#F5F7F6";
-const DARK_THEME_COLOR = "#0B1114";
+const LIGHT_THEME_COLOR = "#10161A";
+const DARK_THEME_COLOR = "#0C1115";
 const LIGHT_FAVICON = "/favicon-light-32x32.png";
 const DARK_FAVICON = "/favicon-dark-32x32.png";
 
@@ -24,15 +24,15 @@ function isAppearancePreference(value: string | null): value is AppearancePrefer
 }
 
 function getStoredPreference(): AppearancePreference {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "dark";
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  return isAppearancePreference(stored) ? stored : "system";
+  return isAppearancePreference(stored) ? stored : "dark";
 }
 
 function resolvePreference(preference: AppearancePreference) {
   if (preference === "dark") return "dark";
   if (preference === "light") return "light";
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
 }
 
@@ -82,8 +82,8 @@ function applyAppearance(preference: AppearancePreference) {
 }
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
-  const [preference, setPreferenceState] = useState<AppearancePreference>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const [preference, setPreferenceState] = useState<AppearancePreference>("dark");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const storedPreference = getStoredPreference();
@@ -131,7 +131,7 @@ export const appearanceInitScript = `
   try {
     var storageKey = "${STORAGE_KEY}";
     var preference = localStorage.getItem(storageKey);
-    if (preference !== "light" && preference !== "dark" && preference !== "system") preference = "system";
+    if (preference !== "light" && preference !== "dark" && preference !== "system") preference = "dark";
     var isDark = preference === "dark" || (preference === "system" && window.matchMedia("${DARK_QUERY}").matches);
     var root = document.documentElement;
     root.classList.toggle("dark", isDark);

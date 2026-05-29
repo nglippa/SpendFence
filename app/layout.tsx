@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     telephone: false
   },
   other: {
-    "msapplication-TileColor": "#0B1114"
+    "msapplication-TileColor": "#0C1115"
   }
 };
 
@@ -39,8 +39,8 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F5F7F6" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B1114" }
+    { media: "(prefers-color-scheme: light)", color: "#10161A" },
+    { media: "(prefers-color-scheme: dark)", color: "#0C1115" }
   ]
 };
 

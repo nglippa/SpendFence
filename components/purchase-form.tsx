@@ -108,13 +108,13 @@ export function PurchaseForm({
       <Field label="Notes">
         <Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional detail" />
       </Field>
-      <div className="rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.58)] p-3.5 dark:bg-white/[0.04]">
-        <label className="flex min-h-11 items-center gap-3 text-sm font-black text-[#10201c]">
+      <div className="rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-3.5">
+        <label className="flex min-h-11 items-center gap-3 text-sm font-black text-[var(--app-text)]">
           <input
             type="checkbox"
             checked={recurring.enabled}
             onChange={(event) => setRecurring({ ...recurring, enabled: event.target.checked })}
-            className="h-5 w-5 accent-[#183f36]"
+            className="h-5 w-5 accent-[var(--brand-primary)]"
           />
           <span className="inline-flex items-center gap-2">
             <Repeat2 size={17} /> Recurring purchase
