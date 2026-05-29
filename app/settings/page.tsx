@@ -120,7 +120,7 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <div className="mb-7 px-1 pt-1">
+      <div className="mb-5 px-1 pt-1">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
         <h1 className="mt-1.5 text-[1.7rem] font-black leading-8 tracking-tight text-[#10201c] sm:text-3xl sm:leading-9">SpendFence</h1>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
@@ -130,7 +130,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="grid gap-5">
+      <div className="grid gap-4">
         {sections.map((section, index) => (
           <SettingsGroup key={index}>
             {section.map((item) => (

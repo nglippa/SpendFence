@@ -42,28 +42,30 @@ export default function ReportsPage() {
         }
       />
 
-      <SmartInsightsSection insights={smartInsights} />
+      <div className="mb-5">
+        <SmartInsightsSection insights={smartInsights} />
+      </div>
 
-      <section className="mb-7 grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 md:grid-cols-4">
-        <Card className="p-4">
+      <section className="page-zone mb-6 grid grid-cols-1 gap-2.5 p-3 min-[430px]:grid-cols-2 md:grid-cols-4">
+        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Cycle spend</p>
           <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{formatMoney(cycleTotal)}</p>
         </Card>
-        <Card className="p-4">
+        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Active categories</p>
           <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{activeCategories}</p>
         </Card>
-        <Card className="p-4">
+        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Close to fence</p>
           <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{close.length}</p>
         </Card>
-        <Card className="p-4">
+        <Card className="bg-white/42 p-4 shadow-none dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Purchases</p>
           <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{cyclePurchases.length}</p>
         </Card>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <Card>
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Spending by category</h2>
           {cyclePurchases.length && state.categories.length ? (
@@ -87,7 +89,7 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+      <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <Card>
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Remaining budget by category</h2>
           {state.categories.length ? (
@@ -99,11 +101,11 @@ export default function ReportsPage() {
         <Card>
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Biggest purchases</h2>
           {biggest.length ? (
-            <div className="grid gap-2.5 sm:gap-3">
+            <div className="soft-divider">
               {biggest.map((purchase) => {
                 const category = state.categories.find((item) => item.id === purchase.categoryId);
                 return (
-                  <div key={purchase.id} className="flex items-center justify-between gap-3 border-b border-[color:rgb(15_23_42_/_0.055)] py-3 last:border-b-0 dark:border-white/10">
+                  <div key={purchase.id} className="flex items-center justify-between gap-3 py-3">
                     <div>
                       <p className="text-sm font-black sm:text-base">{purchase.merchant}</p>
                       <p className="text-xs font-bold text-slate-500 sm:text-sm">
@@ -121,13 +123,13 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      <div className="mt-8">
+      <div className="page-zone mt-5 p-4 sm:p-5">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-lg font-black sm:text-xl">Categories close to limit</h2>
           <Pill className="border-amber-100 bg-amber-50 text-amber-800">{close.length} active</Pill>
         </div>
         {state.categories.length ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {(close.length ? close.map((item) => item.category) : state.categories.slice(0, 3)).map((category) => (
               <CategoryCard key={category.id} category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} />
             ))}

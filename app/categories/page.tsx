@@ -95,18 +95,18 @@ export default function CategoriesPage() {
     <>
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
       <SettingsFeedback message={feedback} />
-      <div className="mb-7">
+      <div className="mb-5">
         <AdaptiveFenceSuggestions onFeedback={showFeedback} />
       </div>
-      <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
-        <Card className="p-4 sm:p-5">
+      <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">
+        <Card className="p-3.5 sm:p-4">
           <section ref={formRef} className="scroll-mt-24">
             <StableCollapsible open={!formVisible}>
               <button
                 type="button"
                 onClick={openNewFence}
                 aria-expanded={formVisible}
-                className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.62)] p-4 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] dark:bg-white/[0.04]"
+                className="native-row flex w-full items-center justify-between gap-3 rounded-[1.15rem] bg-[color:rgb(238_244_241_/_0.46)] p-3.5 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] dark:bg-white/[0.035] sm:p-4"
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.16)] dark:text-[#0B1114]">
@@ -201,7 +201,7 @@ export default function CategoriesPage() {
           </section>
         </Card>
 
-        <section className="grid content-start gap-4">
+        <section className="page-zone grid content-start gap-2.5 p-3 sm:p-4">
           {state.categories.length ? (
             state.categories.map((category) => (
               <CategoryCard

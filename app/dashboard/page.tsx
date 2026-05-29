@@ -45,20 +45,20 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 md:grid-cols-4">
-        <Card className="border-0 bg-brand-gradient text-white shadow-[0_18px_46px_rgb(24_184_137_/_0.22)] min-[430px]:col-span-2 md:col-span-2">
+      <div className="page-zone grid grid-cols-1 gap-2.5 p-3 min-[430px]:grid-cols-2 md:grid-cols-4">
+        <Card className="border-0 bg-brand-gradient text-white shadow-[0_18px_46px_rgb(24_184_137_/_0.18)] min-[430px]:col-span-2 md:col-span-2">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-white/60">Available budget</p>
           <p className="mt-2 text-2xl font-black sm:mt-3 sm:text-3xl md:text-4xl">{formatMoney(available)}</p>
           <p className="mt-1.5 text-sm font-bold text-white/70 sm:mt-2">Income minus savings target</p>
         </Card>
-        <Card className="p-4 md:p-5">
+        <Card className="bg-white/42 p-4 shadow-none md:p-5 dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Spent this cycle</p>
           <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(spent)}</p>
           <div className="mt-2">
             <ProgressBar percent={budgetPercent} color={budgetColor} compact />
           </div>
         </Card>
-        <Card className="p-4 md:p-5">
+        <Card className="bg-white/42 p-4 shadow-none md:p-5 dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Remaining</p>
           <p className="mt-1.5 text-xl font-black sm:text-2xl md:text-3xl">{formatMoney(remaining)}</p>
             <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
@@ -75,9 +75,9 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      <div className="mt-7 grid gap-8 sm:mt-8 xl:grid-cols-[1fr_0.82fr]">
-        <section className="content-start">
-          <div className="mb-2.5 flex items-center justify-between gap-3 sm:mb-3">
+      <div className="mt-6 grid gap-6 sm:mt-7 xl:grid-cols-[1fr_0.82fr]">
+        <section className="content-start page-zone p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-black text-[#10201c] sm:text-lg">Category fences</h2>
               <p className="text-xs font-bold text-slate-500">Tap a tile to review purchases.</p>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
             </Button>
           </div>
           {state.categories.length ? (
-            <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {state.categories.map((category) => (
                 <Link key={category.id} href={`/categories/${category.id}`} className="block rounded-[1.15rem] transition active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#58c6a8]/20 sm:rounded-[1.55rem]">
                   <CategoryCard category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} variant="compact" />
@@ -116,7 +116,7 @@ export default function DashboardPage() {
           <div className="grid items-stretch gap-3 md:grid-cols-2">
             <SmartPromptsPanel prompts={prompts} isPro={isPro} />
 
-            <Card className="h-full p-4">
+            <Card className="h-full bg-white/44 p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] dark:bg-white/[0.04]">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <h2 className="text-sm font-black sm:text-base">Recurring charges</h2>
                 <Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">
@@ -126,7 +126,7 @@ export default function DashboardPage() {
               {upcomingRecurring.length ? (
                 <div className="grid gap-2">
                   {upcomingRecurring.slice(0, 2).map(({ item, date }) => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-2xl bg-[color:rgb(238_244_241_/_0.62)] px-3 py-2.5 dark:bg-white/[0.04]">
+                    <div key={item.id} className="native-row flex items-center justify-between gap-2 rounded-[1rem] bg-[color:rgb(238_244_241_/_0.48)] px-3 py-2.5 dark:bg-white/[0.035]">
                       <div className="min-w-0">
                         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                           <p className="text-sm font-black leading-5">{item.name}</p>
@@ -158,9 +158,9 @@ export default function DashboardPage() {
           <Card className="p-4 sm:p-5">
             <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Recent purchases</h2>
             {cyclePurchases.length ? (
-              <div className="grid gap-2">
+              <div className="soft-divider">
                 {cyclePurchases.slice(0, 5).map((purchase) => (
-                  <div key={purchase.id} className="flex items-center justify-between gap-3 border-b border-[color:rgb(15_23_42_/_0.055)] py-3 last:border-b-0 dark:border-white/10">
+                  <div key={purchase.id} className="flex items-center justify-between gap-3 py-3">
                     <div>
                       <p className="text-sm font-black sm:text-base">{purchase.merchant}</p>
                       <p className="text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(purchase.date)}</p>

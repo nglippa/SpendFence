@@ -14,7 +14,7 @@ import { formatMoney } from "@/lib/budget";
 import { detectRecurringCandidates, monthlyRecurringAmount, nextRecurringDate, recurringFrequencyLabel, recurringKindLabel, recurringMonthlyTotals } from "@/lib/recurring";
 import { useSpendFence } from "@/lib/store";
 import type { Category, ReceiptCategoryAllocation, ReceiptLineItem, Purchase, RecurringFrequency, RecurringItem, RecurringItemInput, RecurringKind } from "@/lib/types";
-import { formatShortDate, fromDateInput, toDateInput } from "@/lib/utils";
+import { cn, formatShortDate, fromDateInput, toDateInput } from "@/lib/utils";
 
 type ReceiptAnalysis = {
   merchant: string;
@@ -220,8 +220,8 @@ export default function AddPurchasePage() {
       <PageHeader kicker="Add purchase" title="Log spending in seconds" body="Manual entry is always available. Receipt suggestions can be reviewed and edited before saving." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-8">
-        <div className="grid gap-3.5">
+      <div className="grid gap-6">
+        <div className="page-zone grid gap-1.5 p-2.5 sm:p-3">
           <AddActionCard
             id="manual"
             title={editing ? `Editing ${editing.merchant}` : "Manual Purchase"}
@@ -335,14 +335,14 @@ export default function AddPurchasePage() {
           <BankSyncEntryCard tier={auth.effectiveTier} demoLocked={state.demoModeLocked} />
         </div>
 
-        <Card>
+        <Card className="p-4 sm:p-5">
           <h2 className="mb-3 text-lg font-black sm:mb-4 sm:text-xl">Purchase history</h2>
           {state.purchases.length ? (
-            <div className="grid gap-2.5 sm:gap-3">
+            <div className="soft-divider">
               {state.purchases.map((purchase) => {
                 const category = state.categories.find((item) => item.id === purchase.categoryId);
                 return (
-                  <div key={purchase.id} className="border-b border-[color:rgb(15_23_42_/_0.055)] py-4 last:border-b-0 dark:border-white/10">
+                  <div key={purchase.id} className="py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -425,12 +425,12 @@ function AddActionCard({
   children: ReactNode;
 }) {
   return (
-    <div ref={sectionRef} className="scroll-mt-24 overflow-hidden rounded-[1.55rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] shadow-[0_14px_34px_rgba(16,32,28,0.052)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.055]">
+    <div ref={sectionRef} className={cn("scroll-mt-24 overflow-hidden rounded-[1.25rem] bg-white/38 backdrop-blur transition-shadow dark:bg-white/[0.035]", expanded && "bg-white/58 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58),0_12px_30px_rgb(11_17_20_/_0.045)] dark:bg-white/[0.055]")}>
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-4 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)]"
+        className="native-row grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-3.5 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)] sm:p-4"
         onClick={onToggle}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -439,7 +439,7 @@ function AddActionCard({
           }
         }}
       >
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] dark:text-[#7EF2D4]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[1rem] bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] dark:text-[#7EF2D4]">
           <Icon size={20} />
         </div>
         <div className="min-w-0">
@@ -472,7 +472,7 @@ function AddActionCard({
       </div>
 
       <StableCollapsible open={expanded}>
-        <div className="grid gap-4 border-t border-[color:rgb(15_23_42_/_0.045)] bg-[color:rgb(247_250_247_/_0.52)] p-4 dark:border-white/10 dark:bg-white/[0.025]">{children}</div>
+        <div className="grid gap-4 bg-[color:rgb(247_250_247_/_0.44)] p-4 pt-2 dark:bg-white/[0.02]">{children}</div>
       </StableCollapsible>
     </div>
   );
@@ -513,7 +513,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   );
 
   const className =
-    "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[1.55rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] p-4 text-left shadow-[0_14px_34px_rgba(16,32,28,0.052)] backdrop-blur-xl transition dark:border-white/10 dark:bg-white/[0.055] sm:gap-3";
+    "native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[1.25rem] bg-[color:rgb(255_255_255_/_0.38)] p-3.5 text-left backdrop-blur-xl transition dark:bg-white/[0.035] sm:gap-3 sm:p-4";
 
   if (demoLocked) {
     return (

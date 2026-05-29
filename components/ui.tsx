@@ -6,7 +6,7 @@ export function Card({ children, className }: { children: React.ReactNode; class
   return (
     <section
       className={cn(
-        "w-full min-w-0 rounded-[1.45rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.74)] p-[1.125rem] shadow-[0_14px_38px_rgb(11_17_20_/_0.055)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] dark:border-white/10 dark:bg-[color:rgb(18_26_31_/_0.74)] dark:shadow-[0_16px_42px_rgb(0_0_0_/_0.22)] sm:rounded-[1.75rem] sm:p-5",
+        "w-full min-w-0 rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.58)] p-[1.125rem] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.66),0_14px_38px_rgb(11_17_20_/_0.045)] backdrop-blur-xl motion-safe:animate-[surface-rise_360ms_ease-out_both] dark:bg-white/[0.055] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055),0_16px_42px_rgb(0_0_0_/_0.16)] sm:rounded-[1.4rem] sm:p-5",
         className
       )}
     >
@@ -28,12 +28,12 @@ export function Button({
   asChild?: boolean;
 }) {
   const classes = cn(
-    "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl font-black transition duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2",
+    "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[1.05rem] font-black transition duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2",
     size === "sm" && "min-h-10 px-3 text-xs sm:text-sm",
     size === "md" && "px-3.5 py-2 text-sm sm:px-4",
     size === "lg" && "min-h-11 px-4 text-sm sm:min-h-14 sm:px-5 sm:text-base",
     variant === "primary" && "bg-brand-gradient text-white shadow-[0_14px_30px_rgb(24_184_137_/_0.20)] hover:brightness-[1.03] dark:text-[#0B1114]",
-    variant === "secondary" && "bg-[color:rgb(24_184_137_/_0.09)] text-[var(--brand-primary)] hover:bg-[color:rgb(24_184_137_/_0.13)]",
+    variant === "secondary" && "bg-[color:rgb(24_184_137_/_0.085)] text-[var(--brand-primary)] hover:bg-[color:rgb(24_184_137_/_0.13)]",
     variant === "ghost" && "text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)]",
     variant === "danger" && "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-[rgb(255_107_107_/_0.13)] dark:text-[#FF6B6B]",
     className
@@ -54,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
   <input
     ref={ref}
     className={cn(
-      "min-h-11 w-full rounded-2xl border border-[color:rgb(15_23_42_/_0.065)] bg-[color:rgb(255_255_255_/_0.78)] px-3.5 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/10 dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
+      "min-h-11 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
       className
     )}
     {...props}
@@ -66,7 +66,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
   <textarea
     ref={ref}
     className={cn(
-      "min-h-20 w-full rounded-2xl border border-[color:rgb(15_23_42_/_0.065)] bg-[color:rgb(255_255_255_/_0.78)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/10 dark:bg-white/[0.055] sm:min-h-24 sm:px-4",
+      "min-h-20 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-24 sm:px-4",
       className
     )}
     {...props}
@@ -78,7 +78,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "min-h-11 w-full rounded-2xl border border-[color:rgb(15_23_42_/_0.065)] bg-[color:rgb(255_255_255_/_0.78)] px-3.5 text-sm font-black text-[var(--app-text)] outline-none transition focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/10 dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
+        "min-h-11 w-full rounded-[1.05rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] px-3.5 text-sm font-black text-[var(--app-text)] outline-none transition focus:border-[var(--brand-secondary)] focus:ring-4 focus:ring-[var(--app-ring)] dark:border-white/[0.08] dark:bg-white/[0.055] sm:min-h-12 sm:px-4",
         className
       )}
       {...props}
@@ -101,10 +101,10 @@ export function Pill({ children, className }: { children: React.ReactNode; class
 
 export function PageHeader({ kicker, title, body, action }: { kicker: string; title: string; body?: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="mb-6 flex w-full min-w-0 flex-col gap-4 md:mb-7 md:flex-row md:items-end md:justify-between">
+    <div className="mb-5 flex w-full min-w-0 flex-col gap-4 px-0.5 md:mb-6 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--brand-primary)]">{kicker}</p>
-        <h1 className="mt-1.5 text-[1.7rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10 md:text-4xl">{title}</h1>
+        <p className="section-kicker text-[var(--brand-primary)]">{kicker}</p>
+        <h1 className="mt-1.5 text-[1.72rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10 md:text-4xl">{title}</h1>
         {body ? <p className="mt-1.5 max-w-2xl break-words text-sm font-semibold leading-5 text-[var(--app-text-secondary)] [overflow-wrap:anywhere] sm:mt-2 sm:leading-6">{body}</p> : null}
       </div>
       {action}
@@ -135,8 +135,8 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.70)] px-4 text-center dark:bg-white/[0.04] sm:rounded-[1.6rem]", compact ? "py-4" : "py-8 sm:py-10")}>
-      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[color:rgb(255_255_255_/_0.74)] text-[var(--brand-primary)] shadow-[0_10px_24px_rgb(11_17_20_/_0.055)] dark:bg-white/[0.07]">
+    <div className={cn("grid place-items-center rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.48)] px-4 text-center dark:bg-white/[0.035]", compact ? "py-4" : "py-8 sm:py-10")}>
+      <div className="grid h-11 w-11 place-items-center rounded-[1.05rem] bg-[color:rgb(255_255_255_/_0.62)] text-[var(--brand-primary)] shadow-[0_10px_24px_rgb(11_17_20_/_0.045)] dark:bg-white/[0.06]">
         <Icon size={20} />
       </div>
       <h2 className="mt-3 text-base font-black text-[var(--app-text)] sm:text-lg">{title}</h2>
