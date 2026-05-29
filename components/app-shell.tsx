@@ -138,7 +138,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.86)] pt-[env(safe-area-inset-top)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.88)]">
+      <header className="sticky top-0 z-40 border-b border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(246_248_247_/_0.84)] pt-[env(safe-area-inset-top)] backdrop-blur-xl dark:border-white/10 dark:bg-[color:rgb(11_17_20_/_0.88)]">
         <div className="app-shell-frame flex items-center justify-between gap-3 py-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3">
             <BrandLogo className="h-10 w-auto sm:h-11" />
@@ -152,29 +152,29 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
               <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
           </nav>
-          <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-2xl bg-[var(--app-card)] text-[var(--app-text-secondary)] shadow-soft sm:h-11 sm:w-11">
+          <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-2xl bg-[color:rgb(255_255_255_/_0.70)] text-[var(--app-text-secondary)] shadow-[0_10px_26px_rgb(11_17_20_/_0.055)] backdrop-blur sm:h-11 sm:w-11 dark:bg-white/[0.06]">
             <Bell size={19} />
             {unread ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose-500" /> : null}
           </Link>
         </div>
       </header>
 
-      <main className="app-shell-frame overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4 sm:pt-5 lg:pb-8 lg:pt-8">
+      <main className="app-shell-frame overflow-x-clip pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 sm:pt-6 lg:pb-9 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
           {auth.isDeveloper ? (
-            <div className="mb-4 inline-flex min-h-8 items-center rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-sky-700 shadow-soft sm:mb-5">
+            <div className="mb-5 inline-flex min-h-8 items-center rounded-full border border-sky-100/70 bg-sky-50/72 px-3 text-xs font-black text-sky-700 shadow-[0_8px_22px_rgb(14_165_233_/_0.08)] backdrop-blur sm:mb-6">
               Developer Preview: {auth.planLabel}
             </div>
           ) : null}
           {demoDataEnabled ? (
-            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[color:rgb(24_184_137_/_0.20)] bg-[color:rgb(24_184_137_/_0.10)] px-3.5 py-3 shadow-soft sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div className="mb-5 flex flex-col gap-3 rounded-[1.45rem] border border-[color:rgb(24_184_137_/_0.13)] bg-[color:rgb(24_184_137_/_0.075)] px-4 py-3.5 shadow-[0_14px_34px_rgb(24_184_137_/_0.08)] backdrop-blur-xl sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <div className="flex min-w-0 items-center gap-2.5">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.14)] text-[var(--brand-primary)]">
                   <TestTube2 size={17} />
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-black text-[var(--app-text)]">Demo Mode</p>
-                  <p className="text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+                  <p className="break-words text-xs font-bold leading-5 text-[var(--app-text-muted)] [overflow-wrap:anywhere]">
                     Sample data only{demoModeLocked ? ". Create an account to use SpendFence with your own data." : "."}
                   </p>
                 </div>
@@ -201,7 +201,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </main>
 
-      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.95)] pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_30px_rgba(11,17,20,.08)] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.95)] lg:hidden">
+      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[color:rgb(15_23_42_/_0.07)] bg-[color:rgb(255_255_255_/_0.88)] pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 shadow-[0_-14px_34px_rgba(11,17,20,.075)] backdrop-blur-2xl dark:border-white/10 dark:bg-[color:rgb(11_17_20_/_0.90)] lg:hidden">
         <div className="mx-auto grid w-full max-w-lg grid-cols-5 gap-1.5">
           {mobileNav.map((item) => (
             <MobileNavLink key={item.href} {...item} pathname={pathname} />
@@ -234,7 +234,7 @@ function MobileNavLink({ href, label, icon: Icon, pathname }: (typeof mobileNav)
     <Link
       href={href}
       className={cn(
-        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[0.625rem] font-black leading-none transition",
+        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[0.625rem] font-black leading-none transition",
         active ? "bg-brand-gradient text-white shadow-soft dark:text-[#0B1114]" : "text-[var(--app-text-muted)] hover:bg-[var(--app-secondary)]"
       )}
       aria-current={active ? "page" : undefined}

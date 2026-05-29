@@ -95,21 +95,21 @@ export default function CategoriesPage() {
     <>
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
       <SettingsFeedback message={feedback} />
-      <div className="mb-4 sm:mb-5">
+      <div className="mb-7">
         <AdaptiveFenceSuggestions onFeedback={showFeedback} />
       </div>
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.82fr_1.18fr]">
-        <Card>
+      <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
+        <Card className="p-4 sm:p-5">
           <section ref={formRef} className="scroll-mt-24">
             <StableCollapsible open={!formVisible}>
               <button
                 type="button"
                 onClick={openNewFence}
                 aria-expanded={formVisible}
-                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-secondary)] p-3 text-left transition hover:border-[var(--brand-primary)] hover:bg-[rgb(46_211_183_/_0.08)] sm:p-4"
+                className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.62)] p-4 text-left transition hover:bg-[rgb(46_211_183_/_0.09)] dark:bg-white/[0.04]"
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114]">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-white shadow-[0_10px_24px_rgb(24_184_137_/_0.16)] dark:text-[#0B1114]">
                     <Plus size={18} />
                   </span>
                   <span className="min-w-0">
@@ -153,10 +153,10 @@ export default function CategoriesPage() {
                               type="button"
                               key={key}
                               onClick={() => setForm({ ...form, icon: key })}
-                              className={`flex min-h-11 items-center gap-2 rounded-xl border px-3 text-left text-xs font-black transition sm:text-sm ${
+                              className={`flex min-h-11 items-center gap-2 rounded-2xl px-3 text-left text-xs font-black transition sm:text-sm ${
                                 active
-                                  ? "border-[var(--brand-primary)] bg-[rgb(46_211_183_/_0.12)] text-[var(--app-text)] shadow-soft"
-                                  : "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)]"
+                                  ? "bg-[rgb(46_211_183_/_0.13)] text-[var(--app-text)] shadow-[inset_0_0_0_1px_rgb(24_184_137_/_0.22)]"
+                                  : "bg-[color:rgb(255_255_255_/_0.58)] text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)] dark:bg-white/[0.04]"
                               }`}
                             >
                               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-white" style={{ background: form.color }}>
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
                     <Field label="Color">
                       <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-12 p-2 sm:h-14" />
                     </Field>
-                    <div className="rounded-xl bg-[var(--app-secondary)] p-3 sm:rounded-2xl">
+                    <div className="rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.62)] p-3.5 dark:bg-white/[0.04]">
                       <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Live preview</p>
                       <div className="flex items-center gap-2">
                         <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-soft" style={{ background: form.color }}>
@@ -201,7 +201,7 @@ export default function CategoriesPage() {
           </section>
         </Card>
 
-        <section className="grid gap-4 content-start">
+        <section className="grid content-start gap-4">
           {state.categories.length ? (
             state.categories.map((category) => (
               <CategoryCard
@@ -225,13 +225,13 @@ export default function CategoriesPage() {
               />
             ))
           ) : (
-            <Card>
+            <div className="rounded-[1.45rem] bg-[color:rgb(255_255_255_/_0.52)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.58)] backdrop-blur dark:bg-white/[0.04]">
               <EmptyState
                 icon={WalletCards}
                 title="Start with a few simple fences"
                 body="Create a few simple fences for the spending areas you care about. You can adjust limits anytime."
               />
-            </Card>
+            </div>
           )}
         </section>
       </div>

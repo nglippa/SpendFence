@@ -9,10 +9,10 @@ import { PremiumBadge } from "@/components/upgrade-modal";
 import { cn } from "@/lib/utils";
 
 export const intelligenceCardSurfaceClass =
-  "relative overflow-hidden rounded-2xl border border-[rgb(99_102_241_/_0.16)] bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.10),transparent_12rem),linear-gradient(145deg,#FFFFFF_0%,#F8FAFF_52%,#F2F5FF_100%)] p-3 shadow-[0_14px_34px_rgb(31_41_55_/_0.08)] transition-[box-shadow,transform,border-color,opacity] duration-300 ease-out hover:-translate-y-0.5 hover:border-[rgb(99_102_241_/_0.26)] hover:shadow-[0_18px_44px_rgb(31_41_55_/_0.12),0_10px_26px_rgb(99_102_241_/_0.10)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.16),transparent_13rem),linear-gradient(145deg,#18202B_0%,#121821_58%,#15142A_100%)] dark:shadow-[0_14px_34px_rgb(0_0_0_/_0.26)] sm:p-3.5";
+  "relative overflow-hidden rounded-[1.35rem] border border-[rgb(99_102_241_/_0.12)] bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.09),transparent_12rem),linear-gradient(145deg,rgb(255_255_255_/_0.82)_0%,rgb(248_250_255_/_0.78)_52%,rgb(242_245_255_/_0.74)_100%)] p-3 shadow-[0_12px_30px_rgb(31_41_55_/_0.065)] backdrop-blur transition-[box-shadow,transform,border-color,opacity] duration-300 ease-out hover:-translate-y-0.5 hover:border-[rgb(99_102_241_/_0.22)] hover:shadow-[0_18px_44px_rgb(31_41_55_/_0.10),0_10px_26px_rgb(99_102_241_/_0.08)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_14%_0%,rgb(124_58_237_/_0.15),transparent_13rem),linear-gradient(145deg,rgb(24_32_43_/_0.78)_0%,rgb(18_24_33_/_0.76)_58%,rgb(21_20_42_/_0.72)_100%)] dark:shadow-[0_14px_34px_rgb(0_0_0_/_0.24)] sm:rounded-[1.55rem] sm:p-3.5";
 
 export const intelligenceCarouselTrackClass =
-  "flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3.5 py-3.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-5 sm:px-5 sm:py-5";
+  "flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-3 py-3 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-4 sm:py-4";
 
 export const intelligenceIconSurfaceClass =
   "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#1E1B4B,#4F46E5_52%,#7C3AED)] text-white shadow-[0_10px_24px_rgb(79_70_229_/_0.24)] ring-1 ring-white/70 dark:ring-white/10 sm:h-10 sm:w-10";
@@ -95,7 +95,7 @@ export function IntelligenceSection({
   return (
     <section
       className={cn(
-        "relative isolate mb-4 overflow-hidden rounded-[1.65rem] border border-[rgb(99_102_241_/_0.18)] bg-[radial-gradient(circle_at_8%_0%,rgb(124_58_237_/_0.14),transparent_20rem),linear-gradient(145deg,#FFFFFF_0%,#F7F8FF_48%,#EEF2FF_100%)] p-3 shadow-[0_24px_70px_rgb(15_23_42_/_0.12),0_8px_28px_rgb(99_102_241_/_0.10)] dark:border-[rgb(147_197_253_/_0.13)] dark:bg-[radial-gradient(circle_at_8%_0%,rgb(99_102_241_/_0.18),transparent_22rem),linear-gradient(145deg,#121821_0%,#0D121A_52%,#151326_100%)] sm:mb-5 sm:rounded-[2rem] sm:p-4",
+        "relative isolate mb-6 overflow-hidden rounded-[1.75rem] border border-[rgb(99_102_241_/_0.12)] bg-[radial-gradient(circle_at_8%_0%,rgb(124_58_237_/_0.12),transparent_20rem),linear-gradient(145deg,rgb(255_255_255_/_0.70)_0%,rgb(247_248_255_/_0.66)_48%,rgb(238_242_255_/_0.62)_100%)] p-3 shadow-[0_20px_58px_rgb(15_23_42_/_0.085),0_8px_24px_rgb(99_102_241_/_0.075)] backdrop-blur-xl dark:border-[rgb(147_197_253_/_0.13)] dark:bg-[radial-gradient(circle_at_8%_0%,rgb(99_102_241_/_0.17),transparent_22rem),linear-gradient(145deg,rgb(18_24_33_/_0.72)_0%,rgb(13_18_26_/_0.70)_52%,rgb(21_19_38_/_0.72)_100%)] sm:mb-7 sm:rounded-[2rem] sm:p-4",
         className
       )}
     >
@@ -152,7 +152,7 @@ export function IntelligenceSection({
       </div>
 
       <div
-        className="relative z-10 overflow-hidden rounded-[1.15rem] border border-white/80 bg-[rgb(255_255_255_/_0.82)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.85),0_18px_48px_rgb(15_23_42_/_0.10)] backdrop-blur-xl dark:border-white/10 dark:bg-[rgb(8_13_22_/_0.50)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08),0_20px_54px_rgb(0_0_0_/_0.28)] sm:rounded-[1.55rem]"
+        className="relative z-10 overflow-hidden rounded-[1.35rem] bg-[rgb(255_255_255_/_0.50)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.65)] backdrop-blur-xl dark:bg-[rgb(8_13_22_/_0.36)] dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)] sm:rounded-[1.6rem]"
       >
         {children}
         {dots}

@@ -14,9 +14,9 @@
   --brand-border: #26343d;
   --brand-gradient: linear-gradient(135deg, #0d8f6a 0%, #2ed3b7 100%);
   --brand-dark-gradient: linear-gradient(135deg, #0f7660 0%, #18b889 100%);
-  --app-bg: #f5f7f6;
+  --app-bg: #f6f8f7;
   --app-card: #ffffff;
-  --app-secondary: #eef3f1;
+  --app-secondary: #eef4f1;
   --app-text: #0f1720;
   --app-text-secondary: #5f6c76;
   --app-text-muted: #8a98a5;
@@ -24,10 +24,10 @@
   --app-warning: #f5b942;
   --app-danger: #f05d5e;
   --app-info: #4b8cff;
-  --app-border: #dce5e1;
+  --app-border: #e3ebe7;
   --app-ring: rgb(46 211 183 / 0.18);
-  --app-shadow: 0 16px 42px rgb(11 17 20 / 0.08);
-  --app-page-gutter: 1rem;
+  --app-shadow: 0 16px 42px rgb(11 17 20 / 0.055);
+  --app-page-gutter: 1.25rem;
   --app-shell-max: 80rem;
   --marketing-bg: #f5f7f6;
   --marketing-nav: 245 247 246 / 0.82;
@@ -59,7 +59,7 @@
   color-scheme: dark;
   --app-bg: #0b1114;
   --app-card: #121a1f;
-  --app-secondary: #1d2a32;
+  --app-secondary: #1b272f;
   --app-text: #f4f7f6;
   --app-text-secondary: #a7b3bc;
   --app-text-muted: #6f7d87;
@@ -120,8 +120,9 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 12% -10%, rgb(46 211 183 / 0.18), transparent 34rem),
-    radial-gradient(circle at 100% 4%, rgb(75 140 255 / 0.09), transparent 32rem),
+    radial-gradient(circle at 12% -10%, rgb(46 211 183 / 0.16), transparent 34rem),
+    radial-gradient(circle at 100% 4%, rgb(75 140 255 / 0.08), transparent 32rem),
+    linear-gradient(180deg, rgb(255 255 255 / 0.62), transparent 22rem),
     var(--app-bg);
   color: var(--app-text);
   -webkit-font-smoothing: antialiased;
@@ -205,6 +206,18 @@ main {
 
   .settings-page-frame {
     width: calc(100% - 1rem);
+  }
+}
+
+@keyframes surface-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

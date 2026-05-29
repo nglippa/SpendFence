@@ -220,8 +220,8 @@ export default function AddPurchasePage() {
       <PageHeader kicker="Add purchase" title="Log spending in seconds" body="Manual entry is always available. Receipt suggestions can be reviewed and edited before saving." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-4 sm:gap-5">
-        <div className="grid gap-3">
+      <div className="grid gap-8">
+        <div className="grid gap-3.5">
           <AddActionCard
             id="manual"
             title={editing ? `Editing ${editing.merchant}` : "Manual Purchase"}
@@ -265,7 +265,7 @@ export default function AddPurchasePage() {
           >
             <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
               <div className="grid gap-3">
-                <label className="grid min-h-28 cursor-pointer place-items-center rounded-xl border border-dashed border-slate-300 bg-white p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[#58c6a8] hover:text-[#183f36] sm:rounded-2xl">
+                <label className="grid min-h-28 cursor-pointer place-items-center rounded-[1.35rem] border border-dashed border-[color:rgb(15_23_42_/_0.10)] bg-[color:rgb(255_255_255_/_0.58)] p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[#58c6a8] hover:text-[#183f36] dark:border-white/10 dark:bg-white/[0.04]">
                   <span>
                     <Upload size={22} className="mx-auto mb-2" />
                     Upload or take receipt photo
@@ -342,7 +342,7 @@ export default function AddPurchasePage() {
               {state.purchases.map((purchase) => {
                 const category = state.categories.find((item) => item.id === purchase.categoryId);
                 return (
-                  <div key={purchase.id} className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
+                  <div key={purchase.id} className="border-b border-[color:rgb(15_23_42_/_0.055)] py-4 last:border-b-0 dark:border-white/10">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -425,12 +425,12 @@ function AddActionCard({
   children: ReactNode;
 }) {
   return (
-    <div ref={sectionRef} className="scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_14px_36px_rgba(16,32,28,0.07)]">
+    <div ref={sectionRef} className="scroll-mt-24 overflow-hidden rounded-[1.55rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] shadow-[0_14px_34px_rgba(16,32,28,0.052)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.055]">
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-3.5 text-left transition hover:bg-[#f7faf7] sm:p-4"
+        className="grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 p-4 text-left transition hover:bg-[color:rgb(24_184_137_/_0.045)]"
         onClick={onToggle}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -439,7 +439,7 @@ function AddActionCard({
           }
         }}
       >
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] dark:text-[#7EF2D4]">
           <Icon size={20} />
         </div>
         <div className="min-w-0">
@@ -472,7 +472,7 @@ function AddActionCard({
       </div>
 
       <StableCollapsible open={expanded}>
-        <div className="grid gap-3 border-t border-slate-100 bg-[#fbfdfb] p-3.5 sm:p-4">{children}</div>
+        <div className="grid gap-4 border-t border-[color:rgb(15_23_42_/_0.045)] bg-[color:rgb(247_250_247_/_0.52)] p-4 dark:border-white/10 dark:bg-white/[0.025]">{children}</div>
       </StableCollapsible>
     </div>
   );
@@ -483,7 +483,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   const tierNote = demoLocked ? "Disabled in demo" : tier === "premium" ? "Premium active" : "Unlimited with Premium";
   const content = (
     <>
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#e9f3ee] text-[#183f36] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.7)] sm:h-10 sm:w-10">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(24_184_137_/_0.10)] text-[#183f36] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.45)] dark:text-[#7EF2D4] sm:h-10 sm:w-10">
         {demoLocked ? <LockKeyhole size={18} /> : <Building2 size={18} />}
       </div>
       <div className="min-w-0">
@@ -513,7 +513,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   );
 
   const className =
-    "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-3 text-left shadow-[0_14px_36px_rgba(16,32,28,0.07)] transition sm:gap-3 sm:p-4";
+    "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[1.55rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.70)] p-4 text-left shadow-[0_14px_34px_rgba(16,32,28,0.052)] backdrop-blur-xl transition dark:border-white/10 dark:bg-white/[0.055] sm:gap-3";
 
   if (demoLocked) {
     return (
@@ -524,7 +524,7 @@ function BankSyncEntryCard({ tier, demoLocked }: { tier: "free" | "premium"; dem
   }
 
   return (
-    <Link href="/settings/bank-sync" className={`${className} hover:bg-[#f7faf7] active:scale-[0.99]`}>
+    <Link href="/settings/bank-sync" className={`${className} hover:bg-[color:rgb(24_184_137_/_0.045)] active:scale-[0.99]`}>
       {content}
     </Link>
   );
@@ -595,21 +595,21 @@ function RecurringManagementCard({
   return (
     <div className="grid gap-4">
       <div className="grid gap-2.5 sm:grid-cols-3">
-        <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-2xl">
+        <div className="rounded-2xl bg-[color:rgb(238_244_241_/_0.62)] p-3 dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Monthly charges</p>
           <p className="mt-1 text-xl font-black text-[#10201c]">{formatMoney(totals.charges)}</p>
         </div>
-        <div className="rounded-xl bg-emerald-50 p-3 sm:rounded-2xl">
+        <div className="rounded-2xl bg-emerald-50/70 p-3 dark:bg-emerald-400/[0.08]">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700/70">Monthly income</p>
           <p className="mt-1 text-xl font-black text-emerald-800">{formatMoney(totals.income)}</p>
         </div>
-        <div className="rounded-xl bg-slate-50 p-3 sm:rounded-2xl">
+        <div className="rounded-2xl bg-slate-50/72 p-3 dark:bg-white/[0.04]">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Net impact</p>
           <p className={`mt-1 text-xl font-black ${totals.net >= 0 ? "text-emerald-800" : "text-rose-700"}`}>{formatMoney(totals.net)}</p>
         </div>
       </div>
 
-      <form className="grid gap-3 rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4" onSubmit={submit}>
+      <form className="grid gap-3 rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.58)] p-4 dark:bg-white/[0.04]" onSubmit={submit}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Name">
             <Input ref={firstInputRef} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
@@ -679,7 +679,7 @@ function RecurringManagementCard({
           <h3 className="mb-2 text-sm font-black text-[#10201c]">Detected recurring purchases</h3>
           <div className="grid gap-2">
             {candidates.map((candidate) => (
-              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-xl bg-white p-3 sm:flex-row sm:items-center sm:justify-between sm:rounded-2xl">
+              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045] sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-black text-[#10201c]">{candidate.merchant}</p>
                   <p className="text-xs font-bold text-slate-500">
@@ -700,7 +700,7 @@ function RecurringManagementCard({
           recurringItems.map((item) => {
             const category = categories.find((categoryItem) => categoryItem.id === item.categoryId);
             return (
-              <div key={item.id} className="rounded-xl bg-white p-3 sm:rounded-2xl">
+              <div key={item.id} className="rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -795,7 +795,7 @@ function ReceiptReviewCard({
   const totalMatches = Math.abs(allocationTotal - analysisTotal) < 0.02;
 
   return (
-    <div className="rounded-xl bg-[#f7faf7] p-3 sm:rounded-3xl sm:p-4">
+    <div className="rounded-[1.35rem] bg-[color:rgb(238_244_241_/_0.58)] p-4 dark:bg-white/[0.04]">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-base font-black sm:text-lg">Review receipt</h3>
         <Pill className="border-slate-200 bg-white text-slate-600">{Math.round(analysis.confidence * 100)}% confidence</Pill>
@@ -821,7 +821,7 @@ function ReceiptReviewCard({
         </div>
         <div className="grid gap-2">
           {analysis.allocations.map((allocation) => (
-            <div key={allocation.id} className="grid gap-2 rounded-xl bg-white p-2.5 sm:grid-cols-[1fr_0.55fr_auto] sm:items-end sm:rounded-2xl sm:p-3">
+            <div key={allocation.id} className="grid gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045] sm:grid-cols-[1fr_0.55fr_auto] sm:items-end">
               <Field label="Category">
                 <Select value={allocation.categoryId} onChange={(event) => onPatchAllocation(allocation.id, { categoryId: event.target.value })}>
                   {categories.map((category) => (
@@ -846,7 +846,7 @@ function ReceiptReviewCard({
         </Button>
       </div>
 
-      <div className="mt-3 rounded-xl bg-white p-3 sm:rounded-2xl">
+      <div className="mt-3 rounded-2xl bg-[color:rgb(255_255_255_/_0.62)] p-3 backdrop-blur dark:bg-white/[0.045]">
         <p className="mb-2 text-sm font-black text-slate-600">Line items</p>
         <div className="grid gap-2">
           {analysis.lineItems.map((item) => (

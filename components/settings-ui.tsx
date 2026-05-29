@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-4 rounded-b-[1.55rem] border-b border-[var(--app-border)] bg-[color:rgb(245_247_246_/_0.94)] px-6 pb-4 pt-[max(0.9rem,env(safe-area-inset-top))] backdrop-blur-xl dark:bg-[color:rgb(11_17_20_/_0.92)] sm:-top-5 sm:mb-6 sm:rounded-b-[1.9rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
+    <div className="sticky -top-4 z-20 mb-6 rounded-b-[1.7rem] border-b border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(246_248_247_/_0.92)] px-5 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-xl dark:border-white/10 dark:bg-[color:rgb(11_17_20_/_0.90)] sm:-top-5 sm:mb-7 sm:rounded-b-[2rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
       <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-xs font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6 sm:min-h-10 sm:text-sm">
         <ArrowLeft size={17} /> Settings
       </Link>
@@ -20,9 +20,9 @@ export function SettingsDetailHeader({ title, subtitle }: { title: string; subti
 
 export function SettingsGroup({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <section className="grid w-full min-w-0 gap-2">
-      {title ? <h2 className="px-1 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-secondary)]">{title}</h2> : null}
-      <div className="w-full min-w-0 overflow-hidden rounded-[1.2rem] border border-[var(--app-border)] bg-[var(--app-card)] shadow-soft backdrop-blur sm:rounded-[1.35rem]">{children}</div>
+    <section className="grid w-full min-w-0 gap-2.5">
+      {title ? <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-secondary)]">{title}</h2> : null}
+      <div className="w-full min-w-0 overflow-hidden rounded-[1.45rem] border border-[color:rgb(15_23_42_/_0.055)] bg-[color:rgb(255_255_255_/_0.72)] shadow-[0_14px_34px_rgb(11_17_20_/_0.045)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.055] sm:rounded-[1.7rem]">{children}</div>
     </section>
   );
 }
@@ -44,7 +44,7 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[1rem] text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.16)] sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)]" : "bg-brand-gradient")}>
         <Icon size={17} />
       </div>
       <div className="min-w-0">
@@ -57,7 +57,7 @@ export function SettingsRow({
     </>
   );
 
-  const className = "grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
+  const className = "grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[color:rgb(15_23_42_/_0.055)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[color:rgb(24_184_137_/_0.055)] dark:border-white/10 sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -89,9 +89,9 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
+      className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[color:rgb(15_23_42_/_0.055)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[color:rgb(24_184_137_/_0.055)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
     >
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[1rem] bg-brand-gradient text-white shadow-[0_10px_22px_rgb(24_184_137_/_0.16)] sm:h-10 sm:w-10">
         <Icon size={17} />
       </div>
       <span className="min-w-0">

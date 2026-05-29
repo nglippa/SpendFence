@@ -30,9 +30,9 @@ export function CategoryCard({
     return (
       <Card
         className={cn(
-          "relative flex min-h-[9.25rem] flex-col overflow-hidden p-3 transition hover:shadow-float sm:min-h-[9.5rem]",
-          progress.status === "locked" && "border-rose-100 bg-rose-50/70",
-          progress.status === "warning" && "border-amber-100 bg-amber-50/60"
+          "relative flex min-h-[9.25rem] flex-col overflow-hidden p-3 transition hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgb(11_17_20_/_0.09)] sm:min-h-[9.5rem]",
+          progress.status === "locked" && "border-rose-100/70 bg-rose-50/58",
+          progress.status === "warning" && "border-amber-100/70 bg-amber-50/52"
         )}
       >
         <span className="absolute inset-x-0 top-0 h-1" style={{ background: stateColor }} />
@@ -40,7 +40,7 @@ export function CategoryCard({
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-white shadow-soft sm:h-9 sm:w-9" style={{ background: category.color }}>
             <CategoryIcon icon={category.icon} size={16} />
           </span>
-          <span className="mt-0.5 flex items-center gap-1 rounded-full bg-white/80 px-1.5 py-0.5 text-[0.64rem] font-black text-slate-600 shadow-soft">
+          <span className="mt-0.5 flex min-h-6 items-center gap-1 rounded-full bg-white/68 px-2 text-[0.64rem] font-black text-slate-600 shadow-[0_8px_18px_rgb(11_17_20_/_0.045)] backdrop-blur dark:bg-white/[0.08]">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: stateColor }} />
             {compactStatus}
           </span>
@@ -66,7 +66,7 @@ export function CategoryCard({
   }
 
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-start gap-2">
