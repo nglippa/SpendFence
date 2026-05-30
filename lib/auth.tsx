@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     clearPersistentAuthStorage();
-    window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
+    removeLocalStorageValue(LEGACY_TRUSTED_DEVICE_KEY);
 
     const demoSession = getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY);
     if (demoSession) {
@@ -175,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (developerStatusLoaded && user) {
-      window.localStorage.removeItem(DEVELOPER_TIER_PREVIEW_KEY);
+      removeLocalStorageValue(DEVELOPER_TIER_PREVIEW_KEY);
     }
     setTierPreviewModeState("free");
   }, [developerStatusLoaded, isDeveloper, user]);
@@ -387,7 +387,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       setTierPreviewMode: (mode) => {
         if (!isDeveloper) return;
-        window.localStorage.setItem(DEVELOPER_TIER_PREVIEW_KEY, mode);
+        setLocalStorageValue(DEVELOPER_TIER_PREVIEW_KEY, mode);
         setTierPreviewModeState(mode);
       },
       startUpgrade: async (plan) => {
@@ -425,7 +425,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         suppressAuthEventsRef.current = false;
         const isDemoSession = (getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY)) === "true";
         clearDemoSession();
-        window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
+        removeLocalStorageValue(LEGACY_TRUSTED_DEVICE_KEY);
         if (supabase && !isDemoSession) await supabase.auth.signOut();
         clearActiveAuthStorage();
         setUser(null);
@@ -467,6 +467,30 @@ function setSessionValue(key: string, value: string) {
 function removeSessionValue(key: string) {
   try {
     window.sessionStorage?.removeItem(key);
+  } catch {
+    // Nothing to clear when storage is unavailable.
+  }
+}
+
+function getLocalStorageValue(key: string) {
+  try {
+    return window.localStorage?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function setLocalStorageValue(key: string, value: string) {
+  try {
+    window.localStorage?.setItem(key, value);
+  } catch {
+    // Storage can be unavailable in restricted browser contexts.
+  }
+}
+
+function removeLocalStorageValue(key: string) {
+  try {
+    window.localStorage?.removeItem(key);
   } catch {
     // Nothing to clear when storage is unavailable.
   }
@@ -545,7 +569,7 @@ function toAuthUser(user: User): AuthUser {
 }
 
 function readStoredTierPreviewMode(): DeveloperTierPreviewMode {
-  return normalizeTier(window.localStorage.getItem(DEVELOPER_TIER_PREVIEW_KEY)) ?? "free";
+  return normalizeTier(getLocalStorageValue(DEVELOPER_TIER_PREVIEW_KEY)) ?? "free";
 }
 
 async function developerStatusHeaders(supabase: SupabaseClient | null, user: AuthUser): Promise<HeadersInit> {

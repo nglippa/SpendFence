@@ -99,7 +99,7 @@ export default function CategoriesPage() {
         <AdaptiveFenceSuggestions onFeedback={showFeedback} />
 
         <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-        <section className="flow-zone p-3.5 sm:p-4">
+        <section className="flow-zone px-0 py-0 sm:p-4">
           <section ref={formRef} className="scroll-mt-24">
             <StableCollapsible open={!formVisible}>
               <button
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
                     <Field label="Color">
                       <Input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} className="h-12 p-2 sm:h-14" />
                     </Field>
-                    <div className="rounded-[1.35rem] bg-[rgb(255_255_255_/_0.045)] p-3.5">
+                    <div className="border-t border-[var(--glass-hairline)] pt-3.5 sm:rounded-[1rem] sm:border-0 sm:bg-[rgb(255_255_255_/_0.045)] sm:p-3.5">
                       <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Live preview</p>
                       <div className="flex items-center gap-2">
                         <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-soft" style={{ background: form.color }}>
@@ -201,7 +201,7 @@ export default function CategoriesPage() {
           </section>
         </section>
 
-        <section className="flow-zone grid content-start gap-2.5 p-3 sm:p-4">
+        <section className="flow-zone grid content-start gap-2.5 px-0 py-0 sm:p-4">
           <div className="px-1 pb-1">
             <h2 className="text-lg font-black text-[var(--app-text)] sm:text-xl">Fence list</h2>
             <p className="mt-1 text-sm font-semibold text-slate-500">Grouped budget rows with controls tucked into each fence.</p>

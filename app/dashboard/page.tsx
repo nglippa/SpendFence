@@ -46,7 +46,7 @@ export default function DashboardPage() {
       />
 
       <div className="flow-canvas">
-        <section className="flow-zone p-4 sm:p-5">
+        <section className="flow-zone snapshot-zone p-4 sm:p-5">
           <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr] lg:items-end">
             <div>
               <p className="section-kicker text-[var(--brand-primary)]">Remaining this cycle</p>
@@ -74,17 +74,17 @@ export default function DashboardPage() {
           <section className="ai-flow-layer p-4 sm:p-5">
             <p className="section-kicker text-[var(--app-intelligence)]">Observation</p>
             <div className="mt-3">
-              <SpendInsightCard insight={dashboardInsight} className="[background:var(--glass-interactive-bg)] shadow-[inset_0_1px_0_var(--glass-edge)]" />
+              <SpendInsightCard insight={dashboardInsight} className="!border-0 !p-0 !shadow-none ![background:transparent]" />
             </div>
           </section>
         ) : null}
 
-        <section className="flow-zone p-4 sm:p-5">
+        <section className="flow-zone px-0 py-0 sm:p-5">
           <SectionHeading title="Category fences" subtitle="A quick read on where the month is calm, close, or locked." action={<Link href="/categories" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">View all <ChevronRight size={14} /></Link>} />
           {state.categories.length ? (
-            <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            <div className="flow-list mt-3 sm:grid sm:grid-cols-2 sm:gap-2.5 lg:grid-cols-3 2xl:grid-cols-4">
               {state.categories.map((category) => (
-                <Link key={category.id} href={`/categories/${category.id}`} className="block rounded-[1.25rem] transition active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#58c6a8]/20">
+                <Link key={category.id} href={`/categories/${category.id}`} className="block transition active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#58c6a8]/20">
                   <CategoryCard category={category} purchases={state.purchases} budgetMonth={state.budgetMonth} variant="compact" />
                 </Link>
               ))}
@@ -108,7 +108,7 @@ export default function DashboardPage() {
         <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
           <SmartPromptsPanel prompts={prompts} isPro={isPro} />
 
-          <section className="flow-zone p-4 sm:p-5">
+          <section className="flow-zone px-0 py-0 sm:p-5">
             <SectionHeading title="Recurring charges" subtitle="Upcoming bills and income without another dashboard block." action={<Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">Manage <ChevronRight size={14} /></Link>} />
             {upcomingRecurring.length ? (
               <div className="flow-list mt-3">
@@ -135,14 +135,14 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="mt-3 rounded-2xl bg-[rgb(255_255_255_/_0.045)] p-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+              <p className="mt-3 border-t border-[var(--glass-hairline)] pt-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
                 Mark recurring purchases or paycheck income to see upcoming dates.
               </p>
             )}
           </section>
         </div>
 
-        <section className="flow-zone p-4 sm:p-5">
+        <section className="flow-zone px-0 py-0 sm:p-5">
           <SectionHeading title="Recent activity" subtitle="The cycle’s latest movement, grouped as a list." />
           {cyclePurchases.length ? (
             <div className="flow-list mt-3">

@@ -239,6 +239,22 @@ main {
   gap: 1.65rem;
 }
 
+.snapshot-zone {
+  border-color: rgb(238 246 247 / 0.16);
+}
+
+.flow-content-zone {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.flow-content-zone::after {
+  display: none;
+}
+
 .flow-zone {
   position: relative;
   overflow: hidden;
@@ -454,6 +470,54 @@ main {
 
   .settings-page-frame {
     width: calc(100% - 1rem);
+  }
+}
+
+@media (max-width: 639px) {
+  .flow-canvas {
+    gap: 1.85rem;
+  }
+
+  .flow-zone:not(.snapshot-zone) {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  :root.dark .flow-zone:not(.snapshot-zone) {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .flow-zone:not(.snapshot-zone)::after {
+    display: none;
+  }
+
+  .ai-flow-layer {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    padding: 0 0 0 0.75rem;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  :root.dark .ai-flow-layer {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .ai-flow-layer::after {
+    display: none;
+  }
+
+  .ai-flow-layer::before {
+    opacity: 0.42;
   }
 }
 

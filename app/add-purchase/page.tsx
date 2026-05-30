@@ -221,7 +221,7 @@ export default function AddPurchasePage() {
       <SettingsFeedback message={feedback} />
 
       <div className="flow-canvas">
-        <section className="flow-zone p-3 sm:p-4">
+        <section className="flow-zone px-0 py-0 sm:p-4">
           <div className="mb-2 px-1">
             <p className="section-kicker text-[var(--brand-primary)]">Intake workflow</p>
             <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">Choose the next input. Forms open into the flow instead of becoming separate pages.</p>
@@ -269,7 +269,7 @@ export default function AddPurchasePage() {
           >
             <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
               <div className="grid gap-3">
-                <label className="grid min-h-28 cursor-pointer place-items-center rounded-[1.35rem] border border-dashed border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.050)] p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[var(--brand-secondary)] hover:text-[var(--brand-secondary)]  ">
+                <label className="grid min-h-24 cursor-pointer place-items-center border border-dashed border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.040)] p-4 text-center text-sm font-bold text-slate-500 transition hover:border-[var(--brand-secondary)] hover:text-[var(--brand-secondary)] sm:min-h-28 sm:rounded-[1rem] sm:bg-[color:rgb(255_255_255_/_0.050)]">
                   <span>
                     <Upload size={22} className="mx-auto mb-2" />
                     Upload or take receipt photo
@@ -339,7 +339,7 @@ export default function AddPurchasePage() {
           <BankSyncEntryCard tier={auth.effectiveTier} demoLocked={state.demoModeLocked} />
         </section>
 
-        <section className="flow-zone p-4 sm:p-5">
+        <section className="flow-zone px-0 py-0 sm:p-5">
           <div className="mb-3">
             <h2 className="text-lg font-black sm:text-xl">Purchase history</h2>
             <p className="mt-1 text-sm font-semibold text-slate-500">Captured purchases grouped as a native list.</p>
@@ -479,7 +479,9 @@ function AddActionCard({
       </div>
 
       <StableCollapsible open={expanded}>
-        <div className="grid gap-4 rounded-[1.35rem] bg-white/26 p-4 ">{children}</div>
+        <div className="grid gap-4 border-t border-[var(--glass-hairline)] px-0 py-4 sm:rounded-[1rem] sm:border sm:[background:var(--glass-interactive-bg)] sm:p-4 sm:shadow-[inset_0_1px_0_var(--glass-edge)]">
+          {children}
+        </div>
       </StableCollapsible>
     </div>
   );
@@ -601,22 +603,22 @@ function RecurringManagementCard({
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2.5 sm:grid-cols-3">
-        <div className="rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 ">
+      <div className="grid gap-0 sm:grid-cols-3 sm:gap-2.5">
+        <div className="border-t border-[var(--glass-hairline)] py-3 first:border-t-0 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Monthly charges</p>
           <p className="mt-1 text-xl font-black text-[#10201c]">{formatMoney(totals.charges)}</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50/70 p-3 dark:bg-[rgb(91_169_140_/_0.10)]">
+        <div className="border-t border-[var(--glass-hairline)] py-3 sm:rounded-[1rem] sm:border-0 sm:bg-emerald-50/70 sm:p-3 dark:sm:bg-[rgb(91_169_140_/_0.10)]">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700/70">Monthly income</p>
           <p className="mt-1 text-xl font-black text-emerald-800">{formatMoney(totals.income)}</p>
         </div>
-        <div className="rounded-2xl bg-slate-50/72 p-3 ">
+        <div className="border-t border-[var(--glass-hairline)] py-3 sm:rounded-[1rem] sm:border-0 sm:bg-slate-50/72 sm:p-3">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Net impact</p>
           <p className={`mt-1 text-xl font-black ${totals.net >= 0 ? "text-emerald-800" : "text-rose-700"}`}>{formatMoney(totals.net)}</p>
         </div>
       </div>
 
-      <form className="grid gap-3 rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-4 " onSubmit={submit}>
+      <form className="grid gap-3 border-t border-[var(--glass-hairline)] pt-4 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-4" onSubmit={submit}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Name">
             <Input ref={firstInputRef} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Netflix, rent, paycheck" required />
@@ -686,7 +688,7 @@ function RecurringManagementCard({
           <h3 className="mb-2 text-sm font-black text-[#10201c]">Detected recurring purchases</h3>
           <div className="grid gap-2">
             {candidates.map((candidate) => (
-              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur  sm:flex-row sm:items-center sm:justify-between">
+              <div key={`${candidate.merchant}-${candidate.categoryId}`} className="flex flex-col gap-2 border-t border-[var(--glass-hairline)] py-3 first:border-t-0 sm:flex-row sm:items-center sm:justify-between sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3 sm:backdrop-blur">
                 <div>
                   <p className="font-black text-[#10201c]">{candidate.merchant}</p>
                   <p className="text-xs font-bold text-slate-500">
@@ -707,7 +709,7 @@ function RecurringManagementCard({
           recurringItems.map((item) => {
             const category = categories.find((categoryItem) => categoryItem.id === item.categoryId);
             return (
-              <div key={item.id} className="rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur ">
+              <div key={item.id} className="border-t border-[var(--glass-hairline)] py-3 first:border-t-0 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3 sm:backdrop-blur">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -802,7 +804,7 @@ function ReceiptReviewCard({
   const totalMatches = Math.abs(allocationTotal - analysisTotal) < 0.02;
 
   return (
-    <div className="rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-4 ">
+    <div className="border-t border-[var(--glass-hairline)] pt-4 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-base font-black sm:text-lg">Review receipt</h3>
         <Pill className="border-slate-200 bg-white text-slate-600">{Math.round(analysis.confidence * 100)}% confidence</Pill>
@@ -828,7 +830,7 @@ function ReceiptReviewCard({
         </div>
         <div className="grid gap-2">
           {analysis.allocations.map((allocation) => (
-            <div key={allocation.id} className="grid gap-2 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur  sm:grid-cols-[1fr_0.55fr_auto] sm:items-end">
+            <div key={allocation.id} className="grid gap-2 border-t border-[var(--glass-hairline)] py-3 first:border-t-0 sm:grid-cols-[1fr_0.55fr_auto] sm:items-end sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3 sm:backdrop-blur">
               <Field label="Category">
                 <Select value={allocation.categoryId} onChange={(event) => onPatchAllocation(allocation.id, { categoryId: event.target.value })}>
                   {categories.map((category) => (
@@ -853,7 +855,7 @@ function ReceiptReviewCard({
         </Button>
       </div>
 
-      <div className="mt-3 rounded-2xl bg-[color:rgb(255_255_255_/_0.050)] p-3 backdrop-blur ">
+      <div className="mt-3 border-t border-[var(--glass-hairline)] pt-3 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3 sm:backdrop-blur">
         <p className="mb-2 text-sm font-black text-slate-600">Line items</p>
         <div className="grid gap-2">
           {analysis.lineItems.map((item) => (

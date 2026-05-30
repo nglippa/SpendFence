@@ -25,7 +25,12 @@ function isAppearancePreference(value: string | null): value is AppearancePrefer
 
 function getStoredPreference(): AppearancePreference {
   if (typeof window === "undefined") return "dark";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  let stored: string | null = null;
+  try {
+    stored = window.localStorage?.getItem(STORAGE_KEY) ?? null;
+  } catch {
+    stored = null;
+  }
   return isAppearancePreference(stored) ? stored : "dark";
 }
 
@@ -103,7 +108,11 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const setPreference = useCallback((nextPreference: AppearancePreference) => {
-    window.localStorage.setItem(STORAGE_KEY, nextPreference);
+    try {
+      window.localStorage?.setItem(STORAGE_KEY, nextPreference);
+    } catch {
+      // The visual preference can still be applied for this page view.
+    }
     setPreferenceState(nextPreference);
     setResolvedTheme(applyAppearance(nextPreference));
   }, []);

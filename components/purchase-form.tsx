@@ -108,7 +108,7 @@ export function PurchaseForm({
       <Field label="Notes">
         <Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional detail" />
       </Field>
-      <div className="rounded-[1.35rem] bg-[color:rgb(255_255_255_/_0.050)] p-3.5">
+      <div className="border-t border-[var(--glass-hairline)] pt-3.5 sm:rounded-[1rem] sm:border-0 sm:bg-[color:rgb(255_255_255_/_0.050)] sm:p-3.5">
         <label className="flex min-h-11 items-center gap-3 text-sm font-black text-[var(--app-text)]">
           <input
             type="checkbox"

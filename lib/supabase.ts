@@ -55,29 +55,44 @@ export function getSupabaseClient() {
 
 export function clearPersistentAuthStorage() {
   if (typeof window === "undefined") return;
-  clearSupabaseAuthKeys(window.localStorage);
+  const storage = getBrowserStorage("localStorage");
+  if (storage) clearSupabaseAuthKeys(storage);
 }
 
 export function clearActiveAuthStorage() {
   if (typeof window === "undefined") return;
-  clearSupabaseAuthKeys(window.localStorage);
-  clearSupabaseAuthKeys(window.sessionStorage);
+  const localStorage = getBrowserStorage("localStorage");
+  const sessionStorage = getBrowserStorage("sessionStorage");
+  if (localStorage) clearSupabaseAuthKeys(localStorage);
+  if (sessionStorage) clearSupabaseAuthKeys(sessionStorage);
 }
 
 function getSessionOnlyStorage() {
   if (typeof window === "undefined") {
-    return {
-      getItem: (key: string) => memoryStorage.get(key) ?? null,
-      setItem: (key: string, value: string) => {
-        memoryStorage.set(key, value);
-      },
-      removeItem: (key: string) => {
-        memoryStorage.delete(key);
-      }
-    };
+    return getMemoryStorage();
   }
 
-  return window.sessionStorage;
+  return getBrowserStorage("sessionStorage") ?? getMemoryStorage();
+}
+
+function getBrowserStorage(name: "localStorage" | "sessionStorage") {
+  try {
+    return window[name] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getMemoryStorage() {
+  return {
+    getItem: (key: string) => memoryStorage.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      memoryStorage.set(key, value);
+    },
+    removeItem: (key: string) => {
+      memoryStorage.delete(key);
+    }
+  };
 }
 
 function clearSupabaseAuthKeys(storage: Storage) {

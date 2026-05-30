@@ -9,7 +9,7 @@ import { PremiumBadge } from "@/components/upgrade-modal";
 import { cn } from "@/lib/utils";
 
 export const intelligenceCardSurfaceClass =
-  "relative overflow-hidden rounded-[0.95rem] border border-[rgb(151_163_220_/_0.13)] bg-[linear-gradient(180deg,rgb(151_163_220_/_0.075),rgb(255_255_255_/_0.032))] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.11)] transition-[background,opacity] duration-200 ease-out sm:p-3.5";
+  "relative overflow-hidden border-t border-[rgb(151_163_220_/_0.13)] bg-transparent px-0 py-3 shadow-none transition-[background,opacity] duration-200 ease-out first:border-t-0 sm:rounded-[0.95rem] sm:border sm:bg-[linear-gradient(180deg,rgb(151_163_220_/_0.075),rgb(255_255_255_/_0.032))] sm:p-3.5 sm:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.11)]";
 
 export const intelligenceIconSurfaceClass =
   "grid h-8 w-8 shrink-0 place-items-center rounded-[0.78rem] bg-[rgb(121_131_189_/_0.13)] text-[var(--app-intelligence)] ring-1 ring-[rgb(151_163_220_/_0.18)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]";
@@ -152,7 +152,7 @@ export function IntelligenceSection({
 
 export function IntelligenceEmptyState({ title, body, loading = false }: { title: string; body: string; loading?: boolean }) {
   return (
-    <div className="rounded-[0.95rem] border border-[rgb(151_163_220_/_0.13)] bg-[linear-gradient(180deg,rgb(151_163_220_/_0.070),rgb(255_255_255_/_0.032))] p-3.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)] sm:p-4">
+    <div className="border-t border-[rgb(151_163_220_/_0.13)] px-0 py-3.5 first:border-t-0 sm:rounded-[0.95rem] sm:border sm:bg-[linear-gradient(180deg,rgb(151_163_220_/_0.070),rgb(255_255_255_/_0.032))] sm:p-4 sm:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)]">
       <div className="flex gap-3">
         <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9")}>
           <Brain size={18} className={cn(loading && "motion-safe:animate-pulse")} />
