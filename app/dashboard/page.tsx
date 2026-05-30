@@ -46,26 +46,24 @@ export default function DashboardPage() {
       />
 
       <div className="flow-canvas">
-        <section className="flow-zone snapshot-zone p-4 sm:p-5">
-          <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr] lg:items-end">
+        <section className="grid gap-4 px-0 py-1 sm:py-2 lg:grid-cols-[1fr_1.2fr] lg:items-end">
+          <div>
+            <p className="section-kicker text-[var(--brand-primary)]">Remaining this cycle</p>
+            <p className="mt-2 text-5xl font-black leading-none tracking-tight text-[var(--app-text)] sm:text-6xl">{formatMoney(remaining)}</p>
+            <p className="mt-2 max-w-xl text-sm font-bold leading-5 text-[var(--app-text-secondary)]">Available after {formatMoney(spent)} spent from {formatMoney(available)} in planned money.</p>
+          </div>
+          <div className="grid gap-3">
             <div>
-              <p className="section-kicker text-[var(--brand-primary)]">Remaining this cycle</p>
-              <p className="mt-2 text-5xl font-black leading-none tracking-tight text-[#10201c] sm:text-6xl">{formatMoney(remaining)}</p>
-              <p className="mt-2 text-sm font-bold leading-5 text-slate-600">Available after {formatMoney(spent)} spent from {formatMoney(available)} in planned money.</p>
+              <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">
+                <span>Budget health</span>
+                <span>{Math.round(budgetPercent)}%</span>
+              </div>
+              <ProgressBar percent={budgetPercent} color={budgetColor} />
             </div>
-            <div className="grid gap-3">
-              <div>
-                <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                  <span>Budget health</span>
-                  <span>{Math.round(budgetPercent)}%</span>
-                </div>
-                <ProgressBar percent={budgetPercent} color={budgetColor} />
-              </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                <Pill className="border-[rgb(91_169_140_/_0.22)] bg-[rgb(91_169_140_/_0.13)] text-[var(--app-success)]"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
-                <Pill className="border-[rgb(200_155_83_/_0.22)] bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)]"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
-                <Pill className="border-[rgb(207_113_109_/_0.22)] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)]"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
-              </div>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <Pill className="border-[rgb(91_169_140_/_0.22)] bg-[rgb(91_169_140_/_0.13)] text-[var(--app-success)]"><ShieldCheck size={13} className="mr-1" /> {safe} safe</Pill>
+              <Pill className="border-[rgb(200_155_83_/_0.22)] bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)]"><AlertTriangle size={13} className="mr-1" /> {warnings} warning</Pill>
+              <Pill className="border-[rgb(207_113_109_/_0.22)] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)]"><LockKeyhole size={13} className="mr-1" /> {locked} locked</Pill>
             </div>
           </div>
         </section>

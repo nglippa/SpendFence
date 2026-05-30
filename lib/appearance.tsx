@@ -2,49 +2,72 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type AppearancePreference = "light" | "dark" | "system";
+export type AppearancePreference = "graphite" | "slate" | "dark" | "light" | "system";
+type ResolvedAppearance = "graphite" | "slate" | "dark" | "light";
+type ResolvedColorScheme = "light" | "dark";
 
 const STORAGE_KEY = "spendfence-theme-v1";
 const DARK_QUERY = "(prefers-color-scheme: dark)";
-const LIGHT_THEME_COLOR = "#10161A";
-const DARK_THEME_COLOR = "#0C1115";
+const THEME_COLORS: Record<ResolvedAppearance, string> = {
+  graphite: "#0C1115",
+  slate: "#101820",
+  dark: "#080B0E",
+  light: "#F4F7F6"
+};
 const LIGHT_FAVICON = "/favicon-light-32x32.png";
 const DARK_FAVICON = "/favicon-dark-32x32.png";
 
 type AppearanceContextValue = {
   preference: AppearancePreference;
-  resolvedTheme: "light" | "dark";
+  resolvedTheme: ResolvedColorScheme;
   setPreference: (preference: AppearancePreference) => void;
 };
 
 const AppearanceContext = createContext<AppearanceContextValue | null>(null);
 
 function isAppearancePreference(value: string | null): value is AppearancePreference {
-  return value === "light" || value === "dark" || value === "system";
+  return value === "graphite" || value === "slate" || value === "dark" || value === "light" || value === "system";
 }
 
 function getStoredPreference(): AppearancePreference {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "graphite";
   let stored: string | null = null;
   try {
     stored = window.localStorage?.getItem(STORAGE_KEY) ?? null;
   } catch {
     stored = null;
   }
-  return isAppearancePreference(stored) ? stored : "dark";
+  if (stored === "dark" || stored === "light" || stored === "system") return stored;
+  return isAppearancePreference(stored) ? stored : "graphite";
+}
+
+function systemPrefersDark() {
+  if (typeof window === "undefined") return true;
+  return window.matchMedia(DARK_QUERY).matches;
+}
+
+function resolveAppearance(preference: AppearancePreference): ResolvedAppearance {
+  if (preference === "system") return systemPrefersDark() ? "dark" : "light";
+  if (preference === "graphite" || preference === "slate" || preference === "dark" || preference === "light") return preference;
+  return "graphite";
+}
+
+function colorSchemeForAppearance(appearance: ResolvedAppearance): ResolvedColorScheme {
+  return appearance === "light" ? "light" : "dark";
 }
 
 function resolvePreference(preference: AppearancePreference) {
-  if (preference === "dark") return "dark";
-  if (preference === "light") return "light";
-  if (typeof window === "undefined") return "dark";
-  return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
+  const resolvedAppearance = resolveAppearance(preference);
+  return {
+    appearance: resolvedAppearance,
+    colorScheme: colorSchemeForAppearance(resolvedAppearance)
+  };
 }
 
-function syncThemeMeta(resolvedTheme: "light" | "dark") {
-  const color = resolvedTheme === "dark" ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
-  const appleStatusBar = "black-translucent";
-  const favicon = resolvedTheme === "dark" ? DARK_FAVICON : LIGHT_FAVICON;
+function syncThemeMeta(resolvedAppearance: ResolvedAppearance, colorScheme: ResolvedColorScheme) {
+  const color = THEME_COLORS[resolvedAppearance];
+  const favicon = colorScheme === "dark" ? DARK_FAVICON : LIGHT_FAVICON;
+  const appleStatusBar = colorScheme === "dark" ? "black-translucent" : "default";
   let themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]:not([media])');
   let appleStatusMeta = document.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
   let faviconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"][data-spendfence-theme-icon]');
@@ -75,20 +98,21 @@ function syncThemeMeta(resolvedTheme: "light" | "dark") {
 }
 
 function applyAppearance(preference: AppearancePreference) {
-  const resolvedTheme = resolvePreference(preference);
+  const resolved = resolvePreference(preference);
   const root = document.documentElement;
 
-  root.classList.toggle("dark", resolvedTheme === "dark");
+  root.classList.toggle("dark", resolved.colorScheme === "dark");
   root.dataset.appearance = preference;
-  root.style.colorScheme = resolvedTheme;
-  syncThemeMeta(resolvedTheme);
+  root.dataset.theme = resolved.appearance;
+  root.style.colorScheme = resolved.colorScheme;
+  syncThemeMeta(resolved.appearance, resolved.colorScheme);
 
-  return resolvedTheme;
+  return resolved.colorScheme;
 }
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
-  const [preference, setPreferenceState] = useState<AppearancePreference>("dark");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
+  const [preference, setPreferenceState] = useState<AppearancePreference>("graphite");
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedColorScheme>("dark");
 
   useEffect(() => {
     const storedPreference = getStoredPreference();
@@ -100,7 +124,8 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     const mediaQuery = window.matchMedia(DARK_QUERY);
 
     function handleSystemChange() {
-      setResolvedTheme(applyAppearance(getStoredPreference()));
+      const storedPreference = getStoredPreference();
+      if (storedPreference === "system") setResolvedTheme(applyAppearance(storedPreference));
     }
 
     mediaQuery.addEventListener("change", handleSystemChange);
@@ -140,16 +165,20 @@ export const appearanceInitScript = `
   try {
     var storageKey = "${STORAGE_KEY}";
     var preference = localStorage.getItem(storageKey);
-    if (preference !== "light" && preference !== "dark" && preference !== "system") preference = "dark";
-    var isDark = preference === "dark" || (preference === "system" && window.matchMedia("${DARK_QUERY}").matches);
+    if (preference !== "graphite" && preference !== "slate" && preference !== "dark" && preference !== "light" && preference !== "system") preference = "graphite";
+    var systemDark = window.matchMedia("${DARK_QUERY}").matches;
+    var theme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
+    var isDark = theme !== "light";
     var root = document.documentElement;
     root.classList.toggle("dark", isDark);
     root.dataset.appearance = preference;
+    root.dataset.theme = theme;
     root.style.colorScheme = isDark ? "dark" : "light";
+    var themeColors = ${JSON.stringify(THEME_COLORS)};
     var themeMeta = document.querySelector('meta[name="theme-color"]:not([media])');
-    if (themeMeta) themeMeta.setAttribute("content", isDark ? "${DARK_THEME_COLOR}" : "${LIGHT_THEME_COLOR}");
+    if (themeMeta) themeMeta.setAttribute("content", themeColors[theme] || themeColors.graphite);
     var appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-    if (appleStatusMeta) appleStatusMeta.setAttribute("content", "black-translucent");
+    if (appleStatusMeta) appleStatusMeta.setAttribute("content", isDark ? "black-translucent" : "default");
     var faviconLink = document.querySelector('link[rel="icon"][data-spendfence-theme-icon]');
     if (!faviconLink) {
       faviconLink = document.createElement("link");

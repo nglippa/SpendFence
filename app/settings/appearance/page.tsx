@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Moon, Palette, Smartphone, Sun } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Circle, Layers3, Monitor, Moon, Palette, Smartphone, Sun } from "lucide-react";
 import { SettingsDetailHeader, SettingsFeedback, SettingsGroup, SettingsRow } from "@/components/settings-ui";
 import type { AppearancePreference } from "@/lib/appearance";
 import { useAppearance } from "@/lib/appearance";
 import { cn } from "@/lib/utils";
 
 const options = [
-  { key: "dark", label: "Graphite", body: "Use the premium graphite interface.", icon: Moon },
-  { key: "light", label: "Slate", body: "Use a slightly lighter slate interface.", icon: Sun },
-  { key: "system", label: "Follow System", body: "Follow this device automatically.", icon: Smartphone }
-] satisfies Array<{ key: AppearancePreference; label: string; body: string; icon: typeof Sun }>;
+  { key: "graphite", label: "Graphite", body: "Force the premium graphite interface.", icon: Moon },
+  { key: "slate", label: "Slate", body: "Force the slightly lighter slate interface.", icon: Layers3 },
+  { key: "dark", label: "Dark", body: "Force the standard dark interface.", icon: Circle },
+  { key: "light", label: "Light", body: "Force the standard light interface.", icon: Sun },
+  { key: "system", label: "Follow System", body: "Match this device automatically.", icon: Smartphone }
+] satisfies Array<{ key: AppearancePreference; label: string; body: string; icon: LucideIcon }>;
 
 export default function AppearanceSettingsPage() {
   const { preference, setPreference } = useAppearance();
@@ -51,7 +54,8 @@ export default function AppearanceSettingsPage() {
       </SettingsGroup>
       <div className="mt-5">
         <SettingsGroup title="Display">
-          <SettingsRow icon={Palette} title="Device-ready" subtitle="Optimized for iPhone, PWA, and desktop." />
+          <SettingsRow icon={Monitor} title="System matching" subtitle="Follow System responds to device appearance changes." />
+          <SettingsRow icon={Palette} title="Theme memory" subtitle="Your selected display mode is saved on this device." />
         </SettingsGroup>
       </div>
     </div>
