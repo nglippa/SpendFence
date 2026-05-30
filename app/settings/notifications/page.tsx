@@ -56,7 +56,7 @@ export default function NotificationSettingsPage() {
           checked={state.insightSettings.showDashboardInsights}
           onChange={(checked) => updateInsight("showDashboardInsights", checked)}
         />
-        <div className="flex min-h-[4.5rem] items-center gap-3.5 border-b border-slate-100 px-4 py-3.5 last:border-b-0 sm:px-5">
+        <div className="native-row settings-native-row flex min-h-[4.5rem] items-center gap-3.5 px-3.5 py-3.5 sm:px-4">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-[#327d6d] text-white">
             <MessageCircle size={18} />
           </div>

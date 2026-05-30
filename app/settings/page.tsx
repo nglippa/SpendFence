@@ -140,7 +140,7 @@ export default function SettingsPage() {
         <div className="settings-section-stack">
           <section className="settings-group grid w-full min-w-0 gap-2">
             <div className="native-list settings-native-list w-full min-w-0 overflow-hidden">
-              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 sm:px-4">
+              <div className="native-row settings-native-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 sm:px-4">
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[0.95rem] bg-brand-gradient text-lg font-black text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_6px_14px_rgb(0_0_0_/_0.14)]">
                   {accountInitial}
                 </div>

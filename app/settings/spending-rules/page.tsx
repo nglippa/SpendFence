@@ -121,7 +121,7 @@ export default function SpendingRulesSettingsPage() {
 
       <div className="grid gap-5">
         <SettingsGroup title="Active Rules">
-          <div className="grid gap-3 p-4 sm:p-5">
+          <div className="settings-native-pad grid gap-3">
             {activeRules.length ? (
               activeRules.map((rule) => (
                 <RuleCard
@@ -156,7 +156,7 @@ export default function SpendingRulesSettingsPage() {
         {builderOpen ? (
           <div ref={builderContainerRef} style={{ scrollMarginTop: "calc(env(safe-area-inset-top) + 7rem)", scrollMarginBottom: "calc(env(safe-area-inset-bottom) + 7rem)" }}>
             <SettingsGroup title={editingId ? "Edit Rule" : "Create Rule"}>
-              <form className="grid gap-4 p-4 sm:p-5" onSubmit={saveRule}>
+              <form className="settings-native-pad grid gap-4" onSubmit={saveRule}>
                 <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
                   <p className="text-sm font-black text-[var(--app-text)]">{preview.title}</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">{preview.description}</p>
@@ -217,7 +217,7 @@ export default function SpendingRulesSettingsPage() {
 
         {suggestions.length ? (
           <SettingsGroup title="Suggested Rules">
-            <div className="grid gap-0 p-4 sm:p-5">
+            <div className="settings-native-pad grid gap-0">
               {suggestions.map((suggestion) => (
                 <div key={suggestion.title} className="border-t border-[var(--glass-hairline)] py-3 first:border-t-0 first:pt-0 last:pb-0">
                   <p className="text-sm font-black leading-5 text-[var(--app-text)]">{suggestion.title}</p>

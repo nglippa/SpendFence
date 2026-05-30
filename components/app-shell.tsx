@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ArrowRight, Bell, ChartPie, Home, ListChecks, LogOut, PlusCircle, ScanLine, Settings, TestTube2, WalletCards } from "lucide-react";
+import { ArrowRight, Bell, ChartPie, CloudOff, Home, ListChecks, LogOut, PlusCircle, RefreshCw, ScanLine, Settings, TestTube2, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
 import { postAuthDestination, sanitizeAuthIntent, sanitizeAuthNextPath, sanitizeAuthPlan } from "@/lib/auth-redirects";
@@ -99,7 +99,7 @@ function authPageRedirectDestination() {
 function InnerShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const router = useRouter();
   const auth = useAuth();
-  const { demoDataEnabled, demoModeLocked, notifications, onboardingProfile, ready } = useSpendFence();
+  const { demoDataEnabled, demoModeLocked, notifications, onboardingProfile, ready, syncStatus, syncError, retrySync } = useSpendFence();
   const unread = notifications.filter((item) => !item.read).length;
   const isOnboarding = pathname.startsWith("/onboarding");
 
@@ -157,6 +157,28 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
           {auth.isDeveloper ? (
             <div className="mb-5 inline-flex min-h-8 items-center rounded-[0.8rem] border border-[rgb(121_131_189_/_0.22)] bg-[rgb(121_131_189_/_0.12)] px-3 text-xs font-black text-[var(--app-intelligence)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10),0_8px_20px_rgb(0_0_0_/_0.14)] backdrop-blur sm:mb-6">
               Developer Preview: {auth.planLabel}
+            </div>
+          ) : null}
+          {syncStatus === "error" ? (
+            <div className="mb-5 flex flex-col gap-3 rounded-[1.05rem] border border-[rgb(214_120_120_/_0.24)] bg-[linear-gradient(180deg,rgb(214_120_120_/_0.12),rgb(255_255_255_/_0.035))] px-4 py-3.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10),0_12px_28px_rgb(0_0_0_/_0.18)] backdrop-blur-[12px] sm:mb-6 sm:flex-row sm:items-center sm:justify-between" role="alert">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-[color:rgb(214_120_120_/_0.16)] text-[var(--app-danger)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]">
+                  <CloudOff size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-[var(--app-text)]">Sync paused</p>
+                  <p className="break-words text-xs font-bold leading-5 text-[var(--app-text-muted)] [overflow-wrap:anywhere]">
+                    {syncError ?? "We couldn't sync your data. Your changes are saved on this device."}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={retrySync}
+                className="inline-flex min-h-9 shrink-0 items-center gap-1.5 self-start rounded-[0.75rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3 text-xs font-black text-[var(--app-text-secondary)] transition hover:[background:var(--glass-focused-bg)] sm:self-auto"
+              >
+                <RefreshCw size={14} /> Retry sync
+              </button>
             </div>
           ) : null}
           {demoDataEnabled ? (

@@ -40,11 +40,11 @@ export default function BudgetCycleSettingsPage() {
         <section className="settings-group grid w-full min-w-0 gap-2">
           <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Current cycle</h2>
           <div className="native-list settings-native-list w-full min-w-0 overflow-hidden">
-            <div className="px-4 py-4 sm:px-5 sm:py-5">
+            <div className="settings-native-pad">
               <p className="section-kicker text-[var(--brand-primary)]">This cycle</p>
               <p className="mt-2 text-2xl font-black leading-tight tracking-tight text-[var(--app-text)] sm:text-3xl">{formatCycleRange(cycle.start, cycle.end)}</p>
             </div>
-            <div className="report-metric-strip border-t border-[var(--glass-hairline)] px-4 py-3.5 sm:px-5 sm:py-4">
+            <div className="report-metric-strip settings-native-pad border-t border-[var(--glass-hairline)]">
               <div>
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Starts</p>
                 <p className="mt-1 text-sm font-black text-[var(--app-text)] sm:text-base">{formatFullDate(cycle.start)}</p>

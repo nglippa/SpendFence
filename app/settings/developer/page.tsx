@@ -35,7 +35,7 @@ export default function DeveloperSettingsPage() {
       <SettingsFeedback message={feedback} />
       <div className="grid gap-5">
         <SettingsGroup title="Tier Preview Mode">
-          <div className="border-b border-[var(--app-border)] p-4 sm:p-5">
+          <div className="settings-native-pad border-b border-[var(--app-border)]">
             <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[var(--app-secondary)] p-1">
               {tierOptions.map((option) => {
                 const active = auth.tierPreviewMode === option.value;

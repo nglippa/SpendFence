@@ -1,10 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 import { categoryProgress, formatMoney, warningMessage } from "@/lib/budget";
 import { categorizeTransaction, normalizeMerchant } from "@/lib/categorization";
 import { createDemoState, initialState } from "@/lib/mock-data";
 import { nextRecurringDate } from "@/lib/recurring";
+import { getSupabaseClient } from "@/lib/supabase";
+import { loadStateFromSupabase, pushFullStateToSupabase, syncStateDiff } from "@/lib/supabase-sync";
 import type { SpendingRuleInput } from "@/lib/rules/rule-types";
 import type {
   BudgetMonth,
@@ -31,9 +34,15 @@ import type {
 
 const LEGACY_STORAGE_KEY = "spendfence-state-v1";
 const STORAGE_KEY = "spendfence-state-v2";
+const MIGRATED_KEY = "spendfence-migrated:v2";
+
+export type SyncStatus = "idle" | "loading" | "syncing" | "error";
 
 type SpendFenceContextValue = SpendFenceState & {
   ready: boolean;
+  syncStatus: SyncStatus;
+  syncError: string | null;
+  retrySync: () => void;
   updateBudgetMonth: (budgetMonth: BudgetMonth) => void;
   addCategory: (input: CategoryInput) => void;
   updateCategory: (id: string, input: CategoryInput) => void;
@@ -84,39 +93,120 @@ const colors = ["#5BA98C", "#6FB7A5", "#7894B6", "#87C7BB", "#C89B53", "#7B84BD"
 export function SpendFenceProvider({ children, userId, demoLocked = false }: { children: React.ReactNode; userId: string; demoLocked?: boolean }) {
   const storageKey = `${STORAGE_KEY}:${userId}`;
   const legacyStorageKey = `${LEGACY_STORAGE_KEY}:${userId}`;
+  const migratedKey = `${MIGRATED_KEY}:${userId}`;
   const [realState, setRealState] = useState<SpendFenceState>(() => withUserId(initialState, userId));
   const [demoState, setDemoState] = useState<SpendFenceState>(() => withUserId(createDemoState(), userId));
   const [demoDataEnabled, setDemoDataEnabled] = useState(demoLocked);
   const [ready, setReady] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [bootNonce, setBootNonce] = useState(0);
+  // The last realState confirmed present on the server. Diff-sync uses this as
+  // its baseline. null means "server state unknown" (load failed or Supabase is
+  // unconfigured), which disables ongoing sync so we never clobber remote data.
+  const syncedBaseline = useRef<SpendFenceState | null>(null);
+
+  function readLocalCache(): StoredSpendFenceData | null {
+    const saved =
+      window.localStorage.getItem(storageKey) ??
+      window.localStorage.getItem(legacyStorageKey) ??
+      window.localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!saved) return null;
+    try {
+      return loadStoredData(JSON.parse(saved), userId);
+    } catch {
+      return null;
+    }
+  }
 
   useEffect(() => {
     if (demoLocked) {
       setRealState(withUserId(initialState, userId));
       setDemoState(withUserId(createDemoState(), userId));
       setDemoDataEnabled(true);
+      syncedBaseline.current = null;
+      setSyncStatus("idle");
+      setSyncError(null);
       setReady(true);
       return;
     }
 
-    const saved =
-      window.localStorage.getItem(storageKey) ??
-      window.localStorage.getItem(legacyStorageKey) ??
-      window.localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (saved) {
+    let cancelled = false;
+    const cache = readLocalCache();
+    if (cache) {
+      // Demo data is always local-only; restore it regardless of server state.
+      setDemoState(cache.demoState);
+      setDemoDataEnabled(cache.demoDataEnabled);
+    }
+
+    const client = getSupabaseClient();
+
+    if (!client) {
+      // No Supabase configured (e.g. local dev): pure localStorage behavior.
+      if (cache) setRealState(cache.realState);
+      syncedBaseline.current = null;
+      setSyncStatus("idle");
+      setSyncError(null);
+      setReady(true);
+      return;
+    }
+
+    const localReal = cache ? withUserId(cache.realState, userId) : null;
+
+    async function boot() {
+      setSyncStatus("loading");
+      setSyncError(null);
       try {
-        const next = loadStoredData(JSON.parse(saved), userId);
-        setRealState(next.realState);
-        setDemoState(next.demoState);
-        setDemoDataEnabled(next.demoDataEnabled);
-      } catch {
-        setRealState(withUserId(initialState, userId));
-        setDemoState(withUserId(createDemoState(), userId));
-        setDemoDataEnabled(false);
+        const { state: serverState, hasData } = await loadStateFromSupabase(client!, userId);
+        if (cancelled) return;
+        const alreadyMigrated = window.localStorage.getItem(migratedKey) === "true";
+
+        if (hasData) {
+          const normalized = withUserId(serverState, userId);
+          setRealState(normalized);
+          syncedBaseline.current = normalized;
+          window.localStorage.setItem(migratedKey, "true");
+          setSyncStatus("idle");
+          return;
+        }
+
+        if (!alreadyMigrated && localReal && stateHasData(localReal)) {
+          await pushFullStateToSupabase(client!, userId, localReal);
+          if (cancelled) return;
+          setRealState(localReal);
+          syncedBaseline.current = localReal;
+          window.localStorage.setItem(migratedKey, "true");
+          setSyncStatus("idle");
+          return;
+        }
+
+        const normalized = withUserId(serverState, userId);
+        setRealState(normalized);
+        syncedBaseline.current = normalized;
+        window.localStorage.setItem(migratedKey, "true");
+        setSyncStatus("idle");
+      } catch (error) {
+        if (cancelled) return;
+        // Never destroy local data on a sync failure. Fall back to the cache and
+        // disable ongoing sync until a future successful load.
+        if (localReal) setRealState(localReal);
+        syncedBaseline.current = null;
+        setSyncStatus("error");
+        setSyncError(syncErrorMessage(error));
+      } finally {
+        if (!cancelled) setReady(true);
       }
     }
-    setReady(true);
-  }, [demoLocked, legacyStorageKey, storageKey, userId]);
 
+    boot();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoLocked, userId, bootNonce]);
+
+  // Local cache: keep localStorage fresh as an offline fallback + migration
+  // source. Demo state rides along but is never synced to Supabase.
   useEffect(() => {
     if (!ready) return;
     if (demoLocked) return;
@@ -129,6 +219,32 @@ export function SpendFenceProvider({ children, userId, demoLocked = false }: { c
     window.localStorage.setItem(storageKey, JSON.stringify(stored));
   }, [demoDataEnabled, demoLocked, demoState, ready, realState, storageKey]);
 
+  // Ongoing diff sync of real (non-demo) mutations to Supabase, debounced.
+  useEffect(() => {
+    if (!ready || demoLocked) return;
+    const baseline = syncedBaseline.current;
+    if (!baseline || baseline === realState) return;
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    const handle = window.setTimeout(() => {
+      const target = realState;
+      setSyncStatus("syncing");
+      syncStateDiff(client, userId, baseline, target)
+        .then(() => {
+          syncedBaseline.current = target;
+          setSyncStatus("idle");
+          setSyncError(null);
+        })
+        .catch((error) => {
+          setSyncStatus("error");
+          setSyncError(syncErrorMessage(error));
+        });
+    }, 700);
+
+    return () => window.clearTimeout(handle);
+  }, [realState, ready, demoLocked, userId]);
+
   const demoActive = demoLocked || demoDataEnabled;
   const state = demoActive ? demoState : realState;
   const setActiveState = demoActive ? setDemoState : setRealState;
@@ -137,6 +253,9 @@ export function SpendFenceProvider({ children, userId, demoLocked = false }: { c
     () => ({
       ...state,
       ready,
+      syncStatus,
+      syncError,
+      retrySync: () => setBootNonce((n) => n + 1),
       demoDataEnabled: demoActive,
       demoModeLocked: demoLocked,
       updateBudgetMonth: (budgetMonth) => setActiveState((current) => ({ ...current, budgetMonth: { ...budgetMonth, userId } })),
@@ -437,10 +556,39 @@ export function SpendFenceProvider({ children, userId, demoLocked = false }: { c
       },
       resetDemoData: () => setDemoState(withUserId(createDemoState(), userId))
     }),
-    [demoActive, demoLocked, ready, setActiveState, state, userId]
+    [demoActive, demoLocked, ready, setActiveState, state, syncError, syncStatus, userId]
   );
 
+  if (!ready) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-[var(--app-bg)] px-6">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <BrandLogo className="h-11 w-11 animate-pulse" />
+          <p className="text-sm font-bold text-[var(--app-text-muted)]">Loading your budget…</p>
+        </div>
+      </div>
+    );
+  }
+
   return <SpendFenceContext.Provider value={value}>{children}</SpendFenceContext.Provider>;
+}
+
+function stateHasData(state: SpendFenceState): boolean {
+  return Boolean(
+    state.categories.length ||
+      state.purchases.length ||
+      state.recurringItems.length ||
+      state.spendingRules.length ||
+      state.importedTransactions.length ||
+      state.fenceLearningEvents.length ||
+      state.onboardingProfile.completed ||
+      state.budgetMonth.income > 0
+  );
+}
+
+function syncErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message;
+  return "We couldn't sync your data. Your changes are saved on this device.";
 }
 
 function withUserId(state: SpendFenceState, userId: string): SpendFenceState {

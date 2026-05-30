@@ -36,8 +36,10 @@
   "/philosophy/page": "app/philosophy/page.js",
   "/premium/page": "app/premium/page.js",
   "/pricing/page": "app/pricing/page.js",
+  "/privacy/page": "app/privacy/page.js",
   "/receipt-scanner/page": "app/receipt-scanner/page.js",
   "/reports/page": "app/reports/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
   "/security/page": "app/security/page.js",
   "/settings/about/page": "app/settings/about/page.js",
   "/settings/account/page": "app/settings/account/page.js",
@@ -54,5 +56,7 @@
   "/settings/security/page": "app/settings/security/page.js",
   "/settings/spending-rules/page": "app/settings/spending-rules/page.js",
   "/signup/page": "app/signup/page.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/terms/page": "app/terms/page.js",
   "/transaction-review/page": "app/transaction-review/page.js"
 }

@@ -635,6 +635,26 @@ main {
   border-top: 1px solid var(--glass-hairline);
 }
 
+/* Padding for custom (non-row) content placed inside a settings-native-list.
+   Matches the horizontal gutter of settings-native-row so content never sits
+   flush to the screen edge when the list goes edge-to-edge on mobile. */
+.settings-native-pad {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .settings-native-pad {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .settings-native-pad {
+    padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
+    padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+  }
+}
+
 .landing-bg {
   background:
     linear-gradient(120deg, rgb(31 209 165 / 0.14), transparent 28rem),

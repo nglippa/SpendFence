@@ -110,7 +110,7 @@ export default function PrivacySettingsPage() {
               else disableDemoData();
             }}
           />
-          <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
+          <div className="settings-native-pad grid gap-2.5 sm:grid-cols-2">
             <Button variant="secondary" onClick={enableDemoData} disabled={demoLocked || state.demoDataEnabled}>
               <TestTube2 size={18} /> Enable Demo Data
             </Button>
@@ -129,7 +129,7 @@ export default function PrivacySettingsPage() {
         </SettingsGroup>
 
         <SettingsGroup title="Actions">
-          <div className="grid gap-2.5 p-4 sm:p-5">
+          <div className="settings-native-pad grid gap-2.5">
             <Button variant="secondary" onClick={exportData}>
               <Download size={18} /> Export data
             </Button>

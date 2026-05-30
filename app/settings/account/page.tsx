@@ -36,7 +36,7 @@ export default function AccountSettingsPage() {
         </SettingsGroup>
 
         <SettingsGroup>
-          <div className="p-4 sm:p-5">
+          <div className="settings-native-pad">
             <Button variant="secondary" className="w-full" onClick={logout} disabled={working}>
               <LogOut size={18} /> {working ? "Signing out" : "Log out"}
             </Button>
