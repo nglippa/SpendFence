@@ -74,7 +74,7 @@ export default function DashboardPage() {
           <section className="ai-flow-layer p-4 sm:p-5">
             <p className="section-kicker text-[var(--app-intelligence)]">Observation</p>
             <div className="mt-3">
-              <SpendInsightCard insight={dashboardInsight} className="bg-[rgb(255_255_255_/_0.045)] shadow-none" />
+              <SpendInsightCard insight={dashboardInsight} className="[background:var(--glass-interactive-bg)] shadow-[inset_0_1px_0_var(--glass-edge)]" />
             </div>
           </section>
         ) : null}
@@ -195,7 +195,7 @@ function SmartPromptsPanel({ prompts, isPro }: { prompts: Prompt[]; isPro: boole
             <PromptChip key={prompt.id} prompt={prompt} index={index} />
           ))}
           {prompts.length > 2 ? (
-            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(255_255_255_/_0.050)] px-3 text-xs font-black text-[var(--app-intelligence)] transition hover:bg-[rgb(255_255_255_/_0.080)]">
+            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-[0.78rem] border border-[rgb(151_163_220_/_0.15)] [background:var(--glass-interactive-bg)] px-3 text-xs font-black text-[var(--app-intelligence)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)]">
               More <ChevronRight size={14} />
             </Link>
           ) : null}
@@ -223,7 +223,7 @@ function PromptChip({ prompt, index }: { prompt: Prompt; index: number }) {
   return (
     <article
       className={cn(
-        "inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(255_255_255_/_0.050)] px-3 py-1.5 text-left text-xs font-black leading-5 text-[var(--app-text)] transition hover:bg-[rgb(255_255_255_/_0.080)] sm:text-sm",
+        "inline-flex min-h-9 max-w-full items-center gap-2 rounded-[0.78rem] border border-[rgb(151_163_220_/_0.15)] [background:var(--glass-interactive-bg)] px-3 py-1.5 text-left text-xs font-black leading-5 text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)] sm:text-sm",
         index === 1 && "motion-safe:[animation-delay:90ms]"
       )}
     >

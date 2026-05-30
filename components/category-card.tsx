@@ -30,17 +30,17 @@ export function CategoryCard({
     return (
       <div
         className={cn(
-          "relative flex min-h-[8.1rem] flex-col overflow-hidden rounded-[1.25rem] bg-[rgb(255_255_255_/_0.045)] p-3 transition hover:bg-[rgb(255_255_255_/_0.070)] sm:min-h-[8.4rem]",
+          "relative flex min-h-[8.1rem] flex-col overflow-hidden rounded-[1rem] border border-[var(--glass-hairline)] [background:var(--glass-interactive-bg)] p-3 shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)] sm:min-h-[8.4rem]",
           progress.status === "locked" && "bg-[rgb(207_113_109_/_0.10)]",
           progress.status === "warning" && "bg-[rgb(200_155_83_/_0.10)]"
         )}
       >
         <span className="absolute inset-x-4 top-0 h-px rounded-full opacity-80" style={{ background: stateColor }} />
         <div className="flex items-start justify-between gap-2 pt-1">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-white shadow-soft sm:h-9 sm:w-9" style={{ background: category.color }}>
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[0.8rem] text-white shadow-[inset_0_1px_0_rgb(255_255_255_/_0.20),0_8px_18px_rgb(0_0_0_/_0.20)] sm:h-9 sm:w-9" style={{ background: category.color }}>
             <CategoryIcon icon={category.icon} size={16} />
           </span>
-          <span className="mt-0.5 flex min-h-6 items-center gap-1 rounded-full border border-[var(--app-border)] bg-[rgb(255_255_255_/_0.060)] px-2 text-[0.64rem] font-black text-[var(--app-text-secondary)] backdrop-blur">
+          <span className="mt-0.5 flex min-h-6 items-center gap-1 rounded-[0.72rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-2 text-[0.64rem] font-black text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_var(--glass-edge)]">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: stateColor }} />
             {compactStatus}
           </span>
@@ -66,11 +66,12 @@ export function CategoryCard({
   }
 
   return (
-    <div className="rounded-[1.25rem] bg-[rgb(255_255_255_/_0.045)] p-4 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] backdrop-blur sm:p-4">
+    <div className="relative overflow-hidden rounded-[1rem] border border-[var(--glass-hairline)] [background:var(--glass-interactive-bg)] p-4 shadow-[inset_0_1px_0_var(--glass-edge)] backdrop-blur-[10px] sm:p-4">
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[var(--glass-edge)]" />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-start gap-2">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl text-white shadow-soft" style={{ background: category.color }}>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[0.72rem] text-white shadow-[inset_0_1px_0_rgb(255_255_255_/_0.20),0_7px_16px_rgb(0_0_0_/_0.18)]" style={{ background: category.color }}>
               <CategoryIcon icon={category.icon} size={15} />
             </span>
             <h2 className="text-base font-black leading-5 text-[var(--app-text)] sm:text-lg sm:leading-6">{category.name}</h2>

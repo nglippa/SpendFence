@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { featureFlags } from "@/lib/feature-flags";
 import { clearActiveAuthStorage, clearPersistentAuthStorage, getSupabaseClient, getSupabaseConfigErrorMessage, hasSupabaseConfig } from "@/lib/supabase";
@@ -87,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
   const [tierPreviewMode, setTierPreviewModeState] = useState<DeveloperTierPreviewMode>("free");
   const [loading, setLoading] = useState(true);
+  const suppressAuthEventsRef = useRef(false);
   const supabase = getSupabaseClient();
   const supabaseConfigError = getSupabaseConfigErrorMessage() ?? "Supabase auth is not configured for this environment.";
   const demoModeAvailable = true;
@@ -124,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (suppressAuthEventsRef.current) return;
       setUser(session?.user ? toAuthUser(session.user) : null);
       setLoading(false);
     });
@@ -242,51 +244,97 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       demoModeAvailable,
       signIn: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
+        suppressAuthEventsRef.current = true;
+        setLoading(true);
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { error: error.message };
+        if (error) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: error.message };
+        }
 
         const aal = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-        if (aal.error) return { error: aal.error.message };
+        if (aal.error) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: aal.error.message };
+        }
 
         if (aal.data.currentLevel !== aal.data.nextLevel && aal.data.nextLevel === "aal2") {
           const factorsResult = await supabase.auth.mfa.listFactors();
-          if (factorsResult.error) return { error: factorsResult.error.message };
+          if (factorsResult.error) {
+            suppressAuthEventsRef.current = false;
+            setLoading(false);
+            return { error: factorsResult.error.message };
+          }
 
           const factors = normalizeMfaFactors(factorsResult.data);
-          if (!factors.length) return { error: "MFA is required, but no verified factors are available for this account." };
+          if (!factors.length) {
+            suppressAuthEventsRef.current = false;
+            setLoading(false);
+            return { error: "MFA is required, but no verified factors are available for this account." };
+          }
 
           const primaryMethod = data.user?.user_metadata?.spendfence_mfa_primary_method;
           const preferredFactor = choosePreferredFactor(factors, primaryMethod);
           const challenge = await createMfaChallenge(supabase, preferredFactor);
-          if (challenge.error || !challenge.challenge) return { error: challenge.error ?? "Could not start MFA verification." };
+          if (challenge.error || !challenge.challenge) {
+            suppressAuthEventsRef.current = false;
+            setLoading(false);
+            return { error: challenge.error ?? "Could not start MFA verification." };
+          }
 
+          setLoading(false);
           return { mfaRequired: true, mfa: { factors, challenge: challenge.challenge } };
         }
 
         const confirmedUser = await waitForSessionUser(supabase);
-        if (!confirmedUser) return { error: "Signed in, but the session was not ready. Please try again." };
+        if (!confirmedUser) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: "Signed in, but the session was not ready. Please try again." };
+        }
         clearDemoSession();
+        suppressAuthEventsRef.current = false;
         setUser(toAuthUser(confirmedUser));
         setLoading(false);
         return {};
       },
       signUp: async (email, password) => {
         if (!supabase) return { error: supabaseConfigError };
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) return { error: error.message };
+        suppressAuthEventsRef.current = true;
+        setLoading(true);
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: authRedirectUrl("/login") }
+        });
+        if (error) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: error.message };
+        }
         if (data.session?.user) {
           const confirmedUser = await waitForSessionUser(supabase);
           if (confirmedUser) {
             clearDemoSession();
+            suppressAuthEventsRef.current = false;
             setUser(toAuthUser(confirmedUser));
             setLoading(false);
+            return { message: "Account created.", signedIn: true };
           }
+
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: "Account created, but the session was not ready. Please log in to continue." };
         }
+        suppressAuthEventsRef.current = false;
+        setLoading(false);
         return { message: "Check your email if confirmation is enabled.", signedIn: Boolean(data.session) };
       },
       resetPassword: async (email) => {
         if (!supabase) return { error: supabaseConfigError };
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login` });
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: authRedirectUrl("/login") });
         return error ? { error: error.message } : { message: "Password reset email sent." };
       },
       startMfaChallenge: async (factor) => {
@@ -295,16 +343,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       verifyMfaChallenge: async (challenge, code) => {
         if (!supabase) return { error: supabaseConfigError };
+        suppressAuthEventsRef.current = true;
+        setLoading(true);
         const { error } = await supabase.auth.mfa.verify({
           factorId: challenge.factorId,
           challengeId: challenge.challengeId,
           code
         });
-        if (error) return { error: error.message };
+        if (error) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: error.message };
+        }
 
         const confirmedUser = await waitForSessionUser(supabase);
-        if (!confirmedUser) return { error: "Verified MFA, but the session was not ready. Please try again." };
+        if (!confirmedUser) {
+          suppressAuthEventsRef.current = false;
+          setLoading(false);
+          return { error: "Verified MFA, but the session was not ready. Please try again." };
+        }
         clearDemoSession();
+        suppressAuthEventsRef.current = false;
         setUser(toAuthUser(confirmedUser));
         setLoading(false);
         return {};
@@ -363,6 +422,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       refreshSubscription,
       signOut: async () => {
+        suppressAuthEventsRef.current = false;
         const isDemoSession = (getSessionValue(DEMO_SESSION_KEY) ?? getCookieValue(DEMO_SESSION_KEY)) === "true";
         clearDemoSession();
         window.localStorage.removeItem(LEGACY_TRUSTED_DEVICE_KEY);
@@ -458,6 +518,11 @@ async function waitForSessionUser(supabase: SupabaseClient) {
 
 function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function authRedirectUrl(path: string) {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return origin ? `${origin}${path}` : path;
 }
 
 function toDemoUser(locked = false): AuthUser {

@@ -270,14 +270,14 @@ function SuggestionCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <Button type="button" size="sm" onClick={onAccept} variant="secondary" className="min-h-8 rounded-xl px-2.5 text-xs sm:min-h-9">
+          <Button type="button" size="sm" onClick={onAccept} variant="secondary" className="min-h-8 rounded-[0.72rem] px-2.5 text-xs sm:min-h-9">
             <Check size={14} /> {appliesLimit ? "Accept" : "Useful"}
           </Button>
           <button
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss suggestion"
-            className="grid h-8 w-8 place-items-center rounded-xl border border-[var(--app-border)] bg-[rgb(255_255_255_/_0.055)] text-[var(--app-text-muted)] transition hover:bg-[rgb(255_255_255_/_0.085)] hover:text-[var(--app-text)] sm:h-9 sm:w-9"
+            className="grid h-8 w-8 place-items-center rounded-[0.72rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--app-text-muted)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)] hover:text-[var(--app-text)] sm:h-9 sm:w-9"
           >
             <X size={15} />
           </button>

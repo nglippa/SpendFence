@@ -158,7 +158,16 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     if (mode === "signup") {
       if (nextPath || plan || intent) {
         window.sessionStorage.setItem(AUTH_FLASH_KEY, result.message ?? "Account created. Log in to continue.");
-        router.replace(result.signedIn ? destination : `/login${preservedQuery}`);
+        if (result.signedIn) {
+          setRedirecting(true);
+          return;
+        }
+        router.replace(`/login${preservedQuery}`);
+        return;
+      }
+
+      if (result.signedIn) {
+        setRedirecting(true);
         return;
       }
 
@@ -167,9 +176,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     updateRememberedEmail();
-    redirectStartedRef.current = true;
     setRedirecting(true);
-    router.replace(destination);
   }
 
   async function verifyMfa() {
@@ -188,9 +195,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     }
 
     updateRememberedEmail();
-    redirectStartedRef.current = true;
     setRedirecting(true);
-    router.replace(destination);
   }
 
   async function switchMfaFactor(factor: MfaFactor) {

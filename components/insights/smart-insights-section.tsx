@@ -63,7 +63,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
               <button
                 type="button"
                 onClick={() => setMoreOpen((open) => !open)}
-                className="inline-flex w-fit items-center gap-1 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(255_255_255_/_0.050)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] transition hover:bg-[rgb(255_255_255_/_0.080)]"
+                className="inline-flex w-fit items-center gap-1 rounded-[0.72rem] border border-[rgb(151_163_220_/_0.15)] [background:var(--glass-interactive-bg)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)]"
                 aria-expanded={moreOpen}
               >
                 {moreOpen ? "Hide" : "Show"} {secondaryInsights.length} more
@@ -88,7 +88,7 @@ export function SmartInsightsSection({ insights }: { insights: BehavioralInsight
 
 function ObservationChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(121_131_189_/_0.075)] px-2 py-0.5 text-[0.66rem] font-black leading-5 text-[var(--app-text-secondary)]">
+    <span className="rounded-[0.68rem] border border-[rgb(151_163_220_/_0.15)] bg-[rgb(121_131_189_/_0.080)] px-2 py-0.5 text-[0.66rem] font-black leading-5 text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)]">
       {children}
     </span>
   );

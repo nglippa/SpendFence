@@ -9,10 +9,10 @@ import { PremiumBadge } from "@/components/upgrade-modal";
 import { cn } from "@/lib/utils";
 
 export const intelligenceCardSurfaceClass =
-  "relative overflow-hidden rounded-2xl bg-[rgb(255_255_255_/_0.050)] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055)] transition-[background,opacity] duration-200 ease-out sm:p-3.5";
+  "relative overflow-hidden rounded-[0.95rem] border border-[rgb(151_163_220_/_0.13)] bg-[linear-gradient(180deg,rgb(151_163_220_/_0.075),rgb(255_255_255_/_0.032))] p-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.11)] transition-[background,opacity] duration-200 ease-out sm:p-3.5";
 
 export const intelligenceIconSurfaceClass =
-  "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(121_131_189_/_0.12)] text-[var(--app-intelligence)] ring-1 ring-[rgb(121_131_189_/_0.16)]";
+  "grid h-8 w-8 shrink-0 place-items-center rounded-[0.78rem] bg-[rgb(121_131_189_/_0.13)] text-[var(--app-intelligence)] ring-1 ring-[rgb(151_163_220_/_0.18)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]";
 
 export const intelligenceAccentRailClass =
   "pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-r-full bg-[var(--app-intelligence)] opacity-65";
@@ -129,8 +129,8 @@ export function IntelligenceSection({
                 onClick={handleRefresh}
                 disabled={refreshDisabled}
                 className={cn(
-                  "inline-flex h-8 items-center gap-1 rounded-full border px-2.5 text-[0.68rem] font-black transition-[background,border-color,color,opacity] disabled:cursor-not-allowed sm:text-xs",
-                  "border-[rgb(121_131_189_/_0.16)] bg-[rgb(255_255_255_/_0.055)] text-[var(--app-intelligence)] hover:bg-[rgb(255_255_255_/_0.085)]",
+                  "inline-flex h-8 items-center gap-1 rounded-[0.72rem] border px-2.5 text-[0.68rem] font-black transition-[background,border-color,color,opacity] disabled:cursor-not-allowed sm:text-xs",
+                  "border-[rgb(151_163_220_/_0.16)] [background:var(--glass-interactive-bg)] text-[var(--app-intelligence)] shadow-[inset_0_1px_0_var(--glass-edge)] hover:[background:var(--glass-focused-bg)]",
                   refreshIsProcessing && "bg-[rgb(121_131_189_/_0.12)]",
                   refreshDisabled && !refreshIsProcessing && "opacity-55"
                 )}
@@ -152,7 +152,7 @@ export function IntelligenceSection({
 
 export function IntelligenceEmptyState({ title, body, loading = false }: { title: string; body: string; loading?: boolean }) {
   return (
-    <div className="rounded-2xl bg-[rgb(255_255_255_/_0.045)] p-3.5 sm:p-4">
+    <div className="rounded-[0.95rem] border border-[rgb(151_163_220_/_0.13)] bg-[linear-gradient(180deg,rgb(151_163_220_/_0.070),rgb(255_255_255_/_0.032))] p-3.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)] sm:p-4">
       <div className="flex gap-3">
         <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9")}>
           <Brain size={18} className={cn(loading && "motion-safe:animate-pulse")} />
@@ -170,7 +170,7 @@ function IntelligencePill({ children, tone = "neutral" }: { children: ReactNode;
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[0.64rem] font-black leading-none sm:text-[0.68rem]",
+        "inline-flex h-6 items-center gap-1 rounded-[0.68rem] border px-2 text-[0.64rem] font-black leading-none shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] sm:text-[0.68rem]",
         tone === "neutral" && "border-[var(--app-border)] bg-[var(--app-card)] text-[var(--app-text-muted)] dark:bg-[#121A1F]",
         tone === "accent" && intelligenceTagClass,
         tone === "premium" && "border-[rgb(127_151_189_/_0.18)] bg-[rgb(127_151_189_/_0.08)] text-[var(--app-info)] shadow-[0_6px_18px_rgb(127_151_189_/_0.10)]"

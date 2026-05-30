@@ -20,8 +20,8 @@ const iconByType = {
 const iconStylesBySeverity = {
   calm: intelligenceIconSurfaceClass,
   positive: intelligenceIconSurfaceClass,
-  watch: "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)] ring-1 ring-[rgb(200_155_83_/_0.18)]",
-  limit: "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)] ring-1 ring-[rgb(207_113_109_/_0.18)]"
+  watch: "grid h-8 w-8 shrink-0 place-items-center rounded-[0.78rem] bg-[rgb(200_155_83_/_0.14)] text-[var(--app-warning)] ring-1 ring-[rgb(200_155_83_/_0.18)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)]",
+  limit: "grid h-8 w-8 shrink-0 place-items-center rounded-[0.78rem] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)] ring-1 ring-[rgb(207_113_109_/_0.18)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)]"
 };
 
 const accentBySeverity = {
@@ -86,7 +86,7 @@ export function SpendInsightCard({
             type="button"
             onClick={dismiss}
             aria-label="Dismiss insight"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[var(--app-text-muted)] transition hover:bg-[rgb(255_255_255_/_0.075)] hover:text-[var(--app-text)]"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-[0.75rem] text-[var(--app-text-muted)] transition hover:bg-[rgb(255_255_255_/_0.075)] hover:text-[var(--app-text)]"
           >
             <X size={15} />
           </button>
@@ -102,7 +102,7 @@ function storageKey(id: string) {
 
 function InsightChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="shrink-0 rounded-full border border-[rgb(121_131_189_/_0.14)] bg-[rgb(121_131_189_/_0.075)] px-2 py-0.5 text-[0.66rem] font-black leading-5 text-[var(--app-text-secondary)]">
+    <span className="shrink-0 rounded-[0.68rem] border border-[rgb(151_163_220_/_0.15)] bg-[rgb(121_131_189_/_0.080)] px-2 py-0.5 text-[0.66rem] font-black leading-5 text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)]">
       {children}
     </span>
   );

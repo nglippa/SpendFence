@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 
 export function SettingsDetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.45rem] border-b border-[var(--app-border)] bg-[color:rgb(12_17_21_/_0.84)] px-5 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-2xl sm:-top-5 sm:mb-6 sm:rounded-b-[1.75rem] sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
-      <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-xs font-black text-[var(--brand-primary)] transition hover:bg-[var(--app-secondary)] sm:mb-6 sm:min-h-10 sm:text-sm">
+    <div className="sticky -top-4 z-20 mb-5 rounded-b-[1.1rem] border-b border-[var(--glass-border)] bg-[linear-gradient(180deg,rgb(12_17_21_/_0.92),rgb(12_17_21_/_0.72))] px-5 pb-5 pt-[max(1rem,env(safe-area-inset-top))] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06),0_12px_28px_rgb(0_0_0_/_0.18)] backdrop-blur-[14px] sm:-top-5 sm:mb-6 sm:px-7 sm:pb-6 sm:pt-6 lg:-top-8">
+      <Link href="/settings" className="-ml-2 mb-4 inline-flex min-h-9 items-center gap-1.5 rounded-[0.75rem] px-2 text-xs font-black text-[var(--brand-primary)] transition hover:bg-[color:rgb(255_255_255_/_0.075)] sm:mb-6 sm:min-h-10 sm:text-sm">
         <ArrowLeft size={17} /> Settings
       </Link>
       <h1 className="text-[1.55rem] font-black leading-8 tracking-tight text-[var(--app-text)] sm:text-3xl sm:leading-10">{title}</h1>
@@ -44,7 +44,7 @@ export function SettingsRow({
 }) {
   const content = (
     <>
-      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] text-[#06110d] sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)] text-[#180708]" : "bg-brand-gradient")}>
+      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-[0.78rem] text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_8px_18px_rgb(0_0_0_/_0.18)] sm:h-10 sm:w-10", danger ? "bg-[var(--app-danger)] text-[#180708]" : "bg-brand-gradient")}>
         <Icon size={17} />
       </div>
       <div className="min-w-0">
@@ -57,7 +57,7 @@ export function SettingsRow({
     </>
   );
 
-  const className = "native-row grid min-h-[3.85rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(95_164_142_/_0.065)] sm:min-h-[4.25rem] sm:px-5 sm:py-3.5";
+  const className = "native-row grid min-h-[3.7rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(255_255_255_/_0.060)] sm:min-h-[4rem] sm:px-5 sm:py-3.5";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -89,9 +89,9 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="native-row grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(95_164_142_/_0.065)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
+      className="native-row grid min-h-[3.8rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-3 text-left transition hover:bg-[color:rgb(255_255_255_/_0.060)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[4.25rem] sm:px-5 sm:py-3.5"
     >
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.95rem] bg-brand-gradient text-[#06110d] shadow-[0_10px_22px_rgb(0_0_0_/_0.16)] sm:h-10 sm:w-10">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.78rem] bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_8px_18px_rgb(0_0_0_/_0.18)] sm:h-10 sm:w-10">
         <Icon size={17} />
       </div>
       <span className="min-w-0">
@@ -142,8 +142,8 @@ export function ConfirmSheet({
 }) {
   if (!open) return null;
   return (
-    <div className="app-bottom-nav fixed inset-0 z-[80] grid items-end justify-items-center bg-slate-950/30 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm sm:place-items-center sm:p-4">
-      <div className="w-full max-w-md rounded-3xl bg-[var(--app-card)] p-5 shadow-float">
+    <div className="app-bottom-nav fixed inset-0 z-[80] grid items-end justify-items-center bg-slate-950/35 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-[6px] sm:place-items-center sm:p-4">
+      <div className="w-full max-w-md rounded-[1.1rem] border border-[var(--glass-border)] [background:var(--glass-section-bg)] p-5 shadow-[var(--glass-shadow)] backdrop-blur-[14px]">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-black text-[var(--app-text)]">{title}</h2>

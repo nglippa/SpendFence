@@ -131,7 +131,7 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-40 border-b border-[var(--app-border)] bg-[color:rgb(12_17_21_/_0.82)] pt-[env(safe-area-inset-top)] backdrop-blur-2xl">
+      <header className="sticky top-0 z-40 border-b border-[rgb(255_255_255_/_0.055)] bg-[linear-gradient(180deg,rgb(9_14_18_/_0.82),rgb(9_14_18_/_0.58))] pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
         <div className="app-shell-frame flex items-center justify-between gap-3 py-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 sm:gap-3">
             <BrandLogo className="h-10 w-auto sm:h-11" />
@@ -140,12 +140,12 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
               <p className="text-xs font-bold text-[var(--app-text-muted)]">Monthly fences</p>
             </div>
           </Link>
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1 rounded-[1.05rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] p-1 shadow-[inset_0_1px_0_var(--glass-edge),0_10px_28px_rgb(0_0_0_/_0.20)] lg:flex">
             {nav.map((item) => (
               <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
           </nav>
-          <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-[1.05rem] border border-[var(--app-border)] bg-[color:rgb(255_255_255_/_0.060)] text-[var(--app-text-secondary)] shadow-[0_10px_26px_rgb(0_0_0_/_0.14)] backdrop-blur sm:h-11 sm:w-11">
+          <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-[0.9rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_var(--glass-edge),0_10px_24px_rgb(0_0_0_/_0.18)] backdrop-blur-[10px] sm:h-11 sm:w-11">
             <Bell size={19} />
             {unread ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[var(--app-danger)]" /> : null}
           </Link>
@@ -155,14 +155,14 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
       <main className="app-shell-frame overflow-x-clip pb-[calc(6.35rem+env(safe-area-inset-bottom))] pt-4 sm:pt-6 lg:pb-9 lg:pt-8">
         <div className="relative min-h-[calc(100dvh-9rem)] overflow-x-clip">
           {auth.isDeveloper ? (
-            <div className="mb-5 inline-flex min-h-8 items-center rounded-full border border-[rgb(121_131_189_/_0.22)] bg-[rgb(121_131_189_/_0.12)] px-3 text-xs font-black text-[var(--app-intelligence)] shadow-[0_8px_22px_rgb(0_0_0_/_0.14)] backdrop-blur sm:mb-6">
+            <div className="mb-5 inline-flex min-h-8 items-center rounded-[0.8rem] border border-[rgb(121_131_189_/_0.22)] bg-[rgb(121_131_189_/_0.12)] px-3 text-xs font-black text-[var(--app-intelligence)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10),0_8px_20px_rgb(0_0_0_/_0.14)] backdrop-blur sm:mb-6">
               Developer Preview: {auth.planLabel}
             </div>
           ) : null}
           {demoDataEnabled ? (
-            <div className="mb-5 flex flex-col gap-3 rounded-[1.35rem] border border-[rgb(95_164_142_/_0.16)] bg-[color:rgb(95_164_142_/_0.075)] px-4 py-3.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.055),0_14px_34px_rgb(0_0_0_/_0.12)] backdrop-blur-xl sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div className="mb-5 flex flex-col gap-3 rounded-[1.05rem] border border-[rgb(95_164_142_/_0.18)] bg-[linear-gradient(180deg,rgb(95_164_142_/_0.105),rgb(255_255_255_/_0.035))] px-4 py-3.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12),0_12px_28px_rgb(0_0_0_/_0.18)] backdrop-blur-[12px] sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <div className="flex min-w-0 items-center gap-2.5">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[color:rgb(95_164_142_/_0.14)] text-[var(--brand-secondary)]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-[color:rgb(95_164_142_/_0.14)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]">
                   <TestTube2 size={17} />
                 </span>
                 <div className="min-w-0">
@@ -176,14 +176,14 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
                 <button
                   type="button"
                   onClick={() => leaveDemo("/signup")}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-[var(--brand-primary)] px-3 text-xs font-black text-[#06110d] shadow-soft transition hover:-translate-y-0.5"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-[0.75rem] bg-[var(--brand-primary)] px-3 text-xs font-black text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_8px_18px_rgb(0_0_0_/_0.18)] transition hover:-translate-y-0.5"
                 >
                   Create Account <ArrowRight size={14} />
                 </button>
                 <button
                   type="button"
                   onClick={() => leaveDemo("/")}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] px-3 text-xs font-black text-[var(--app-text-secondary)] transition hover:bg-[var(--app-secondary)]"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-[0.75rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3 text-xs font-black text-[var(--app-text-secondary)] transition hover:[background:var(--glass-focused-bg)]"
                 >
                   <LogOut size={14} /> Exit Demo
                 </button>
@@ -194,8 +194,8 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
         </div>
       </main>
 
-      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[var(--app-border)] bg-[color:rgb(12_17_21_/_0.88)] pb-[calc(env(safe-area-inset-bottom)+0.62rem)] pt-2 shadow-[0_-14px_34px_rgba(0,0,0,.24)] backdrop-blur-2xl lg:hidden">
-        <div className="mx-auto grid w-full max-w-lg grid-cols-5 gap-1">
+      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 pb-[calc(env(safe-area-inset-bottom)+0.62rem)] pt-2 lg:hidden">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-5 gap-1 rounded-[1.15rem] border border-[var(--glass-border)] [background:var(--glass-section-bg)] p-1.5 shadow-[inset_0_1px_0_var(--glass-edge),0_-10px_34px_rgba(0,0,0,.28)] backdrop-blur-[14px]">
           {mobileNav.map((item) => (
             <MobileNavLink key={item.href} {...item} pathname={pathname} />
           ))}
@@ -211,8 +211,8 @@ function NavLink({ href, label, icon: Icon, pathname }: (typeof nav)[number] & {
     <Link
       href={href}
       className={cn(
-        "inline-flex min-h-10 items-center gap-2 rounded-[1.05rem] px-3 text-sm font-black transition",
-        active ? "bg-brand-gradient text-[#06110d] shadow-soft" : "text-[var(--app-text-secondary)] hover:bg-[var(--app-secondary)]"
+        "inline-flex min-h-9 items-center gap-2 rounded-[0.8rem] px-3 text-sm font-black transition",
+        active ? "bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_8px_18px_rgb(0_0_0_/_0.20)]" : "text-[var(--app-text-secondary)] hover:bg-[color:rgb(255_255_255_/_0.075)]"
       )}
     >
       <Icon size={17} />
@@ -227,8 +227,8 @@ function MobileNavLink({ href, label, icon: Icon, pathname }: (typeof mobileNav)
     <Link
       href={href}
       className={cn(
-        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-[1.05rem] px-1 py-1.5 text-[0.625rem] font-black leading-none transition",
-        active ? "bg-brand-gradient text-[#06110d] shadow-[0_10px_24px_rgb(0_0_0_/_0.22)]" : "text-[var(--app-text-muted)] hover:bg-[color:rgb(255_255_255_/_0.060)]"
+        "flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-[0.85rem] px-1 py-1 text-[0.625rem] font-black leading-none transition",
+        active ? "bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_8px_18px_rgb(0_0_0_/_0.22)]" : "text-[var(--app-text-muted)] hover:bg-[color:rgb(255_255_255_/_0.070)]"
       )}
       aria-current={active ? "page" : undefined}
     >
