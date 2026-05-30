@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
 import { categoryProgress, formatMoney, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
-import type { BudgetMonth, Category, Purchase } from "@/lib/types";
+import type { AdaptiveFenceSuggestion, BudgetMonth, Category, Purchase } from "@/lib/types";
 import { CategoryIcon } from "@/components/category-icons";
 import { Pill, ProgressBar } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,14 @@ export function CategoryCard({
   purchases,
   budgetMonth,
   variant = "full",
+  guidance,
   actions
 }: {
   category: Category;
   purchases: Purchase[];
   budgetMonth?: BudgetMonth;
   variant?: "full" | "compact";
+  guidance?: AdaptiveFenceSuggestion;
   actions?: ReactNode;
 }) {
   const progress = categoryProgress(category, purchases, budgetMonth);
@@ -98,6 +100,15 @@ export function CategoryCard({
         <ProgressBar percent={progress.percent} color={stateColor} />
       </div>
       <p className="mt-2.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-3">{warningMessage(category, purchases, budgetMonth)}</p>
+      {guidance ? (
+        <div className="mt-3 border-l border-[rgb(139_151_220_/_0.34)] py-0.5 pl-3">
+          <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Suggested</p>
+          <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)]">{guidance.suggestedAction}</p>
+          <p className="mt-0.5 text-xs font-semibold leading-5 text-[var(--app-text-secondary)]">
+            {guidance.suggestedLimit ? `${formatMoney(guidance.currentLimit)} current fence, ${formatMoney(guidance.suggestedLimit)} suggested.` : guidance.explanation}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

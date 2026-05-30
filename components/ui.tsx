@@ -6,7 +6,7 @@ export function Card({ children, className }: { children: React.ReactNode; class
   return (
     <section
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[1.15rem] border border-[var(--glass-border)] [background:var(--glass-section-bg)] p-4 shadow-[var(--glass-shadow)] backdrop-blur-[14px] motion-safe:animate-[surface-rise_360ms_ease-out_both] before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[var(--glass-edge)] after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(115deg,rgb(255_255_255_/_0.075),transparent_26%),linear-gradient(180deg,rgb(255_255_255_/_0.06),transparent_5rem)] after:opacity-70 sm:p-5",
+        "relative w-full min-w-0 overflow-hidden rounded-[1.15rem] border border-[var(--glass-border)] [background:var(--glass-section-bg)] p-4 shadow-[var(--glass-shadow)] backdrop-blur-[18px] motion-safe:animate-[surface-rise_360ms_ease-out_both] before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[var(--glass-edge)] after:pointer-events-none after:absolute after:inset-0 after:[background:var(--glass-reflection)] after:opacity-65 after:mix-blend-screen sm:p-5",
         className
       )}
     >
@@ -32,10 +32,10 @@ export function Button({
     size === "sm" && "min-h-9 px-2.5 text-xs sm:text-sm",
     size === "md" && "px-3.5 py-2 text-sm sm:px-4",
     size === "lg" && "min-h-11 px-4 text-sm sm:min-h-12 sm:px-5 sm:text-base",
-    variant === "primary" && "border border-[rgb(178_230_211_/_0.20)] bg-brand-gradient text-[#06110d] shadow-[0_10px_22px_rgb(0_0_0_/_0.24),inset_0_1px_0_rgb(255_255_255_/_0.22)] hover:brightness-[1.07]",
-    variant === "secondary" && "border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_var(--glass-edge)] hover:[background:var(--glass-focused-bg)]",
-    variant === "ghost" && "text-[var(--app-text-secondary)] hover:bg-[color:rgb(255_255_255_/_0.075)]",
-    variant === "danger" && "border border-[rgb(207_113_109_/_0.22)] bg-[rgb(207_113_109_/_0.14)] text-[var(--app-danger)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] hover:bg-[rgb(207_113_109_/_0.20)]",
+    variant === "primary" && "border border-[rgb(178_230_211_/_0.16)] bg-brand-gradient text-[#06110d] shadow-[0_12px_26px_rgb(0_0_0_/_0.18),0_2px_14px_rgb(95_164_142_/_0.10),inset_0_1px_0_rgb(255_255_255_/_0.28)] hover:brightness-[1.07]",
+    variant === "secondary" && "border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_var(--glass-edge),inset_0_0_0_1px_rgb(255_255_255_/_0.018)] backdrop-blur-[14px] hover:[background:var(--glass-focused-bg)]",
+    variant === "ghost" && "text-[var(--app-text-secondary)] hover:bg-[color:rgb(255_255_255_/_0.060)]",
+    variant === "danger" && "border border-[rgb(207_113_109_/_0.16)] bg-[rgb(207_113_109_/_0.12)] text-[var(--app-danger)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] hover:bg-[rgb(207_113_109_/_0.18)]",
     className
   );
 
@@ -54,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
   <input
     ref={ref}
     className={cn(
-      "min-h-10 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 text-sm font-bold text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[rgb(111_183_165_/_0.42)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-11 sm:px-4",
+      "min-h-10 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 text-sm font-bold text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge),inset_0_0_0_1px_rgb(255_255_255_/_0.018)] backdrop-blur-[14px] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[rgb(111_183_165_/_0.30)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-11 sm:px-4",
       className
     )}
     {...props}
@@ -66,7 +66,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
   <textarea
     ref={ref}
     className={cn(
-      "min-h-20 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge)] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[rgb(111_183_165_/_0.42)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-24 sm:px-4",
+      "min-h-20 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 py-3 text-sm font-bold text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge),inset_0_0_0_1px_rgb(255_255_255_/_0.018)] backdrop-blur-[14px] outline-none transition placeholder:text-[var(--app-text-muted)] focus:border-[rgb(111_183_165_/_0.30)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-24 sm:px-4",
       className
     )}
     {...props}
@@ -78,7 +78,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "min-h-10 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 text-sm font-black text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge)] outline-none transition focus:border-[rgb(111_183_165_/_0.42)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-11 sm:px-4",
+        "min-h-10 w-full rounded-[0.85rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] px-3.5 text-sm font-black text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge),inset_0_0_0_1px_rgb(255_255_255_/_0.018)] backdrop-blur-[14px] outline-none transition focus:border-[rgb(111_183_165_/_0.30)] focus:[background:var(--glass-focused-bg)] focus:ring-4 focus:ring-[var(--app-ring)] sm:min-h-11 sm:px-4",
         className
       )}
       {...props}
@@ -96,7 +96,7 @@ export function Field({ label, children }: { label: string; children: React.Reac
 }
 
 export function Pill({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <span className={cn("inline-flex min-h-6 items-center gap-1 rounded-[0.72rem] border px-2.5 py-0.5 text-[0.68rem] font-black leading-none shadow-[inset_0_1px_0_rgb(255_255_255_/_0.08)] sm:text-xs", className)}>{children}</span>;
+  return <span className={cn("inline-flex min-h-6 items-center gap-1 rounded-[0.72rem] border px-2.5 py-0.5 text-[0.68rem] font-black leading-none shadow-[inset_0_1px_0_rgb(255_255_255_/_0.10)] backdrop-blur-[10px] sm:text-xs", className)}>{children}</span>;
 }
 
 export function PageHeader({ kicker, title, body, action }: { kicker: string; title: string; body?: React.ReactNode; action?: React.ReactNode }) {
@@ -115,7 +115,7 @@ export function PageHeader({ kicker, title, body, action }: { kicker: string; ti
 export function ProgressBar({ percent, color = "var(--app-success)", compact = false }: { percent: number; color?: string; compact?: boolean }) {
   const width = Number.isFinite(percent) ? Math.min(Math.max(percent, 0), 125) : 0;
   return (
-    <div className={cn("overflow-hidden rounded-full bg-[rgb(0_0_0_/_0.22)] shadow-[inset_0_1px_2px_rgb(0_0_0_/_0.28),inset_0_1px_0_rgb(255_255_255_/_0.055)]", compact ? "h-1.5 sm:h-2" : "h-2 sm:h-2.5")}>
+    <div className={cn("overflow-hidden rounded-full bg-[rgb(255_255_255_/_0.090)] shadow-[inset_0_1px_2px_rgb(0_0_0_/_0.22),inset_0_1px_0_rgb(255_255_255_/_0.10)]", compact ? "h-1.5 sm:h-2" : "h-2 sm:h-2.5")}>
       <div className="h-full rounded-full shadow-[inset_0_1px_0_rgb(255_255_255_/_0.22)] transition-[width] duration-500 ease-out" style={{ width: `${width}%`, background: color }} />
     </div>
   );
@@ -135,8 +135,8 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("grid place-items-center rounded-[1.05rem] border border-[var(--glass-hairline)] [background:var(--glass-interactive-bg)] px-4 text-center shadow-[inset_0_1px_0_var(--glass-edge)]", compact ? "py-4" : "py-8 sm:py-10")}>
-      <div className="grid h-10 w-10 place-items-center rounded-[0.85rem] bg-[color:rgb(255_255_255_/_0.085)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]">
+    <div className={cn("grid place-items-center rounded-[1.05rem] border border-[var(--glass-hairline)] [background:var(--glass-interactive-bg)] px-4 text-center shadow-[inset_0_1px_0_var(--glass-edge),inset_0_0_0_1px_rgb(255_255_255_/_0.018)] backdrop-blur-[14px]", compact ? "py-4" : "py-8 sm:py-10")}>
+      <div className="grid h-10 w-10 place-items-center rounded-[0.85rem] bg-[color:rgb(255_255_255_/_0.070)] text-[var(--brand-secondary)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.14)]">
         <Icon size={20} />
       </div>
       <h2 className="mt-3 text-base font-black text-[var(--app-text)] sm:text-lg">{title}</h2>

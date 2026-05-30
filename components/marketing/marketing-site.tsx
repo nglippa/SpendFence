@@ -32,7 +32,7 @@ type MarketingPageKey = "home" | "philosophy" | "adaptive-ai" | "features" | "se
 const navItems = [
   { href: "/", label: "Home", key: "home" },
   { href: "/philosophy", label: "Philosophy", key: "philosophy" },
-  { href: "/adaptive-ai", label: "Adaptive AI", key: "adaptive-ai" },
+  { href: "/adaptive-ai", label: "Adaptive Budgeting", key: "adaptive-ai" },
   { href: "/features", label: "Features", key: "features" },
   { href: "/security", label: "Security", key: "security" },
   { href: "/pricing", label: "Pricing", key: "pricing" }
@@ -46,13 +46,13 @@ const featureCards = [
   },
   {
     icon: Brain,
-    title: "Smart Insights",
+    title: "Spending Observations",
     body: "Behavior-aware guidance that explains what changed without guilt, noise, or finance theater."
   },
   {
     icon: Camera,
     title: "Receipt Scanning",
-    body: "Review receipt details and AI-assisted category suggestions before anything is saved."
+    body: "Review receipt details and category suggestions before anything is saved."
   },
   {
     icon: CalendarClock,
@@ -231,17 +231,17 @@ export function PhilosophyMarketingPage() {
 export function AdaptiveAiMarketingPage() {
   const steps = [
     ["Connect and observe", "Future read-only account learning lets SpendFence understand your spending rhythm before proposing anything."],
-    ["Recognize patterns", "AI-assisted intelligence can identify pacing shifts, recurring pressure, late-cycle strain, and realistic category ranges."],
+    ["Recognize patterns", "SpendFence can identify pacing shifts, recurring pressure, late-cycle strain, and realistic category ranges."],
     ["Suggest fences", "SpendFence proposes boundaries that fit observed behavior instead of asking users to invent perfect limits upfront."],
-    ["User approves", "AI suggests. Users approve. Every meaningful change remains collaborative and visible."]
+    ["User approves", "SpendFence suggests. Users approve. Every meaningful change remains collaborative and visible."]
   ];
 
   return (
     <MarketingShell page="adaptive-ai">
       <PageHero
-        eyebrow="Adaptive AI"
-        title="AI-assisted budgeting that collaborates instead of commands."
-        body="SpendFence combines receipt analysis, category suggestions, smart insights, and adaptive fence recommendations into one restrained intelligence layer."
+        eyebrow="Adaptive budgeting"
+        title="Budgeting that collaborates instead of commands."
+        body="SpendFence combines receipt analysis, category suggestions, observations, and adaptive fence recommendations into one restrained intelligence layer."
       />
       <SectionShell>
         <div className="grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
@@ -261,7 +261,7 @@ export function AdaptiveAiMarketingPage() {
           </motion.div>
         </div>
       </SectionShell>
-      <StatementBand title="AI suggests. Users approve." body="The long-term vision is an adaptive onboarding system where users spend normally for a period, then review realistic starting fences shaped by actual behavior." />
+      <StatementBand title="SpendFence suggests. Users approve." body="The long-term vision is an adaptive onboarding system where users spend normally for a period, then review realistic starting fences shaped by actual behavior." />
     </MarketingShell>
   );
 }
@@ -412,12 +412,12 @@ function HeroSection() {
       <div className="absolute inset-x-0 top-0 h-[45rem] bg-[radial-gradient(circle_at_18%_14%,rgb(95_164_142_/_0.18),transparent_28rem),radial-gradient(circle_at_86%_20%,rgb(111_143_183_/_0.10),transparent_30rem)]" />
       <div className="relative mx-auto grid min-h-[88svh] max-w-7xl gap-11 px-5 pb-16 pt-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-20">
         <motion.div variants={fadeUp} className="max-w-3xl text-center lg:text-left">
-          <Badge>Adaptive AI-assisted spending intelligence</Badge>
+          <Badge>Adaptive spending intelligence</Badge>
           <h1 className="mt-6 text-[3.45rem] font-black leading-[0.98] tracking-[-0.04em] text-[var(--marketing-text)] sm:text-7xl lg:text-[5.35rem]">
             Budgeting that adapts to how you actually live.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-8 text-[var(--marketing-muted)] sm:text-lg lg:mx-0">
-            SpendFence turns real behavior into calm spending fences, AI-assisted insights, and decisions you approve before anything changes.
+            SpendFence turns real behavior into calm spending fences, timely observations, and decisions you approve before anything changes.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <PrimaryCta href="/premium">Start Premium</PrimaryCta>
@@ -425,7 +425,7 @@ function HeroSection() {
           </div>
           <div className="mt-8 grid grid-cols-3 gap-2 text-left sm:max-w-xl lg:max-w-lg">
             {[
-              ["AI-assisted", "insights"],
+              ["Contextual", "guidance"],
               ["User-approved", "changes"],
               ["Mobile-first", "daily rhythm"]
             ].map(([top, bottom]) => (
@@ -472,7 +472,7 @@ function AdaptiveCenterpiece() {
       title="Fences that move with your actual rhythm."
       body="SpendFence helps users see pace, pressure, and recurring behavior early enough to adjust with intention. It is designed to feel like financial awareness, not financial surveillance."
       ctaHref="/adaptive-ai"
-      ctaLabel="Explore Adaptive AI"
+      ctaLabel="Explore Adaptive Budgeting"
     >
       <div className="relative overflow-hidden rounded-[2rem] border border-[rgb(95_164_142_/_0.20)] bg-[linear-gradient(145deg,var(--marketing-panel),var(--marketing-panel-strong))] p-4 shadow-[var(--marketing-shadow)] sm:p-5">
         <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[rgb(95_164_142_/_0.14)] blur-3xl" />
@@ -507,16 +507,16 @@ function AdaptiveCenterpiece() {
 function AiPreview() {
   return (
     <SplitSection
-      eyebrow="AI assists, user approves"
+      eyebrow="Intelligence assists, user approves"
       title="Intelligence that supports decisions without taking them over."
-      body="Receipt analysis, category suggestions, smart insights, and adaptive fence recommendations work together to make budgeting feel clearer and less brittle."
+      body="Receipt analysis, category suggestions, observations, and adaptive fence recommendations work together to make budgeting feel clearer and less brittle."
       ctaHref="/features"
       ctaLabel="See the surfaces"
       reverse
     >
       <div className="grid gap-3">
         {([
-          ["AI insight", "Dining is moving faster than your normal cycle pace.", Brain],
+          ["Pacing note", "Dining is moving faster than your normal cycle pace.", Brain],
           ["Recurring detection", "Streamly looks like a monthly subscription.", CalendarClock],
           ["Review-first import", "Approve the category before it touches your budget.", ClipboardCheck]
         ] satisfies Array<[string, string, LucideIcon]>).map(([title, body, Icon]) => (
@@ -718,7 +718,7 @@ function DashboardPreview() {
         <PreviewProgress label="Groceries" note="inside fence" value="$418 / $720" percent={58} color="#7B84BD" />
         <PreviewProgress label="Dining" note="pacing high" value="$302 / $360" percent={84} color="#C89B53" />
       </div>
-      <AiChip className="mt-3">AI: Dining is 18% faster than rhythm</AiChip>
+      <AiChip className="mt-3">Dining is 18% faster than rhythm</AiChip>
     </div>
   );
 }
@@ -993,7 +993,7 @@ function FinalCta() {
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--marketing-accent)]">SpendFence</p>
             <h2 className="mt-3 text-4xl font-black leading-tight tracking-[-0.035em] text-[var(--marketing-text)] sm:text-5xl">Build fences that fit your life.</h2>
             <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[var(--marketing-muted)]">
-              Adaptive budgeting powered by AI-assisted financial pacing and behavioral spending intelligence.
+              Adaptive budgeting powered by financial pacing and behavioral spending intelligence.
             </p>
           </div>
           <div className="grid gap-3 sm:flex lg:shrink-0">

@@ -1,13 +1,13 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { Edit3, MoreVertical, Plus, Trash2, WalletCards } from "lucide-react";
-import { AdaptiveFenceSuggestions } from "@/components/adaptive-fence-suggestions";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
+import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
 import { useSpendFence } from "@/lib/store";
 import type { Category, CategoryInput } from "@/lib/types";
 
@@ -40,6 +40,18 @@ export default function CategoriesPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<CategoryFormState>(() => emptyForm());
   const formVisible = formOpen || Boolean(editing);
+  const suggestionsByCategory = useMemo(() => {
+    const suggestions = generateLocalFenceSuggestions({
+      categories: state.categories,
+      purchases: state.purchases,
+      recurringItems: state.recurringItems,
+      spendingRules: state.spendingRules,
+      budgetMonth: state.budgetMonth,
+      settings: state.adaptiveFenceSettings,
+      learningEvents: state.fenceLearningEvents
+    });
+    return new Map(suggestions.map((suggestion) => [suggestion.categoryId, suggestion]));
+  }, [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems, state.spendingRules]);
 
   function focusFenceForm() {
     window.setTimeout(() => {
@@ -96,8 +108,6 @@ export default function CategoriesPage() {
       <PageHeader kicker="Categories" title="Build your monthly fences" body="Create custom categories, set spending limits, and choose warning thresholds." />
       <SettingsFeedback message={feedback} />
       <div className="flow-canvas">
-        <AdaptiveFenceSuggestions onFeedback={showFeedback} />
-
         <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
         <section className="flow-zone px-0 py-0 sm:p-4">
           <section ref={formRef} className="scroll-mt-24">
@@ -213,6 +223,7 @@ export default function CategoriesPage() {
                 category={category}
                 purchases={state.purchases}
                 budgetMonth={state.budgetMonth}
+                guidance={suggestionsByCategory.get(category.id)}
                 actions={
                   <CategoryActionMenu
                     categoryName={category.name}

@@ -1,27 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, Brain, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
+import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
-import { IntelligenceEmptyState, IntelligenceSection } from "@/components/insights/intelligence-section";
-import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { Button, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
-import { useAuth } from "@/lib/auth";
-import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, getSmartPrompts, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
+import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
 import { selectDashboardInsight } from "@/lib/insights/behavioral-insights";
 import { monthlyRecurringAmount, recurringFrequencyLabel, recurringKindLabel, upcomingRecurringItems } from "@/lib/recurring";
 import { useSpendFence } from "@/lib/store";
-import type { Prompt } from "@/lib/types";
-import { cn, formatShortDate } from "@/lib/utils";
+import { formatShortDate } from "@/lib/utils";
 
 export default function DashboardPage() {
   const state = useSpendFence();
-  const { isPro } = useAuth();
   const cyclePurchases = purchasesForCycle(state.purchases, state.budgetMonth);
   const spent = totalSpent(state.purchases, state.budgetMonth);
   const available = availableBudget(state);
   const remaining = remainingBudget(state);
-  const prompts = getSmartPrompts(state);
   const dashboardInsight = selectDashboardInsight(state);
   const upcomingRecurring = upcomingRecurringItems(state.recurringItems, 45);
   const locked = state.categories.filter((category) => categoryProgress(category, state.purchases, state.budgetMonth).status === "locked").length;
@@ -69,12 +63,11 @@ export default function DashboardPage() {
         </section>
 
         {dashboardInsight ? (
-          <section className="ai-flow-layer p-4 sm:p-5">
-            <p className="section-kicker text-[var(--app-intelligence)]">Observation</p>
-            <div className="mt-3">
-              <SpendInsightCard insight={dashboardInsight} className="!border-0 !p-0 !shadow-none ![background:transparent]" />
-            </div>
-          </section>
+          <div className="ml-0.5 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:pl-4">
+            <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Observation</p>
+            <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{dashboardInsight.title}</p>
+            <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{dashboardInsight.message}</p>
+          </div>
         ) : null}
 
         <section className="flow-zone px-0 py-0 sm:p-5">
@@ -103,42 +96,38 @@ export default function DashboardPage() {
           )}
         </section>
 
-        <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-          <SmartPromptsPanel prompts={prompts} isPro={isPro} />
-
-          <section className="flow-zone px-0 py-0 sm:p-5">
-            <SectionHeading title="Recurring charges" subtitle="Upcoming bills and income without another dashboard block." action={<Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">Manage <ChevronRight size={14} /></Link>} />
-            {upcomingRecurring.length ? (
-              <div className="flow-list mt-3">
-                {upcomingRecurring.slice(0, 3).map(({ item, date }) => (
-                  <div key={item.id} className="flex items-center justify-between gap-3 py-3">
-                    <div className="min-w-0">
-                      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                        <p className="text-sm font-black leading-5">{item.name}</p>
-                        <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
-                          {recurringKindLabel(item.kind)}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 flex items-center gap-1 text-[0.68rem] font-bold text-slate-500">
-                        <CalendarClock size={12} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
-                      </p>
+        <section className="flow-zone px-0 py-0 sm:p-5">
+          <SectionHeading title="Recurring charges" subtitle="Upcoming bills and income without another dashboard block." action={<Link href="/add-purchase" className="inline-flex items-center text-xs font-black text-[var(--brand-primary)]">Manage <ChevronRight size={14} /></Link>} />
+          {upcomingRecurring.length ? (
+            <div className="flow-list mt-3">
+              {upcomingRecurring.slice(0, 3).map(({ item, date }) => (
+                <div key={item.id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                      <p className="text-sm font-black leading-5">{item.name}</p>
+                      <span className={item.kind === "income" ? "shrink-0 text-[0.68rem] font-black text-emerald-700" : "shrink-0 text-[0.68rem] font-black text-slate-500"}>
+                        {recurringKindLabel(item.kind)}
+                      </span>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className={item.kind === "income" ? "text-sm font-black text-emerald-700" : "text-sm font-black"}>
-                        {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
-                      </p>
-                      <p className="text-[0.65rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
-                    </div>
+                    <p className="mt-0.5 flex items-center gap-1 text-[0.68rem] font-bold text-slate-500">
+                      <CalendarClock size={12} /> {formatShortDate(date.toISOString())} - {recurringFrequencyLabel(item.frequency)}
+                    </p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-3 border-t border-[var(--glass-hairline)] pt-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
-                Mark recurring purchases or paycheck income to see upcoming dates.
-              </p>
-            )}
-          </section>
-        </div>
+                  <div className="shrink-0 text-right">
+                    <p className={item.kind === "income" ? "text-sm font-black text-emerald-700" : "text-sm font-black"}>
+                      {item.kind === "income" ? "+" : "-"}{formatMoney(item.amount)}
+                    </p>
+                    <p className="text-[0.65rem] font-bold text-slate-500">{formatMoney(monthlyRecurringAmount(item))}/mo</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 border-t border-[var(--glass-hairline)] pt-3 text-xs font-bold leading-5 text-[var(--app-text-muted)]">
+              Mark recurring purchases or paycheck income to see upcoming dates.
+            </p>
+          )}
+        </section>
 
         <section className="flow-zone px-0 py-0 sm:p-5">
           <SectionHeading title="Recent activity" subtitle="The cycle’s latest movement, grouped as a list." />
@@ -175,36 +164,6 @@ export default function DashboardPage() {
   );
 }
 
-function SmartPromptsPanel({ prompts, isPro }: { prompts: Prompt[]; isPro: boolean }) {
-  return (
-    <IntelligenceSection
-      title="Helpful questions"
-      tierLabel={isPro ? "Advanced" : "Basic"}
-      tierIcon={Brain}
-      premiumLabel={isPro ? undefined : "Premium"}
-      tierDescription={isPro ? "Shortcuts for the questions this cycle is likely to raise." : "Shortcuts for this cycle. Deeper guidance is included with Premium."}
-      sourceLabel={prompts.length > 2 ? "Reports ready" : undefined}
-      className="mb-0 h-full sm:mb-0"
-      variant="flagship"
-    >
-      {prompts.length ? (
-        <div className="flex flex-wrap gap-2">
-          {prompts.slice(0, 2).map((prompt, index) => (
-            <PromptChip key={prompt.id} prompt={prompt} index={index} />
-          ))}
-          {prompts.length > 2 ? (
-            <Link href="/reports" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-[0.78rem] border border-[rgb(151_163_220_/_0.15)] [background:var(--glass-interactive-bg)] px-3 text-xs font-black text-[var(--app-intelligence)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)]">
-              More <ChevronRight size={14} />
-            </Link>
-          ) : null}
-        </div>
-      ) : (
-        <IntelligenceEmptyState title="No questions yet." body="SpendFence will surface short setup notes once categories and purchases exist." />
-      )}
-    </IntelligenceSection>
-  );
-}
-
 function SectionHeading({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
@@ -214,22 +173,5 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle: 
       </div>
       {action ? <div className="shrink-0 pt-1">{action}</div> : null}
     </div>
-  );
-}
-
-function PromptChip({ prompt, index }: { prompt: Prompt; index: number }) {
-  return (
-    <article
-      className={cn(
-        "inline-flex min-h-9 max-w-full items-center gap-2 rounded-[0.78rem] border border-[rgb(151_163_220_/_0.15)] [background:var(--glass-interactive-bg)] px-3 py-1.5 text-left text-xs font-black leading-5 text-[var(--app-text)] shadow-[inset_0_1px_0_var(--glass-edge)] transition hover:[background:var(--glass-focused-bg)] sm:text-sm",
-        index === 1 && "motion-safe:[animation-delay:90ms]"
-      )}
-    >
-      <Sparkles size={14} className="shrink-0 text-[var(--app-intelligence)]" />
-      <span className="min-w-0 truncate">{prompt.message}</span>
-      <Pill className="hidden border-transparent bg-transparent px-0 py-0 text-[0.62rem] capitalize text-[var(--app-text-muted)] sm:inline-flex">
-        {prompt.type}
-      </Pill>
-    </article>
   );
 }

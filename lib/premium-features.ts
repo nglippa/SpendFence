@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, Bot, Building2, Repeat2 } from "lucide-react";
+import { BarChart3, Building2, Repeat2, TrendingUp } from "lucide-react";
 
 export type PremiumFeatureId = "bank-sync" | "advanced-ai-intelligence" | "advanced-analytics" | "automation";
 
@@ -21,15 +21,15 @@ export const premiumFeatures = {
   },
   "advanced-ai-intelligence": {
     id: "advanced-ai-intelligence",
-    title: "Advanced AI intelligence",
+    title: "Advanced guidance",
     description: "Deeper behavioral insights, predictive trends, anomaly detection, and proactive recommendations.",
-    icon: Bot,
+    icon: TrendingUp,
     status: "active"
   },
   "advanced-analytics": {
     id: "advanced-analytics",
     title: "Advanced analytics",
-    description: "Multi-cycle comparisons, long-term pattern recognition, and AI-generated monthly reports.",
+    description: "Multi-cycle comparisons, long-term pattern recognition, and richer monthly reports.",
     icon: BarChart3,
     status: "active"
   },

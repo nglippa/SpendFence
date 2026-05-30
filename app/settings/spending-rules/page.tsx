@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell, Clock3, Edit3, ListChecks, Plus, Sparkles, Trash2, WalletCards } from "lucide-react";
-import { IntelligenceSection, intelligenceAccentRailClass, intelligenceCardSurfaceClass, intelligenceIconSurfaceClass } from "@/components/insights/intelligence-section";
+import { Bell, Clock3, Edit3, ListChecks, Plus, Trash2, WalletCards } from "lucide-react";
 import { ConfirmSheet, SettingsDetailHeader, SettingsFeedback, SettingsGroup } from "@/components/settings-ui";
 import { Button, Field, Input, Pill, Select } from "@/components/ui";
-import { useAuth } from "@/lib/auth";
 import { buildSpendingRuleCopy, defaultSpendingRuleInput, normalizeSpendingRuleInput, suggestedFutureRules } from "@/lib/rules/rule-engine";
 import { spendingRuleConditionLabels, spendingRuleResponseLabels, type SpendingRule, type SpendingRuleCondition, type SpendingRuleInput } from "@/lib/rules/rule-types";
 import { useSpendFence } from "@/lib/store";
@@ -23,7 +21,6 @@ const conditions: Array<{ value: SpendingRuleCondition; label: string; type: Spe
 
 export default function SpendingRulesSettingsPage() {
   const state = useSpendFence();
-  const { isPro } = useAuth();
   const [feedback, setFeedback] = useState("");
   const [builderOpen, setBuilderOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -218,46 +215,18 @@ export default function SpendingRulesSettingsPage() {
           </div>
         ) : null}
 
-        <IntelligenceSection
-          title="Rule ideas"
-          tierLabel={isPro ? "Advanced" : "Basic"}
-          tierIcon={Sparkles}
-          premiumLabel={isPro ? undefined : "Premium"}
-          tierDescription={isPro ? "Useful rule ideas will appear as spending patterns settle." : "Useful rule ideas. Deeper automation is included with Premium."}
-          sourceLabel="Later"
-          variant="flagship"
-        >
-          <div className="grid gap-3 p-3.5 sm:p-4">
-            <div className={cn(intelligenceCardSurfaceClass, "p-3.5 sm:p-4")}>
-              <div className={intelligenceAccentRailClass} />
-              <div className="relative flex items-start gap-3">
-                <div className={intelligenceIconSurfaceClass}>
-                  <Sparkles size={17} />
+        {suggestions.length ? (
+          <SettingsGroup title="Suggested Rules">
+            <div className="grid gap-0 p-4 sm:p-5">
+              {suggestions.map((suggestion) => (
+                <div key={suggestion.title} className="border-t border-[var(--glass-hairline)] py-3 first:border-t-0 first:pt-0 last:pb-0">
+                  <p className="text-sm font-black leading-5 text-[var(--app-text)]">{suggestion.title}</p>
+                  <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-secondary)] sm:text-sm">{suggestion.body}</p>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-black text-[var(--app-text)]">Generated rules</p>
-                  <p className="mt-1 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">
-                    Predictive alerts and adaptive thresholds will live here as automation expands.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
-            {suggestions.map((suggestion) => (
-              <div key={suggestion.title} className={cn(intelligenceCardSurfaceClass, "group p-3.5 sm:p-4")}>
-                <div className={intelligenceAccentRailClass} />
-                <div className="relative flex items-start gap-3">
-                  <div className={cn(intelligenceIconSurfaceClass, "h-9 w-9 sm:h-10 sm:w-10")}>
-                    <Sparkles size={16} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-black leading-5 text-[var(--app-text)]">{suggestion.title}</p>
-                    <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-text-secondary)] sm:text-sm">{suggestion.body}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </IntelligenceSection>
+          </SettingsGroup>
+        ) : null}
       </div>
 
       <ConfirmSheet

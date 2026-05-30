@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, PenLine, ReceiptText, Trash2 } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icons";
-import { SpendInsightCard } from "@/components/insights/spend-insight-card";
 import { PurchaseForm } from "@/components/purchase-form";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
@@ -108,7 +107,13 @@ export default function CategoryDetailPage() {
         }
       />
       <SettingsFeedback message={feedback} />
-      <SpendInsightCard insight={categoryInsight} className="mb-4 sm:mb-5" />
+      {categoryInsight ? (
+        <div className="mb-4 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:mb-5 sm:pl-4">
+          <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Observation</p>
+          <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{categoryInsight.title}</p>
+          <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{categoryInsight.message}</p>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.88fr_1.12fr]">
         <section className="grid content-start gap-4 sm:gap-5">

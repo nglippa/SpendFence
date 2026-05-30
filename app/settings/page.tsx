@@ -2,7 +2,6 @@
 
 import {
   Bell,
-  Brain,
   Building2,
   CalendarDays,
   ChevronRight,
@@ -73,12 +72,6 @@ const settingsSections = [
       icon: Building2,
       title: "Bank Sync",
       subtitle: "Accounts and imports"
-    },
-    {
-      href: "/settings/ai",
-      icon: Brain,
-      title: "AI Features",
-      subtitle: "Insights and suggestions"
     }
   ],
   [

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { BarChart3, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
-import { SmartInsightsSection } from "@/components/insights/smart-insights-section";
 import { PremiumBadge } from "@/components/upgrade-modal";
 import { EmptyState, PageHeader, Pill } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle } from "@/lib/budget";
@@ -24,6 +23,7 @@ export default function ReportsPage() {
     () => selectSmartReportInsights(state),
     [state.budgetMonth, state.categories, state.insightSettings, state.purchases]
   );
+  const primaryInsight = smartInsights[0];
   const cycleTotal = cyclePurchases.reduce((sum, purchase) => sum + purchase.amount, 0);
   const activeCategories = new Set(cyclePurchases.map((purchase) => purchase.categoryId)).size;
 
@@ -31,10 +31,10 @@ export default function ReportsPage() {
     <>
       <PageHeader
         kicker="Reports"
-        title="Clean cycle insights"
+        title="Cycle report"
         body={
           <>
-            {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics and deeper insights are included with Premium.{" "}
+            {currentCycleLabel(state.budgetMonth)}. A focused read on what changed, what stayed steady, and what may need attention. Advanced analytics and deeper analysis are included with Premium.{" "}
             <Link href="/premium" className="align-baseline transition hover:brightness-105" aria-label="Open Premium purchase page">
               <PremiumBadge />
             </Link>
@@ -43,8 +43,6 @@ export default function ReportsPage() {
       />
 
       <div className="flow-canvas">
-        <SmartInsightsSection insights={smartInsights} />
-
         <section className="flow-zone snapshot-zone p-4 sm:p-5">
           <div>
             <p className="section-kicker text-[var(--brand-primary)]">Cycle summary</p>
@@ -55,6 +53,14 @@ export default function ReportsPage() {
               <ReportMetric label="Purchases" value={String(cyclePurchases.length)} />
             </div>
           </div>
+
+          {primaryInsight ? (
+            <div className="mt-5 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:pl-4">
+              <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Cycle note</p>
+              <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{primaryInsight.title}</p>
+              <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{primaryInsight.message}</p>
+            </div>
+          ) : null}
 
           <div className="mt-6 border-t border-[var(--glass-hairline)] pt-5">
             <div className="mb-4">

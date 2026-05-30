@@ -90,7 +90,7 @@ export default function PrivacySettingsPage() {
       <div className="grid gap-5">
         <SettingsGroup title="Local data">
           <SettingsRow icon={Database} title={`${state.categories.length} categories, ${state.purchases.length} purchases`} subtitle={`${state.demoDataEnabled ? "Demo data active." : "Personal data active."} Income: ${formatMoney(state.budgetMonth.income)}.`} />
-          <SettingsRow icon={ShieldAlert} title="Secrets stay server-side" subtitle="Tokens and AI keys are not stored in the UI." />
+          <SettingsRow icon={ShieldAlert} title="Secrets stay server-side" subtitle="Tokens and service keys are not stored in the UI." />
         </SettingsGroup>
 
         <SettingsGroup title="Demo Data">

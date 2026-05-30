@@ -147,7 +147,7 @@ export default function AddPurchasePage() {
       }
       const analysisData = data as ReceiptAnalysisResponse;
       setAnalysis(toReceiptAnalysisDraft(analysisData));
-      setReceiptMessage("AI receipt suggestions are ready for review.");
+      setReceiptMessage("Receipt suggestions are ready for review.");
     } finally {
       setAnalyzing(false);
     }

@@ -103,7 +103,7 @@ export default function TransactionReviewPage() {
       <PageHeader
         kicker="Review Queue"
         title="Approve imported transactions"
-        body="SpendFence suggests categories based on your past choices, merchant patterns, and optional AI assistance."
+        body="SpendFence suggests categories based on your past choices, merchant patterns, and optional assistance."
         action={
           state.demoDataEnabled ? (
             <Button onClick={importDemoTransactions}>
@@ -279,7 +279,7 @@ async function getServerSuggestion(transaction: ImportedTransactionInput, state:
     return {
       suggestedCategoryId: data.suggestedCategoryId,
       confidence: confidenceScore(data.confidence),
-      suggestionReason: data.reason ?? "AI suggested this category for review.",
+      suggestionReason: data.reason ?? "Suggested this category for review.",
       suggestionSource: "ai" as const
     };
   } catch {

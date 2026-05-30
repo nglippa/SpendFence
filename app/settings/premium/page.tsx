@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { BarChart3, Bot, Building2, CheckCircle2, Crown, ExternalLink, ReceiptText, Sparkles } from "lucide-react";
+import { BarChart3, Building2, CheckCircle2, Crown, ExternalLink, ReceiptText, Sparkles, TrendingUp } from "lucide-react";
 import { SettingsDetailHeader } from "@/components/settings-ui";
 import { Button, Card, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 
 const premiumPlanFeatures = [
   "Unlimited Teller-linked accounts",
-  "Advanced intelligence labels and deeper insights",
-  "Adaptive AI recommendations",
+  "Advanced guidance and deeper analysis",
+  "Adaptive recommendations",
   "Advanced pattern recognition",
   "Future account-based fence setup"
 ];
@@ -24,7 +24,7 @@ const comparisonRows = [
   { feature: "Basic intelligence", free: true, premium: true },
   { feature: "Teller-linked accounts", free: "2", premium: "Unlimited" },
   { feature: "Advanced intelligence", free: false, premium: true },
-  { feature: "Adaptive AI recommendations", free: false, premium: true },
+  { feature: "Adaptive recommendations", free: false, premium: true },
   { feature: "Future account-based setup", free: false, premium: true }
 ];
 
@@ -150,7 +150,7 @@ export default function PremiumSettingsPage() {
         <Card>
           <div className="grid gap-4 md:grid-cols-4">
             <PremiumFeature icon={Building2} title="Bank linking" body={premiumFeatures["bank-sync"].description} />
-            <PremiumFeature icon={Bot} title="AI intelligence" body={premiumFeatures["advanced-ai-intelligence"].description} />
+            <PremiumFeature icon={TrendingUp} title="Advanced guidance" body={premiumFeatures["advanced-ai-intelligence"].description} />
             <PremiumFeature icon={BarChart3} title="Analytics" body={premiumFeatures["advanced-analytics"].description} />
             <PremiumFeature icon={ReceiptText} title="Core tools stay free" body="Manual budgets, purchases, and receipt scanning remain available on Free." />
           </div>
