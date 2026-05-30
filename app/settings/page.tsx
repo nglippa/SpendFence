@@ -16,7 +16,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { SettingsGroup, SettingsRow } from "@/components/settings-ui";
-import { Pill } from "@/components/ui";
+import { PageHeader, Pill } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { currentCycleLabel } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
@@ -112,26 +112,30 @@ export default function SettingsPage() {
   const sections = developerSection.length ? [...settingsSections, developerSection] : settingsSections;
 
   return (
-    <div className="settings-page-frame mx-auto w-full max-w-2xl">
-      <div className="mb-5 px-1 pt-1">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-[#327d6d]">Settings</p>
-        <h1 className="mt-1.5 text-[1.7rem] font-black leading-8 tracking-tight text-[#10201c] sm:text-3xl sm:leading-9">SpendFence</h1>
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+    <>
+      <PageHeader
+        kicker="Settings"
+        title="SpendFence"
+        body="Account, preferences, subscription, and support controls in one place."
+      />
+
+      <div className="settings-native-page">
+        <div className="mb-5 flex flex-wrap gap-1.5 px-1">
           <Pill className="border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{auth.planLabel} plan</Pill>
           {auth.isDeveloper ? <Pill className="border-sky-100 bg-sky-50 text-sky-700">Developer Preview: {auth.planLabel}</Pill> : null}
           <Pill className="border-slate-200 bg-white text-slate-600">{currentCycleLabel(state.budgetMonth).replace("Current cycle: ", "")}</Pill>
         </div>
-      </div>
 
-      <div className="grid gap-5">
-        {sections.map((section, index) => (
-          <SettingsGroup key={index}>
-            {section.map((item) => (
-              <SettingsRow key={item.href} {...item} accessory={<ChevronRight size={18} className="shrink-0 text-slate-300" />} />
-            ))}
-          </SettingsGroup>
-        ))}
+        <div className="settings-section-stack">
+          {sections.map((section, index) => (
+            <SettingsGroup key={index}>
+              {section.map((item) => (
+                <SettingsRow key={item.href} {...item} accessory={<ChevronRight size={18} className="shrink-0 text-slate-300" />} />
+              ))}
+            </SettingsGroup>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

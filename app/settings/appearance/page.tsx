@@ -36,10 +36,10 @@ export default function AppearanceSettingsPage() {
             key={key}
             type="button"
             onClick={() => updateTheme(key)}
-            className="grid min-h-[3.95rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--app-border)] px-3.5 py-3 text-left transition last:border-b-0 hover:bg-[var(--app-secondary)] active:scale-[0.995] sm:min-h-[4.5rem] sm:px-5 sm:py-3.5"
+            className="native-row settings-native-row grid min-h-[3.55rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2.5 text-left transition hover:bg-[color:rgb(255_255_255_/_0.055)] active:scale-[0.995] sm:min-h-[3.95rem] sm:px-4 sm:py-3"
             aria-pressed={preference === key}
           >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-[#06110d] sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[0.72rem] bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_6px_14px_rgb(0_0_0_/_0.14)] sm:h-9 sm:w-9">
               <Icon size={17} />
             </div>
             <span className="min-w-0">
