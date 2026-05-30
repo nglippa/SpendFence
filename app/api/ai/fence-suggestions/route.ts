@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { AI_TONE_INSTRUCTIONS, callGroqJson } from "@/lib/ai/groq";
 import { generateLocalFenceSuggestions, normalizeAdaptiveSuggestions, type AdaptiveFenceInput } from "@/lib/ai/adaptive-fences";
+import { logAiEvent } from "@/lib/ai/observability";
 import { requireApiUser } from "@/lib/server-auth";
 import { getEffectiveTier } from "@/lib/tier";
 import type { AdaptiveFenceSuggestion } from "@/lib/types";
@@ -19,10 +20,13 @@ export async function POST(request: Request) {
     }
 
     const auth = await requireApiUser(request);
-    if (!auth.user || getEffectiveTier(auth.user) !== "premium") {
+    const tier = auth.user ? getEffectiveTier(auth.user) : "free";
+    if (tier !== "premium") {
+      logAiEvent({ endpoint: "fence-suggestions", aiUsed: false, latencyMs: 0, fallback: true, tier });
       return NextResponse.json({ suggestions: fallback, aiUsed: false });
     }
 
+    const startedAt = Date.now();
     const groq = await callGroqJson<GroqFenceSuggestionResult>({
       fallback: { suggestions: fallback },
       maxTokens: 850,
@@ -80,11 +84,13 @@ export async function POST(request: Request) {
       ]
     });
 
+    logAiEvent({ endpoint: "fence-suggestions", aiUsed: groq.aiUsed, latencyMs: Date.now() - startedAt, fallback: !groq.aiUsed, tier });
     return NextResponse.json({
       suggestions: normalizeAdaptiveSuggestions(groq.data.suggestions, fallback, body.categories),
       aiUsed: groq.aiUsed
     });
-  } catch {
+  } catch (error) {
+    logAiEvent({ endpoint: "fence-suggestions", aiUsed: false, latencyMs: 0, fallback: true, error });
     return NextResponse.json({ suggestions: [], aiUsed: false });
   }
 }

@@ -3,6 +3,7 @@
 import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
+import { InsightObservation } from "@/components/insight-observation";
 import { PremiumBadge } from "@/components/upgrade-modal";
 import { PageHeader, Pill, ProgressBar } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusColor, statusCopy } from "@/lib/budget";
@@ -66,11 +67,13 @@ export default function ReportsPage() {
         </section>
 
         {primaryInsight ? (
-          <div className="ml-0.5 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:pl-4">
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Cycle note</p>
-            <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{primaryInsight.title}</p>
-            <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{primaryInsight.message}</p>
-          </div>
+          <InsightObservation
+            insight={primaryInsight}
+            placement="reports"
+            label="Cycle note"
+            className="ml-0.5"
+            evidence={{ cycleLabel: currentCycleLabel(state.budgetMonth), spentThisCycle: cycleTotal }}
+          />
         ) : null}
 
         <section className="flow-zone px-0 py-0 sm:p-5">

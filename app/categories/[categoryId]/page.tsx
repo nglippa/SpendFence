@@ -9,6 +9,7 @@ import { PurchaseForm } from "@/components/purchase-form";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, Card, EmptyState, PageHeader, Pill, ProgressBar, Select } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
+import { InsightObservation } from "@/components/insight-observation";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusClasses, statusColor, statusCopy, warningMessage } from "@/lib/budget";
 import { selectCategoryInsight } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
@@ -108,11 +109,18 @@ export default function CategoryDetailPage() {
       />
       <SettingsFeedback message={feedback} />
       {categoryInsight ? (
-        <div className="mb-4 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:mb-5 sm:pl-4">
-          <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Observation</p>
-          <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{categoryInsight.title}</p>
-          <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{categoryInsight.message}</p>
-        </div>
+        <InsightObservation
+          insight={categoryInsight}
+          placement="category"
+          className="mb-4 sm:mb-5"
+          evidence={{
+            category: category.name,
+            spent: Math.round(progress.spent),
+            remaining: Math.round(Math.max(progress.remaining, 0)),
+            limit: category.limit,
+            percentUsed: Math.round(progress.percent)
+          }}
+        />
       ) : null}
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[0.88fr_1.12fr]">

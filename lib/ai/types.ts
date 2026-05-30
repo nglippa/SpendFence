@@ -1,4 +1,4 @@
-import type { Category, MerchantCategoryRule, Purchase } from "@/lib/types";
+import type { Category, MerchantCategoryRule } from "@/lib/types";
 
 export type AiConfidence = "low" | "medium" | "high";
 
@@ -41,19 +41,6 @@ export type PurchaseCategorizationResult = {
   suggestedCategoryId: string | null;
   confidence: AiConfidence;
   reason: string;
-};
-
-export type SpendingInsightInput = {
-  currentCycleSpending: Array<Pick<Purchase, "amount" | "categoryId" | "merchant" | "date" | "notes">>;
-  categoryLimits: AiCategory[];
-  previousCycleData?: Array<Pick<Purchase, "amount" | "categoryId" | "merchant" | "date" | "notes">>;
-};
-
-export type SpendingInsightResult = {
-  title: string;
-  message: string;
-  tone: "positive" | "neutral" | "watch";
-  supportingMetric: string | null;
 };
 
 export type GroqJsonResult<T> = {

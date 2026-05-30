@@ -63,22 +63,10 @@
       "namedRegex": "^/add\\-purchase(?:/)?$"
     },
     {
-      "page": "/api/ai/analyze-receipt",
-      "regex": "^/api/ai/analyze\\-receipt(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/ai/analyze\\-receipt(?:/)?$"
-    },
-    {
       "page": "/api/ai/categorize-purchase",
       "regex": "^/api/ai/categorize\\-purchase(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/ai/categorize\\-purchase(?:/)?$"
-    },
-    {
-      "page": "/api/ai/categorize-transaction",
-      "regex": "^/api/ai/categorize\\-transaction(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/ai/categorize\\-transaction(?:/)?$"
     },
     {
       "page": "/api/ai/fence-suggestions",
@@ -87,22 +75,16 @@
       "namedRegex": "^/api/ai/fence\\-suggestions(?:/)?$"
     },
     {
-      "page": "/api/ai/premium",
-      "regex": "^/api/ai/premium(?:/)?$",
+      "page": "/api/ai/narrate",
+      "regex": "^/api/ai/narrate(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/api/ai/premium(?:/)?$"
+      "namedRegex": "^/api/ai/narrate(?:/)?$"
     },
     {
       "page": "/api/ai/receipt-analysis",
       "regex": "^/api/ai/receipt\\-analysis(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/ai/receipt\\-analysis(?:/)?$"
-    },
-    {
-      "page": "/api/ai/spending-insight",
-      "regex": "^/api/ai/spending\\-insight(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/ai/spending\\-insight(?:/)?$"
     },
     {
       "page": "/api/developer/status",

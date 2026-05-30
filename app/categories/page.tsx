@@ -1,15 +1,16 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Edit3, MoreVertical, Plus, Trash2, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { CategoryIcon, categoryIconOptions } from "@/components/category-icons";
 import { StableCollapsible, scrollIntoViewIfNeeded, stableLayoutDelay, usePrefersReducedMotion } from "@/components/stable-layout";
 import { Button, EmptyState, Field, Input, PageHeader, ProgressBar } from "@/components/ui";
 import { ConfirmSheet, SettingsFeedback } from "@/components/settings-ui";
+import { useAuth } from "@/lib/auth";
 import { generateLocalFenceSuggestions } from "@/lib/ai/adaptive-fences";
 import { useSpendFence } from "@/lib/store";
-import type { Category, CategoryInput } from "@/lib/types";
+import type { AdaptiveFenceSuggestion, Category, CategoryInput } from "@/lib/types";
 
 type CategoryFormState = Omit<CategoryInput, "limit" | "warningThreshold" | "hardStopThreshold"> & {
   limit: string;
@@ -30,6 +31,7 @@ function emptyForm(): CategoryFormState {
 
 export default function CategoriesPage() {
   const state = useSpendFence();
+  const auth = useAuth();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [editing, setEditing] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
@@ -40,8 +42,27 @@ export default function CategoriesPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<CategoryFormState>(() => emptyForm());
   const formVisible = formOpen || Boolean(editing);
-  const suggestionsByCategory = useMemo(() => {
-    const suggestions = generateLocalFenceSuggestions({
+  const localSuggestions = useMemo(
+    () =>
+      generateLocalFenceSuggestions({
+        categories: state.categories,
+        purchases: state.purchases,
+        recurringItems: state.recurringItems,
+        spendingRules: state.spendingRules,
+        budgetMonth: state.budgetMonth,
+        settings: state.adaptiveFenceSettings,
+        learningEvents: state.fenceLearningEvents
+      }),
+    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems, state.spendingRules]
+  );
+
+  // Premium users get AI-refined fence guidance; the deterministic local
+  // suggestions remain the instant baseline and the graceful fallback.
+  const [aiSuggestions, setAiSuggestions] = useState<AdaptiveFenceSuggestion[]>([]);
+  const authRef = useRef(auth);
+  authRef.current = auth;
+  const refineInput = useMemo(
+    () => ({
       categories: state.categories,
       purchases: state.purchases,
       recurringItems: state.recurringItems,
@@ -49,9 +70,47 @@ export default function CategoriesPage() {
       budgetMonth: state.budgetMonth,
       settings: state.adaptiveFenceSettings,
       learningEvents: state.fenceLearningEvents
-    });
-    return new Map(suggestions.map((suggestion) => [suggestion.categoryId, suggestion]));
-  }, [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems, state.spendingRules]);
+    }),
+    [state.adaptiveFenceSettings, state.budgetMonth, state.categories, state.fenceLearningEvents, state.purchases, state.recurringItems, state.spendingRules]
+  );
+
+  useEffect(() => {
+    if (auth.effectiveTier !== "premium" || !localSuggestions.length) {
+      setAiSuggestions([]);
+      return;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        const authed = await authRef.current.authHeaders().catch(() => ({}));
+        const response = await fetch("/api/ai/fence-suggestions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authed },
+          signal: controller.signal,
+          body: JSON.stringify(refineInput)
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as { suggestions?: AdaptiveFenceSuggestion[]; aiUsed?: boolean };
+        if (!cancelled && data.aiUsed && Array.isArray(data.suggestions)) setAiSuggestions(data.suggestions);
+      } catch {
+        // Keep deterministic local suggestions on any failure.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [auth.effectiveTier, localSuggestions.length, refineInput]);
+
+  const suggestionsByCategory = useMemo(() => {
+    const map = new Map(localSuggestions.map((suggestion) => [suggestion.categoryId, suggestion]));
+    aiSuggestions.forEach((suggestion) => map.set(suggestion.categoryId, suggestion));
+    return map;
+  }, [aiSuggestions, localSuggestions]);
 
   function focusFenceForm() {
     window.setTimeout(() => {

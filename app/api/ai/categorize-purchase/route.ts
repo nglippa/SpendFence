@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AI_TONE_INSTRUCTIONS, callGroqJson, redactSensitiveFinancialText } from "@/lib/ai/groq";
+import { logAiEvent } from "@/lib/ai/observability";
 import type { AiCategory, PurchaseCategorizationResult } from "@/lib/ai/types";
 import { categorizeTransaction } from "@/lib/categorization";
 import type { Category, ImportedTransactionInput, MerchantCategoryRule } from "@/lib/types";
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
     const merchantRules = body.merchantRules ?? [];
     const fallback = localCategorization(merchant, amount, notes, categories, merchantRules, body.transaction?.plaidCategory);
 
+    const startedAt = Date.now();
     const groq = await callGroqJson<Partial<PurchaseCategorizationResult>>({
       fallback,
       maxTokens: 500,
@@ -51,8 +53,10 @@ export async function POST(request: Request) {
       ]
     });
 
+    logAiEvent({ endpoint: "categorize-purchase", aiUsed: groq.aiUsed, latencyMs: Date.now() - startedAt, fallback: !groq.aiUsed });
     return NextResponse.json(normalizeCategorization(groq.data, categories, fallback));
-  } catch {
+  } catch (error) {
+    logAiEvent({ endpoint: "categorize-purchase", aiUsed: false, latencyMs: 0, fallback: true, error });
     return NextResponse.json({ suggestedCategoryId: null, confidence: "low", reason: "Unable to suggest a category right now." } satisfies PurchaseCategorizationResult);
   }
 }

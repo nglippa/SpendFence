@@ -70,6 +70,7 @@ type AuthContextValue = {
   verifyMfaChallenge: (challenge: MfaChallenge, code: string) => Promise<{ error?: string }>;
   enterDemoMode: (options?: { locked?: boolean }) => void;
   getAccessToken: () => Promise<string | null>;
+  authHeaders: () => Promise<HeadersInit>;
   setTierPreviewMode: (mode: DeveloperTierPreviewMode) => void;
   startUpgrade: (plan: "monthly" | "yearly") => Promise<{ error?: string; message?: string }>;
   manageBilling: () => Promise<{ error?: string; message?: string }>;
@@ -385,6 +386,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data } = await supabase.auth.getSession();
         return data.session?.access_token ?? null;
       },
+      authHeaders: () => subscriptionHeaders(supabase, user, { isDeveloper, tierPreviewMode, realTier }),
       setTierPreviewMode: (mode) => {
         if (!isDeveloper) return;
         setLocalStorageValue(DEVELOPER_TIER_PREVIEW_KEY, mode);

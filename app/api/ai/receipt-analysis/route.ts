@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AI_TONE_INSTRUCTIONS, callGroqJson, redactSensitiveFinancialText } from "@/lib/ai/groq";
+import { logAiEvent } from "@/lib/ai/observability";
 import type { AiCategory, AiConfidence, ReceiptAnalysisResult } from "@/lib/ai/types";
 import type { Category } from "@/lib/types";
 
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
     const receiptText = redactSensitiveFinancialText(body.receiptText ?? "");
     const fallback = fallbackReceiptAnalysis(categories, body.merchantHint, body.totalHint, receiptText);
 
+    const startedAt = Date.now();
     const groq = await callGroqJson<Partial<ReceiptAnalysisResult>>({
       fallback,
       maxTokens: 1200,
@@ -46,8 +48,10 @@ export async function POST(request: Request) {
       ]
     });
 
+    logAiEvent({ endpoint: "receipt-analysis", aiUsed: groq.aiUsed, latencyMs: Date.now() - startedAt, fallback: !groq.aiUsed });
     return NextResponse.json(normalizeReceiptAnalysis(groq.data, categories, fallback));
-  } catch {
+  } catch (error) {
+    logAiEvent({ endpoint: "receipt-analysis", aiUsed: false, latencyMs: 0, fallback: true, error });
     return NextResponse.json(fallbackReceiptAnalysis([], undefined, undefined, ""), { status: 200 });
   }
 }

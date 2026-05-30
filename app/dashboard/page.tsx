@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AlertTriangle, CalendarClock, ChevronRight, LockKeyhole, Plus, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
 import { CategoryCard } from "@/components/category-card";
 import { Button, EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
+import { InsightObservation } from "@/components/insight-observation";
 import { availableBudget, categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, remainingBudget, totalSpent } from "@/lib/budget";
 import { selectDashboardInsight } from "@/lib/insights/behavioral-insights";
 import { monthlyRecurringAmount, recurringFrequencyLabel, recurringKindLabel, upcomingRecurringItems } from "@/lib/recurring";
@@ -63,11 +64,12 @@ export default function DashboardPage() {
         </section>
 
         {dashboardInsight ? (
-          <div className="ml-0.5 border-l border-[rgb(139_151_220_/_0.35)] py-1 pl-3 sm:pl-4">
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.14em] text-[var(--app-intelligence)]">Observation</p>
-            <p className="mt-1 text-sm font-black leading-5 text-[var(--app-text)] sm:text-base">{dashboardInsight.title}</p>
-            <p className="mt-1 max-w-3xl text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">{dashboardInsight.message}</p>
-          </div>
+          <InsightObservation
+            insight={dashboardInsight}
+            placement="dashboard"
+            className="ml-0.5"
+            evidence={{ cycleLabel: currentCycleLabel(state.budgetMonth) }}
+          />
         ) : null}
 
         <section className="flow-zone px-0 py-0 sm:p-5">
