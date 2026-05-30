@@ -223,8 +223,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   }
 
   function enterDemo() {
-    auth.enterDemoMode({ locked: true });
-    router.replace("/dashboard");
+    router.replace("/dashboard?demo=true");
   }
 
   function updateRememberedEmail() {
@@ -379,7 +378,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
             <div className="mt-4 rounded-3xl border border-dashed border-[#cfe8de] bg-[#f7faf7] p-4">
               <p className="text-sm font-black text-[#10201c]">Local Mode</p>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                Supabase keys are missing in development. Use a local account without production authentication.
+                Explore SpendFence with sample data on this device. No account or sign-in required.
               </p>
               <Button type="button" variant="secondary" className="mt-3 w-full" onClick={enterDemo}>
                 Enter Local Mode

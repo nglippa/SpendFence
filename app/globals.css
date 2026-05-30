@@ -754,7 +754,7 @@ main {
   }
 
   .settings-native-row {
-    padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
+    padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left) + 0.6rem);
     padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
   }
 
