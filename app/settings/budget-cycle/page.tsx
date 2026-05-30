@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CalendarDays, ChevronRight } from "lucide-react";
-import { SettingsDetailHeader, SettingsFeedback, SettingsGroup } from "@/components/settings-ui";
+import { SettingsDetailHeader, SettingsFeedback } from "@/components/settings-ui";
 import { currentCycleWindow } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 
@@ -36,37 +36,57 @@ export default function BudgetCycleSettingsPage() {
       <SettingsDetailHeader title="Budget Cycle" subtitle="Set when your budget cycle starts." />
       <SettingsFeedback message={feedback} />
 
-      <div className="grid gap-5">
-        <SettingsGroup title="Cycle">
-          <div className="border-b border-[var(--app-border)] bg-[var(--app-secondary)] px-5 py-5">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--app-text-muted)]">Current cycle</p>
-            <p className="mt-1 text-xl font-black tracking-tight text-[var(--app-text)] sm:text-2xl">{formatCycleRange(cycle.start, cycle.end)}</p>
-            <p className="mt-1.5 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm sm:leading-6">Starts {formatFullDate(cycle.start)}</p>
+      <div className="settings-section-stack">
+        <section className="settings-group grid w-full min-w-0 gap-2">
+          <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Current cycle</h2>
+          <div className="native-list settings-native-list w-full min-w-0 overflow-hidden">
+            <div className="px-4 py-4 sm:px-5 sm:py-5">
+              <p className="section-kicker text-[var(--brand-primary)]">This cycle</p>
+              <p className="mt-2 text-2xl font-black leading-tight tracking-tight text-[var(--app-text)] sm:text-3xl">{formatCycleRange(cycle.start, cycle.end)}</p>
+            </div>
+            <div className="report-metric-strip border-t border-[var(--glass-hairline)] px-4 py-3.5 sm:px-5 sm:py-4">
+              <div>
+                <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Starts</p>
+                <p className="mt-1 text-sm font-black text-[var(--app-text)] sm:text-base">{formatFullDate(cycle.start)}</p>
+              </div>
+              <div>
+                <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">Ends</p>
+                <p className="mt-1 text-sm font-black text-[var(--app-text)] sm:text-base">{formatFullDate(cycle.end)}</p>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <label className="relative grid min-h-[3.95rem] cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-3 px-3.5 py-3 transition hover:bg-[var(--app-secondary)] sm:min-h-[4.5rem] sm:px-5 sm:py-3.5">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white dark:text-[#0B1114] sm:h-10 sm:w-10 sm:rounded-[0.9rem]">
-              <CalendarDays size={17} />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-black leading-5 text-[var(--app-text)]">Cycle start date</span>
-              <span className="mt-0.5 block text-xs font-bold leading-5 text-[var(--app-text-muted)]">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
-            </span>
-            <span className="hidden shrink-0 rounded-full border border-[var(--app-border)] bg-[var(--app-secondary)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] sm:inline-flex">
-              {formatShortDate(parseDateValue(startDateValue) ?? cycle.start)}
-            </span>
-            <ChevronRight size={18} className="shrink-0 text-[var(--app-text-muted)]" />
-            <input
-              ref={inputRef}
-              type="date"
-              value={startDateValue}
-              onChange={(event) => updateStartDate(event.target.value)}
-              onClick={() => inputRef.current?.showPicker?.()}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="Edit cycle start date"
-            />
-          </label>
-        </SettingsGroup>
+        <section className="settings-group grid w-full min-w-0 gap-2">
+          <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Reset day</h2>
+          <div className="native-list settings-native-list w-full min-w-0 overflow-hidden">
+            <label className="native-row settings-native-row relative grid min-h-[3.05rem] cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-3 px-3.5 py-2 transition hover:bg-[color:rgb(255_255_255_/_0.055)] sm:min-h-[3.3rem] sm:px-4 sm:py-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[0.72rem] bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_6px_14px_rgb(0_0_0_/_0.14)] sm:h-9 sm:w-9">
+                <CalendarDays size={17} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-black leading-5 text-[var(--app-text)]">Cycle start date</span>
+                <span className="mt-0.5 block text-[0.72rem] font-bold leading-4 text-[var(--app-text-muted)] sm:text-xs sm:leading-5">{formatFullDate(parseDateValue(startDateValue) ?? cycle.start)}</span>
+              </span>
+              <span className="hidden shrink-0 rounded-full border border-[var(--glass-hairline)] bg-[var(--glass-interactive-bg)] px-2.5 py-1 text-xs font-black text-[var(--app-text-secondary)] sm:inline-flex">
+                {formatShortDate(parseDateValue(startDateValue) ?? cycle.start)}
+              </span>
+              <ChevronRight size={17} className="shrink-0 text-[var(--app-text-muted)] opacity-70" />
+              <input
+                ref={inputRef}
+                type="date"
+                value={startDateValue}
+                onChange={(event) => updateStartDate(event.target.value)}
+                onClick={() => inputRef.current?.showPicker?.()}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                aria-label="Edit cycle start date"
+              />
+            </label>
+          </div>
+          <p className="px-1.5 text-[0.72rem] font-semibold leading-4 text-[var(--app-text-muted)]">
+            Your budget resets on this day each month. Changing it recalculates the current cycle window and how spending is grouped.
+          </p>
+        </section>
       </div>
     </div>
   );

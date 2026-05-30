@@ -52,12 +52,12 @@ export function SettingsRow({
         {subtitle ? <p className="mt-0.5 break-words text-[0.72rem] font-bold leading-4 text-[var(--app-text-muted)] [overflow-wrap:anywhere] sm:mt-1 sm:text-xs sm:leading-5">{subtitle}</p> : null}
       </div>
       <div className="flex min-w-max shrink-0 items-center justify-end">
-        {accessory ?? (href ? <ChevronRight size={18} className="shrink-0 text-slate-300" /> : null)}
+        {accessory ?? (href ? <ChevronRight size={17} className="shrink-0 text-[var(--app-text-muted)] opacity-70" /> : null)}
       </div>
     </>
   );
 
-  const className = "native-row settings-native-row grid min-h-[3.45rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2.5 text-left transition hover:bg-[color:rgb(255_255_255_/_0.055)] sm:min-h-[3.85rem] sm:px-4 sm:py-3";
+  const className = "native-row settings-native-row grid min-h-[3.05rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2 text-left transition hover:bg-[color:rgb(255_255_255_/_0.055)] sm:min-h-[3.3rem] sm:px-4 sm:py-2.5";
   return href ? (
     <Link href={href} className={className}>
       {content}
@@ -89,7 +89,7 @@ export function SettingsSwitchRow({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="native-row settings-native-row grid min-h-[3.55rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2.5 text-left transition hover:bg-[color:rgb(255_255_255_/_0.055)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[3.95rem] sm:px-4 sm:py-3"
+      className="native-row settings-native-row grid min-h-[3.15rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2 text-left transition hover:bg-[color:rgb(255_255_255_/_0.055)] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[3.4rem] sm:px-4 sm:py-2.5"
     >
       <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[0.72rem] bg-brand-gradient text-[#06110d] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.16),0_6px_14px_rgb(0_0_0_/_0.14)] sm:h-9 sm:w-9">
         <Icon size={17} />

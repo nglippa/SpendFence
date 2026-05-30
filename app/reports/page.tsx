@@ -2,10 +2,9 @@
 
 import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
-import { BarChart3, ReceiptText, TrendingUp, WalletCards } from "lucide-react";
 import { MonthTrendChart, RemainingByCategoryChart, SpendingByCategoryChart } from "@/components/charts";
 import { PremiumBadge } from "@/components/upgrade-modal";
-import { EmptyState, PageHeader, Pill, ProgressBar } from "@/components/ui";
+import { PageHeader, Pill, ProgressBar } from "@/components/ui";
 import { categoryProgress, currentCycleLabel, formatMoney, purchasesForCycle, statusColor, statusCopy } from "@/lib/budget";
 import { selectSmartReportInsights } from "@/lib/insights/behavioral-insights";
 import { useSpendFence } from "@/lib/store";
@@ -73,12 +72,7 @@ export default function ReportsPage() {
             {cyclePurchases.length && state.categories.length ? (
               <SpendingByCategoryChart categories={state.categories} purchases={cyclePurchases} />
             ) : (
-              <EmptyState
-                compact
-                icon={BarChart3}
-                title="Spending charts will fill in naturally"
-                body="Once purchases are logged against categories, this report will show where the cycle is going."
-              />
+              <ReportEmpty>Once purchases are logged against categories, this report shows where the cycle is going.</ReportEmpty>
             )}
           </ReportSection>
 
@@ -86,7 +80,7 @@ export default function ReportsPage() {
             {cyclePurchases.length ? (
               <MonthTrendChart purchases={cyclePurchases} />
             ) : (
-              <EmptyState compact icon={TrendingUp} title="Your trend line starts with the first purchase" body="A few saved purchases will turn this into a simple running view of spending over time." />
+              <ReportEmpty>A few saved purchases turn this into a simple running view of spending over time.</ReportEmpty>
             )}
           </ReportSection>
 
@@ -94,7 +88,7 @@ export default function ReportsPage() {
             {state.categories.length ? (
               <RemainingByCategoryChart categories={state.categories} purchases={cyclePurchases} />
             ) : (
-              <EmptyState compact icon={WalletCards} title="Add categories to unlock limit comparisons" body="Once your budget areas are set, this view will show the room left in each one." />
+              <ReportEmpty>Add categories and limits to compare the room left in each one.</ReportEmpty>
             )}
           </ReportSection>
 
@@ -106,18 +100,18 @@ export default function ReportsPage() {
                   return (
                     <div key={purchase.id} className="flex items-center justify-between gap-3 py-3">
                       <div>
-                        <p className="text-sm font-black sm:text-base">{purchase.merchant}</p>
-                        <p className="text-xs font-bold text-slate-500 sm:text-sm">
+                        <p className="text-sm font-black text-[var(--app-text)] sm:text-base">{purchase.merchant}</p>
+                        <p className="text-xs font-bold text-[var(--app-text-muted)] sm:text-sm">
                           {category?.name} - {formatShortDate(purchase.date)}
                         </p>
                       </div>
-                      <p className="text-sm font-black sm:text-base">{formatMoney(purchase.amount)}</p>
+                      <p className="text-sm font-black text-[var(--app-text)] sm:text-base">{formatMoney(purchase.amount)}</p>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <EmptyState compact icon={ReceiptText} title="Bigger purchases will surface here" body="This list will highlight the larger purchases in the current cycle once spending is logged." />
+              <ReportEmpty>Larger purchases in this cycle will surface here once spending is logged.</ReportEmpty>
             )}
           </ReportSection>
 
@@ -132,7 +126,7 @@ export default function ReportsPage() {
                 ))}
               </div>
             ) : (
-              <EmptyState compact icon={WalletCards} title="Categories you watch will appear here" body="Add categories and limits, then SpendFence can surface the areas getting close to the fence." />
+              <ReportEmpty>Add categories and limits, then SpendFence surfaces the areas getting close to the fence.</ReportEmpty>
             )}
           </ReportSection>
         </section>
@@ -157,11 +151,11 @@ function ReportSection({
   return (
     <div className="report-flow-section">
       {(eyebrow || title || subtitle || action) ? (
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-3.5 flex items-start justify-between gap-3">
           <div className="min-w-0">
             {eyebrow ? <p className="section-kicker text-[var(--brand-primary)]">{eyebrow}</p> : null}
             {title ? <h2 className="mt-1 text-lg font-black tracking-tight text-[var(--app-text)] sm:text-xl">{title}</h2> : null}
-            {subtitle ? <p className="mt-1 text-sm font-semibold leading-5 text-[var(--app-text-muted)]">{subtitle}</p> : null}
+            {subtitle ? <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-muted)] sm:text-sm">{subtitle}</p> : null}
           </div>
           {action ? <div className="shrink-0 pt-1">{action}</div> : null}
         </div>
@@ -169,6 +163,10 @@ function ReportSection({
       {children}
     </div>
   );
+}
+
+function ReportEmpty({ children }: { children: ReactNode }) {
+  return <p className="text-xs font-bold leading-5 text-[var(--app-text-muted)] sm:text-sm">{children}</p>;
 }
 
 function ReportCategoryRow({
@@ -206,8 +204,8 @@ function ReportCategoryRow({
 function ReportMetric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-1.5 text-xl font-black text-[#10201c] sm:text-2xl">{value}</p>
+      <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--app-text-muted)]">{label}</p>
+      <p className="mt-1.5 text-xl font-black text-[var(--app-text)] sm:text-2xl">{value}</p>
     </div>
   );
 }

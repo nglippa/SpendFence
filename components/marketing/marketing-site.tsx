@@ -27,7 +27,7 @@ import { ProgressBar } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-type MarketingPageKey = "home" | "philosophy" | "adaptive-ai" | "features" | "security" | "pricing";
+type MarketingPageKey = "home" | "philosophy" | "adaptive-ai" | "features" | "security" | "pricing" | "legal";
 
 const navItems = [
   { href: "/", label: "Home", key: "home" },
@@ -179,7 +179,120 @@ export function MarketingShell({ page, children }: { page: MarketingPageKey; chi
       <motion.main initial="hidden" animate="show" variants={stagger} className="relative z-10">
         {children}
       </motion.main>
+      <MarketingFooter />
     </div>
+  );
+}
+
+function MarketingFooter() {
+  const columns: Array<{ title: string; links: Array<{ href: string; label: string }> }> = [
+    {
+      title: "Product",
+      links: [
+        { href: "/features", label: "Features" },
+        { href: "/adaptive-ai", label: "Adaptive Budgeting" },
+        { href: "/pricing", label: "Pricing" },
+        { href: "/demo", label: "Try Demo" }
+      ]
+    },
+    {
+      title: "Company",
+      links: [
+        { href: "/philosophy", label: "Philosophy" },
+        { href: "/security", label: "Security" }
+      ]
+    },
+    {
+      title: "Legal",
+      links: [
+        { href: "/privacy", label: "Privacy Policy" },
+        { href: "/terms", label: "Terms of Service" }
+      ]
+    }
+  ];
+
+  return (
+    <footer className="relative z-10 border-t border-[var(--marketing-border)] bg-[rgb(var(--marketing-nav))] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-12 backdrop-blur-2xl">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-6 lg:grid-cols-[1.4fr_repeat(3,0.8fr)] lg:px-8">
+        <div className="max-w-xs">
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/brand/spendfence-logo-dark.png" alt="SpendFence" className="h-9 w-auto object-contain" />
+            <span className="text-lg font-black tracking-tight text-[var(--marketing-text)]">SpendFence</span>
+          </Link>
+          <p className="mt-4 text-sm font-semibold leading-6 text-[var(--marketing-muted)]">
+            Adaptive budgeting powered by behavioral spending intelligence.
+          </p>
+        </div>
+        {columns.map((column) => (
+          <div key={column.title}>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--marketing-muted)]">{column.title}</p>
+            <ul className="mt-4 space-y-2.5">
+              {column.links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm font-bold text-[var(--marketing-text)] transition hover:text-[var(--marketing-accent)]"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-2 border-t border-[var(--marketing-border)] px-5 pt-6 text-xs font-semibold text-[var(--marketing-muted)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p>© {new Date().getFullYear()} SpendFence. All rights reserved.</p>
+        <p>SpendFence provides budgeting tools for informational purposes and is not a financial advisor.</p>
+      </div>
+    </footer>
+  );
+}
+
+export type LegalSection = { heading: string; paragraphs?: string[]; bullets?: string[] };
+
+export function LegalMarketingPage({
+  title,
+  effectiveDate,
+  intro,
+  sections
+}: {
+  title: string;
+  effectiveDate: string;
+  intro: string;
+  sections: LegalSection[];
+}) {
+  return (
+    <MarketingShell page="legal">
+      <PageHero eyebrow={`Effective ${effectiveDate}`} title={title} body={intro} />
+      <SectionShell>
+        <motion.div variants={stagger} className="grid gap-4">
+          {sections.map((section, index) => (
+            <MotionCard key={section.heading}>
+              <h2 className="text-2xl font-black leading-tight text-[var(--marketing-text)]">
+                <span className="mr-2 text-[var(--marketing-accent)]">{index + 1}.</span>
+                {section.heading}
+              </h2>
+              {section.paragraphs?.map((paragraph, pIndex) => (
+                <p key={pIndex} className="mt-3 text-sm font-semibold leading-7 text-[var(--marketing-muted)]">
+                  {paragraph}
+                </p>
+              ))}
+              {section.bullets ? (
+                <ul className="mt-3 grid gap-2">
+                  {section.bullets.map((bullet, bIndex) => (
+                    <li key={bIndex} className="flex items-start gap-2 text-sm font-semibold leading-7 text-[var(--marketing-muted)]">
+                      <CheckCircle2 size={16} className="mt-1 shrink-0 text-[var(--marketing-accent)]" />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </MotionCard>
+          ))}
+        </motion.div>
+      </SectionShell>
+    </MarketingShell>
   );
 }
 
