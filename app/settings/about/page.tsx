@@ -11,7 +11,7 @@ export default function AboutSettingsPage() {
       <SettingsDetailHeader title="About" subtitle="Version and product notes." />
       <div className="grid gap-5">
         <SettingsGroup title="App">
-          <div className="flex items-center gap-4 rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-5">
+          <div className="native-row settings-native-row flex items-center gap-4 px-4 py-4">
             <BrandLogo alt="SpendFence logo" className="h-20 w-auto" />
             <div>
               <p className="text-base font-black text-[var(--app-text)] sm:text-lg">SpendFence</p>

@@ -650,8 +650,8 @@ main {
 
 @media (max-width: 639px) {
   .settings-native-pad {
-    padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left));
-    padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
   }
 }
 
@@ -746,16 +746,13 @@ main {
     gap: 1.25rem;
   }
 
-  .settings-native-list {
-    margin-left: calc((var(--app-page-gutter) + env(safe-area-inset-left)) * -1);
-    margin-right: calc((var(--app-page-gutter) + env(safe-area-inset-right)) * -1);
-    border-inline: 0;
-    border-radius: 0;
-  }
-
+  /* Settings lists stay as floating, rounded glass surfaces on mobile (like the
+     rest of the app) instead of breaking out into full-bleed square slabs. This
+     keeps text/icons comfortably inset from the screen edge and gives the
+     subsections the same glassy, layered feel as the dashboard and nav. */
   .settings-native-row {
-    padding-left: calc(var(--app-page-gutter) + env(safe-area-inset-left) + 0.6rem);
-    padding-right: calc(var(--app-page-gutter) + env(safe-area-inset-right));
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
   }
 
   .ai-flow-layer {

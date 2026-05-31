@@ -120,38 +120,37 @@ export default function SpendingRulesSettingsPage() {
       <SettingsFeedback message={feedback} />
 
       <div className="grid gap-5">
-        <SettingsGroup title="Active Rules">
-          <div className="settings-native-pad grid gap-3">
-            {activeRules.length ? (
-              activeRules.map((rule) => (
-                <RuleCard
-                  key={rule.id}
-                  rule={rule}
-                  onToggle={(enabled) => state.toggleSpendingRule(rule.id, enabled)}
-                  onEdit={() => openEdit(rule)}
-                  onDelete={() => setDeletingRule(rule)}
-                />
-              ))
-            ) : (
-              <div className="rounded-3xl bg-[var(--app-secondary)] p-4">
-                <p className="text-sm font-black text-[var(--app-text)]">No personal rules yet</p>
-                <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">
-                  Start with a dining limit, pacing alert, or weekend nudge.
-                </p>
-              </div>
-            )}
-            <Button type="button" onClick={openCreate} disabled={!state.categories.length}>
-              <Plus size={18} /> Create Rule
+        <section className="settings-group grid w-full min-w-0 gap-3">
+          <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Active Rules</h2>
+          {activeRules.length ? (
+            activeRules.map((rule) => (
+              <RuleCard
+                key={rule.id}
+                rule={rule}
+                onToggle={(enabled) => state.toggleSpendingRule(rule.id, enabled)}
+                onEdit={() => openEdit(rule)}
+                onDelete={() => setDeletingRule(rule)}
+              />
+            ))
+          ) : (
+            <div className="flow-zone-muted">
+              <p className="text-sm font-black text-[var(--app-text)]">No personal rules yet</p>
+              <p className="mt-1 text-xs font-bold leading-5 text-[var(--app-text-secondary)] sm:text-sm">
+                Start with a dining limit, pacing alert, or weekend nudge.
+              </p>
+            </div>
+          )}
+          <Button type="button" onClick={openCreate} disabled={!state.categories.length}>
+            <Plus size={18} /> Create Rule
+          </Button>
+          {!state.categories.length ? (
+            <Button asChild variant="secondary">
+              <Link href="/settings/categories">
+                <WalletCards size={18} /> Add a category first
+              </Link>
             </Button>
-            {!state.categories.length ? (
-              <Button asChild variant="secondary">
-                <Link href="/settings/categories">
-                  <WalletCards size={18} /> Add a category first
-                </Link>
-              </Button>
-            ) : null}
-          </div>
-        </SettingsGroup>
+          ) : null}
+        </section>
 
         {builderOpen ? (
           <div ref={builderContainerRef} style={{ scrollMarginTop: "calc(env(safe-area-inset-top) + 7rem)", scrollMarginBottom: "calc(env(safe-area-inset-bottom) + 7rem)" }}>
@@ -344,7 +343,7 @@ function RuleCard({
   const Icon = rule.condition === "occurs_at_times" ? Clock3 : rule.response === "subtle_insight" ? Bell : ListChecks;
 
   return (
-    <article className="rounded-3xl border border-[var(--app-border)] bg-[var(--app-card)] p-4 shadow-soft">
+    <article className="flow-zone-muted p-4">
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[0.9rem] bg-brand-gradient text-white">
           <Icon size={18} />

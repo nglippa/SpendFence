@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { CheckCircle2, ListChecks, Plus, Sparkles, Trash2 } from "lucide-react";
-import { Button, Card, EmptyState, Field, Input, PageHeader, Pill, Select } from "@/components/ui";
+import { CheckCircle2, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Button, Field, Input, PageHeader, Pill, Select } from "@/components/ui";
 import { formatMoney } from "@/lib/budget";
 import { useSpendFence } from "@/lib/store";
 import type { CategoryInput, CategorySuggestion, ImportedTransactionInput, ImportedTransaction } from "@/lib/types";
@@ -115,32 +115,30 @@ export default function TransactionReviewPage() {
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_0.82fr]">
         <section className="grid content-start gap-4">
-          <Card>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-lg font-black sm:text-xl">Pending review</h2>
-                <p className="mt-1 text-sm font-semibold leading-5 text-slate-600">
-                  Nothing posts to your budget until you accept, change, or create a category.
-                </p>
-              </div>
-              <Button variant="secondary" disabled={!highConfidenceCount} onClick={() => state.bulkAcceptHighConfidenceImports()}>
-                <CheckCircle2 size={17} /> Bulk accept high confidence
-              </Button>
+          <div className="flex flex-col gap-3 px-1.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Pending review</h2>
+              <p className="mt-1.5 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">
+                Nothing posts to your budget until you accept, change, or create a category.
+              </p>
             </div>
-          </Card>
+            <Button variant="secondary" disabled={!highConfidenceCount} onClick={() => state.bulkAcceptHighConfidenceImports()}>
+              <CheckCircle2 size={17} /> Bulk accept high confidence
+            </Button>
+          </div>
 
           {pending.length ? (
             pending.map((transaction) => (
-              <Card key={transaction.id}>
+              <article key={transaction.id} className="flow-zone p-4 sm:p-5">
                 <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg font-black sm:text-xl">{transaction.merchantName}</h2>
+                      <h2 className="text-lg font-black text-[var(--app-text)] sm:text-xl">{transaction.merchantName}</h2>
                       <ConfidencePill confidence={transaction.confidence} />
                     </div>
-                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{transaction.description}</p>
-                    <p className="mt-1 text-xs font-bold text-slate-500 sm:text-sm">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No bank category hint"}</p>
-                    <p className="mt-2 text-xl font-black text-[#10201c] sm:mt-3 sm:text-2xl">{formatMoney(transaction.amount)}</p>
+                    <p className="mt-1 text-xs font-bold text-[var(--app-text-muted)] sm:text-sm">{transaction.description}</p>
+                    <p className="mt-1 text-xs font-bold text-[var(--app-text-muted)] sm:text-sm">{formatShortDate(transaction.date)} - {transaction.plaidCategory ?? "No bank category hint"}</p>
+                    <p className="mt-2 text-xl font-black text-[var(--app-text)] sm:mt-3 sm:text-2xl">{formatMoney(transaction.amount)}</p>
                   </div>
 
                   <div className="grid w-full gap-3 md:max-w-sm">
@@ -156,7 +154,7 @@ export default function TransactionReviewPage() {
                         ))}
                       </Select>
                     </Field>
-                    <p className="rounded-xl bg-[#f7faf7] p-2.5 text-sm font-bold leading-5 text-slate-600 sm:rounded-2xl sm:p-3 sm:leading-6">{transaction.suggestionReason}</p>
+                    <p className="flow-zone-muted p-2.5 text-sm font-bold leading-5 text-[var(--app-text-secondary)] sm:p-3 sm:leading-6">{transaction.suggestionReason}</p>
                     <div className="flex flex-wrap gap-2">
                       <Button onClick={() => accept(transaction)}>
                         <CheckCircle2 size={17} /> Accept
@@ -172,8 +170,8 @@ export default function TransactionReviewPage() {
                 </div>
 
                 {newCategoryFor === transaction.id ? (
-                  <form className="mt-3 grid gap-3 rounded-xl bg-[#f7faf7] p-3 sm:mt-4 sm:rounded-3xl sm:p-4" onSubmit={createCategory}>
-                    <h3 className="font-black text-[#10201c]">Create category for {transaction.merchantName}</h3>
+                  <form className="flow-zone-muted mt-3 grid gap-3 p-3 sm:mt-4 sm:p-4" onSubmit={createCategory}>
+                    <h3 className="font-black text-[var(--app-text)]">Create category for {transaction.merchantName}</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label="Name">
                         <Input value={newCategory.name} onChange={(event) => setNewCategory({ ...newCategory, name: event.target.value })} required />
@@ -192,55 +190,47 @@ export default function TransactionReviewPage() {
                     </div>
                   </form>
                 ) : null}
-              </Card>
+              </article>
             ))
           ) : (
-            <Card>
-              <EmptyState
-                icon={ListChecks}
-                title="Review queue is clear"
-                body="Imported transactions will pause here first, so you can approve categories before they affect your budget."
-              />
-            </Card>
+            <p className="px-1.5 text-sm font-semibold leading-5 text-[var(--app-text-muted)]">
+              Review queue is clear — imported transactions pause here first, so you can approve categories before they affect your budget.
+            </p>
           )}
         </section>
 
         <aside className="grid content-start gap-4">
-          <Card>
-            <h2 className="text-lg font-black sm:text-xl">Learning memory</h2>
-            <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-600 sm:mt-2 sm:leading-6">
+          <section className="grid gap-3">
+            <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Learning memory</h2>
+            <p className="px-1.5 text-sm font-semibold leading-5 text-[var(--app-text-secondary)]">
               Corrections are stored as merchant rules so future imports can match your habits.
             </p>
-            <div className="mt-4 grid gap-2">
-              <Pill className="w-max border-[#cfe8de] bg-[#f3fbf7] text-[#327d6d]">{state.merchantCategoryRules.length} merchant rules</Pill>
-              <Pill className="w-max border-slate-200 bg-white text-slate-600">{state.categoryCorrections.length} corrections saved</Pill>
+            <div className="grid gap-2 px-1.5">
+              <Pill className="w-max border-[rgb(95_164_142_/_0.24)] bg-[color:rgb(95_164_142_/_0.12)] text-[var(--brand-secondary)]">{state.merchantCategoryRules.length} merchant rules</Pill>
+              <Pill className="w-max border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--app-text-secondary)]">{state.categoryCorrections.length} corrections saved</Pill>
             </div>
-          </Card>
+          </section>
 
-          <Card>
-            <h2 className="text-lg font-black sm:text-xl">Recently reviewed</h2>
-            <div className="mt-3 grid gap-2">
-              {reviewed.slice(0, 6).map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between gap-3 rounded-xl bg-[#f7faf7] p-2.5 sm:rounded-2xl sm:p-3">
-                  <div>
-                    <p className="text-sm font-black sm:text-base">{transaction.merchantName}</p>
-                    <p className="text-xs font-bold text-slate-500">{transaction.reviewStatus}</p>
+          <section className="grid gap-3">
+            <h2 className="px-1.5 text-[0.68rem] font-black uppercase leading-4 tracking-[0.16em] text-[var(--app-text-muted)]">Recently reviewed</h2>
+            {reviewed.length ? (
+              reviewed.slice(0, 6).map((transaction) => (
+                <div key={transaction.id} className="flow-zone-muted flex items-center justify-between gap-3 p-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-[var(--app-text)] sm:text-base">{transaction.merchantName}</p>
+                    <p className="text-xs font-bold capitalize text-[var(--app-text-muted)]">{transaction.reviewStatus}</p>
                   </div>
                   <Button variant="danger" size="sm" onClick={() => state.ignoreImportedTransaction(transaction.id)}>
                     <Trash2 size={15} />
                   </Button>
                 </div>
-              ))}
-              {!reviewed.length ? (
-                <EmptyState
-                  compact
-                  icon={CheckCircle2}
-                  title="Reviewed imports will settle here"
-                  body="Accepted, changed, or ignored imports will collect here as a quiet audit trail."
-                />
-              ) : null}
-            </div>
-          </Card>
+              ))
+            ) : (
+              <p className="px-1.5 text-sm font-semibold leading-5 text-[var(--app-text-muted)]">
+                Accepted, changed, or ignored imports will collect here as a quiet audit trail.
+              </p>
+            )}
+          </section>
         </aside>
       </div>
     </>
@@ -248,9 +238,11 @@ export default function TransactionReviewPage() {
 }
 
 function ConfidencePill({ confidence }: { confidence: number }) {
-  if (confidence >= 0.82) return <Pill className="border-emerald-100 bg-emerald-50 text-emerald-700">High confidence</Pill>;
-  if (confidence >= 0.62) return <Pill className="border-amber-100 bg-amber-50 text-amber-800">Suggested</Pill>;
-  return <Pill className="border-slate-200 bg-white text-slate-600">Needs review</Pill>;
+  if (confidence >= 0.82)
+    return <Pill className="border-[rgb(95_164_142_/_0.24)] bg-[color:rgb(95_164_142_/_0.12)] text-[var(--brand-secondary)]">High confidence</Pill>;
+  if (confidence >= 0.62)
+    return <Pill className="border-[rgb(214_170_90_/_0.26)] bg-[color:rgb(214_170_90_/_0.14)] text-[#d8a85a]">Suggested</Pill>;
+  return <Pill className="border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--app-text-muted)]">Needs review</Pill>;
 }
 
 function parseDecimal(value: string) {

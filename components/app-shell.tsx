@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ArrowRight, Bell, ChartPie, CloudOff, Home, ListChecks, LogOut, PlusCircle, RefreshCw, ScanLine, Settings, TestTube2, WalletCards } from "lucide-react";
+import { ArrowRight, Bell, ChartPie, CloudOff, Home, ListChecks, LogOut, PlusCircle, RefreshCw, Settings, TestTube2, WalletCards } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/lib/auth";
 import { postAuthDestination, sanitizeAuthIntent, sanitizeAuthNextPath, sanitizeAuthPlan } from "@/lib/auth-redirects";
@@ -14,19 +14,11 @@ const nav = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/categories", label: "Budgets", icon: WalletCards },
   { href: "/add-purchase", label: "Add", icon: PlusCircle },
-  { href: "/receipt-scanner", label: "Scan", icon: ScanLine },
   { href: "/transaction-review", label: "Review", icon: ListChecks },
-  { href: "/reports", label: "Reports", icon: ChartPie },
-  { href: "/settings", label: "Settings", icon: Settings }
+  { href: "/reports", label: "Reports", icon: ChartPie }
 ];
 
-const mobileNav = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/add-purchase", label: "Add", icon: PlusCircle },
-  { href: "/categories", label: "Budgets", icon: WalletCards },
-  { href: "/reports", label: "Reports", icon: ChartPie },
-  { href: "/settings", label: "Settings", icon: Settings }
-];
+const mobileNav = nav;
 
 const publicRoutes = ["/", "/demo", "/checkout", "/philosophy", "/adaptive-ai", "/features", "/security", "/pricing", "/premium", "/login", "/signup", "/forgot-password"];
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -145,10 +137,29 @@ function InnerShell({ children, pathname }: { children: React.ReactNode; pathnam
               <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
           </nav>
-          <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-[0.9rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] text-[var(--app-text-secondary)] shadow-[inset_0_1px_0_var(--glass-edge),0_10px_24px_rgb(0_0_0_/_0.18)] backdrop-blur-[10px] sm:h-11 sm:w-11">
-            <Bell size={19} />
-            {unread ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[var(--app-danger)]" /> : null}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/notifications"
+              aria-label="Notifications"
+              className={cn(
+                "relative grid h-10 w-10 place-items-center rounded-[0.9rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] shadow-[inset_0_1px_0_var(--glass-edge),0_10px_24px_rgb(0_0_0_/_0.18)] backdrop-blur-[10px] transition hover:[background:var(--glass-focused-bg)] sm:h-11 sm:w-11",
+                pathname === "/notifications" ? "text-[var(--brand-primary)]" : "text-[var(--app-text-secondary)]"
+              )}
+            >
+              <Bell size={19} />
+              {unread ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[var(--app-danger)]" /> : null}
+            </Link>
+            <Link
+              href="/settings"
+              aria-label="Settings"
+              className={cn(
+                "grid h-10 w-10 place-items-center rounded-[0.9rem] border border-[var(--glass-border)] [background:var(--glass-interactive-bg)] shadow-[inset_0_1px_0_var(--glass-edge),0_10px_24px_rgb(0_0_0_/_0.18)] backdrop-blur-[10px] transition hover:[background:var(--glass-focused-bg)] sm:h-11 sm:w-11",
+                pathname.startsWith("/settings") ? "text-[var(--brand-primary)]" : "text-[var(--app-text-secondary)]"
+              )}
+            >
+              <Settings size={19} />
+            </Link>
+          </div>
         </div>
       </header>
 
